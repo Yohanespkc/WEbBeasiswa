@@ -10,7 +10,7 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
 <div class="map-card glass-panel">
   <div class="map-header">
     <h3>🗺️ Peta Dampak Pelatihan GASING Nusantara</h3>
-    <p>Sentuh atau klik titik bercahaya pada peta untuk melihat bukti nyata perubahan numerasi anak-anak bangsa di daerah tersebut.</p>
+    <p>Sentuh atau klik titik pada peta untuk melihat bukti nyata perubahan numerasi anak-anak bangsa di daerah tersebut.</p>
   </div>
 
   <div class="map-canvas-container relative">
@@ -23,7 +23,7 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
 
   <div class="map-legend">
     <div class="legend-item">
-      <span class="legend-dot active-dot-glow"></span>
+      <span class="legend-dot active-dot"></span>
       <span>127+ Wilayah Sukses Terintervensi</span>
     </div>
     <div class="legend-item">
@@ -73,9 +73,9 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
           <p class="text-xs text-muted text-center mt-3">Mendengar keceriaan anak-anak belajar numerasi lewat melodi lagu daerah mereka.</p>
         </div>
 
-        <!-- Right Pane: Statistics Graphs -->
+        <!-- Right Pane: Grafana Statistics Graphs -->
         <div class="modal-col-stats">
-          <h4 class="text-xs font-black uppercase tracking-wider text-indigo-300 mb-3">📈 Hasil Statistik Pelatihan</h4>
+          <h4 class="text-xs font-black uppercase tracking-wider text-indigo-300 mb-3" style="font-family: Inter, sans-serif;">📈 Grafana Dashboard Pelatihan</h4>
           
           <!-- Toggle Tabs -->
           <div class="modal-tabs">
@@ -201,16 +201,7 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
         g.setAttribute('data-increase', increase);
         g.setAttribute('data-province', province);
 
-        // 1. Pulsing ring animation
-        const pulse = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        pulse.setAttribute('cx', reg.x.toString());
-        pulse.setAttribute('cy', reg.y.toString());
-        pulse.setAttribute('r', '8');
-        pulse.setAttribute('fill', '#10b981');
-        pulse.setAttribute('opacity', '0.4');
-        pulse.setAttribute('class', 'pulse-circle');
-
-        // 2. Central active dot
+        // Central active gold/yellow dot (Pulsing ring removed per user request)
         const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         dot.setAttribute('cx', reg.x.toString());
         dot.setAttribute('cy', reg.y.toString());
@@ -219,7 +210,6 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
         dot.setAttribute('stroke', '#ffffff');
         dot.setAttribute('stroke-width', '1');
 
-        g.appendChild(pulse);
         g.appendChild(dot);
 
         // Hover events
@@ -329,7 +319,7 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
       
       if (!entry) {
         pesertaCount.textContent = '0';
-        statsList.innerHTML = '<div style="text-align: center; color: rgba(255, 255, 255, 0.3); font-size: 0.75rem; padding: 40px 0;">Data statistik tidak tersedia untuk wilayah ini</div>';
+        statsList.innerHTML = '<div style="text-align: center; color: rgba(255, 255, 255, 0.2); font-size: 0.75rem; padding: 50px 0; font-family: Inter, sans-serif;">Data statistik tidak tersedia untuk wilayah ini</div>';
         return;
       }
       
@@ -348,32 +338,35 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
         const delta = m.pre > 0 ? (((m.post - m.pre) / m.pre) * 100) : 0;
         
         let deltaColor = '#ef4444'; // red
-        if (delta >= 40) deltaColor = '#10b981'; // green
-        else if (delta >= 20) deltaColor = '#fbbf24'; // yellow
+        if (delta >= 40) deltaColor = '#73bf69'; // Grafana green
+        else if (delta >= 20) deltaColor = '#eca938'; // Grafana yellow/amber
         
         html += `
-          <div class="bar-pair-item">
-            <div class="bar-pair-header">
-              <span class="bar-pair-label">${m.label}</span>
-              <span class="bar-pair-delta" style="color: ${deltaColor}">↑ +${delta.toFixed(0)}%</span>
+          <div class="grafana-panel">
+            <div class="grafana-panel-header">
+              <span class="grafana-panel-title">📊 ${m.label}</span>
+              <span class="grafana-panel-delta" style="color: ${deltaColor}">+${delta.toFixed(0)}%</span>
             </div>
-            
-            <!-- Pre bar -->
-            <div class="bar-row">
-              <span class="bar-row-lbl">Pre</span>
-              <div class="bar-track">
-                <div class="bar-fill" style="width: ${m.pre}%; background: #fb923c;"></div>
+            <div class="grafana-panel-body">
+              <div class="grafana-chart-container">
+                <!-- Pre-test Row -->
+                <div class="grafana-bar-row">
+                  <span class="grafana-row-label">Pre-test</span>
+                  <div class="grafana-bar-track">
+                    <div class="grafana-bar-fill pre-fill" style="width: ${m.pre}%;"></div>
+                  </div>
+                  <span class="grafana-row-value text-orange">${m.pre.toFixed(1)}%</span>
+                </div>
+                
+                <!-- Post-test Row -->
+                <div class="grafana-bar-row">
+                  <span class="grafana-row-label">Post-test</span>
+                  <div class="grafana-bar-track">
+                    <div class="grafana-bar-fill post-fill" style="width: ${m.post}%;"></div>
+                  </div>
+                  <span class="grafana-row-value text-green">${m.post.toFixed(1)}%</span>
+                </div>
               </div>
-              <span class="bar-val" style="color: #fb923c">${m.pre.toFixed(0)}</span>
-            </div>
-            
-            <!-- Post bar -->
-            <div class="bar-row">
-              <span class="bar-row-lbl">Post</span>
-              <div class="bar-track">
-                <div class="bar-fill" style="width: ${m.post}%; background: #10b981;"></div>
-              </div>
-              <span class="bar-val" style="color: #10b981">${m.post.toFixed(0)}</span>
             </div>
           </div>
         `;
@@ -507,14 +500,14 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
     border-radius: 50%;
   }
 
-  .active-dot-glow {
-    background-color: var(--color-success);
-    box-shadow: 0 0 10px var(--color-success);
+  .active-dot {
+    background-color: var(--color-accent-gold);
+    box-shadow: 0 0 6px var(--color-accent-gold);
   }
 
   .waiting-dot {
     background-color: var(--color-danger);
-    box-shadow: 0 0 10px var(--color-danger);
+    box-shadow: 0 0 6px var(--color-danger);
   }
 
   /* Custom Tooltip Styling */
@@ -561,18 +554,6 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
 
   .text-success {
     color: var(--color-success);
-  }
-
-  /* Pulse animation on markers */
-  :global(.pulse-circle) {
-    transform-origin: center;
-    animation: markerPulse 2.4s infinite ease-in-out;
-  }
-
-  @keyframes markerPulse {
-    0% { transform: scale(0.9); opacity: 0.8; }
-    50% { transform: scale(1.6); opacity: 0.2; }
-    100% { transform: scale(0.9); opacity: 0.8; }
   }
 
   /* Video & Stats Modal Styles */
@@ -632,10 +613,11 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
     width: 100%;
   }
 
+  /* Grafana Dashboard Layout Styling */
   .modal-col-stats {
     width: 100%;
-    background: rgba(255, 255, 255, 0.02);
-    border: var(--glass-border);
+    background: #111217; /* Grafana dashboard background */
+    border: 1px solid #2c3235;
     border-radius: var(--border-radius-md);
     padding: 16px;
     display: flex;
@@ -644,47 +626,51 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
 
   .modal-tabs {
     display: flex;
-    gap: 8px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 8px;
+    gap: 2px;
+    border-bottom: 2px solid #1f2226;
+    padding-bottom: 0px;
+    margin-bottom: 12px;
   }
 
   .modal-tab-btn {
     flex: 1;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--color-text-secondary);
+    background: #181b1f;
+    border: 1px solid #2c3235;
+    border-bottom: none;
+    color: #c7d2d6;
     padding: 8px 12px;
-    border-radius: var(--border-radius-sm);
-    font-size: 0.85rem;
-    font-weight: 700;
+    border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
+    font-size: 0.8rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: var(--transition-smooth);
+    transition: background 0.15s ease;
     text-align: center;
   }
 
   .modal-tab-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--color-text-primary);
+    background: #222529;
+    color: #ffffff;
   }
 
   .modal-tab-btn.active {
-    background: var(--color-accent-gold);
-    border-color: var(--color-accent-gold);
-    color: #0b0f19;
+    background: #111217;
+    border: 1px solid #2c3235;
+    border-bottom: 2px solid #ff780a; /* Grafana active orange tab line */
+    color: #ffffff;
+    font-weight: 700;
   }
 
   .stats-peserta-label {
     font-size: 0.75rem;
-    color: var(--color-text-secondary);
-    margin-top: 12px;
-    margin-bottom: 12px;
+    color: #9fa7ad;
+    margin-bottom: 10px;
+    font-family: Inter, sans-serif;
   }
 
   .stats-charts-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     max-height: 280px;
     overflow-y: auto;
     padding-right: 4px;
@@ -695,74 +681,112 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
     width: 4px;
   }
   .stats-charts-list::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.02);
+    background: #111217;
   }
   .stats-charts-list::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: #2c3235;
     border-radius: 99px;
   }
 
-  /* Bar Items */
-  .bar-pair-item {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: var(--border-radius-sm);
-    padding: 10px;
+  /* Grafana Panels */
+  .grafana-panel {
+    background: #181b1f; /* Grafana dark panel bg */
+    border: 1px solid #2c3235; /* Grafana card border */
+    border-radius: 4px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   }
 
-  .bar-pair-header {
+  .grafana-panel-header {
+    background: #1c1f24;
+    border-bottom: 1px solid #2c3235;
+    padding: 6px 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.75rem;
+  }
+
+  .grafana-panel-title {
+    color: #c7d2d6;
+    font-size: 0.72rem;
     font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-family: Inter, sans-serif;
   }
 
-  .bar-pair-label {
-    color: var(--color-text-primary);
-  }
-
-  .bar-pair-delta {
+  .grafana-panel-delta {
     font-size: 0.75rem;
     font-weight: 900;
+    font-family: monospace;
   }
 
-  .bar-row {
+  .grafana-panel-body {
+    padding: 10px;
+  }
+
+  .grafana-chart-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .grafana-bar-row {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 0.7rem;
+    gap: 10px;
   }
 
-  .bar-row-lbl {
-    width: 24px;
+  .grafana-row-label {
+    width: 54px;
+    color: #9fa7ad;
+    font-size: 0.68rem;
+    font-weight: 600;
     text-align: right;
-    color: var(--color-text-secondary);
-    font-weight: 700;
+    font-family: Inter, sans-serif;
   }
 
-  .bar-track {
+  .grafana-bar-track {
     flex: 1;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 999px;
-    overflow: hidden;
+    height: 10px;
+    background: #0b0c0e; /* Charcoal background */
+    border: 1px solid #202226;
     position: relative;
+    /* Gridline simulation effect */
+    background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 10% 100%;
   }
 
-  .bar-fill {
+  .grafana-bar-fill {
     height: 100%;
-    border-radius: 999px;
     transition: width 0.8s cubic-bezier(0.19, 1, 0.22, 1);
   }
 
-  .bar-val {
-    width: 28px;
+  /* Grafana Classic Palette */
+  .pre-fill {
+    background: #ff780a; /* Grafana Orange series */
+    box-shadow: 0 0 3px rgba(255, 120, 10, 0.2);
+  }
+
+  .post-fill {
+    background: #73bf69; /* Grafana Green series */
+    box-shadow: 0 0 3px rgba(115, 191, 105, 0.2);
+  }
+
+  .grafana-row-value {
+    width: 42px;
     text-align: right;
     font-family: monospace;
     font-weight: 700;
+    font-size: 0.72rem;
+  }
+
+  .text-orange {
+    color: #ff780a;
+  }
+
+  .text-green {
+    color: #73bf69;
   }
 </style>
