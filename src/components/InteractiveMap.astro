@@ -1,10 +1,69 @@
 ---
 import { BUDAYA_REGISTRY } from '../data/budayaRegistry';
 import { KABUPATEN_DATA, SISWA_DATA } from '../data/statistikRegistry';
+import { LAGU_REGISTRY } from '../data/laguRegistry';
+import { MENCONGAK_REGISTRY } from '../data/mencongakRegistry';
 
 const regionsJson = JSON.stringify(BUDAYA_REGISTRY);
 const kabupatenDataJson = JSON.stringify(KABUPATEN_DATA);
 const siswaDataJson = JSON.stringify(SISWA_DATA);
+
+// Helper function to normalize names for mapping
+function normalizeName(name: string): string {
+  return name.toLowerCase().replace(/^(kab|kabupaten|kota)\.?\s+/g, '').trim();
+}
+
+// Build a unified video map grouped by normalized kabupaten name
+const kabupatenVideosMap: Record<string, { id: string, label: string }[]> = {};
+
+function addVideo(kabName: string, id: string, label: string) {
+  const norm = normalizeName(kabName);
+  if (!kabupatenVideosMap[norm]) {
+    kabupatenVideosMap[norm] = [];
+  }
+  // Avoid duplicate video IDs
+  if (!kabupatenVideosMap[norm].some(v => v.id === id)) {
+    kabupatenVideosMap[norm].push({ id, label });
+  }
+}
+
+// 1. Process BUDAYA_REGISTRY
+BUDAYA_REGISTRY.forEach(reg => {
+  addVideo(reg.name, reg.id, 'Video Pelatihan Daerah');
+  if (reg.videos) {
+    reg.videos.forEach(v => {
+      addVideo(reg.name, v.id, v.label || 'Video Lagu Pasangan 10');
+    });
+  }
+});
+
+// 2. Process LAGU_REGISTRY
+Object.keys(LAGU_REGISTRY).forEach(category => {
+  LAGU_REGISTRY[category].forEach(reg => {
+    addVideo(reg.name, reg.id, `Lagu GASING: ${category}`);
+    if (reg.videos) {
+      reg.videos.forEach(v => {
+        addVideo(reg.name, v.id, v.label || `Lagu GASING: ${category}`);
+      });
+    }
+  });
+});
+
+// 3. Process MENCONGAK_REGISTRY
+Object.keys(MENCONGAK_REGISTRY).forEach(category => {
+  MENCONGAK_REGISTRY[category].forEach(reg => {
+    if (reg.id) {
+      addVideo(reg.name, reg.id, `Video Pelatihan: ${category}`);
+    }
+    if (reg.videos) {
+      reg.videos.forEach(vidId => {
+        addVideo(reg.name, vidId, `Video Pelatihan: ${category}`);
+      });
+    }
+  });
+});
+
+const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
 ---
 
 <div class="map-card glass-panel">
@@ -73,7 +132,7 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
           <p class="text-xs text-muted text-center mt-3 video-description">Mendengar keceriaan anak-anak belajar numerasi lewat melodi lagu daerah.</p>
           
           <!-- Putar Video Lainnya Button -->
-          <button class="btn-other-video" id="btn-other-video">🎥 Putar Video Lainnya (Mencongak / Testimoni)</button>
+          <button class="btn-other-video" id="btn-other-video">🎥 Putar Video Lainnya (0 Video Terkait)</button>
         </div>
 
         <!-- Right Pane: Statistics Graphs -->
@@ -108,11 +167,12 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
   </div>
 </div>
 
-<script define:vars={{ regionsJson, kabupatenDataJson, siswaDataJson }}>
+<script define:vars={{ regionsJson, kabupatenDataJson, siswaDataJson, kabVideosMapJson }}>
   // Parse regions and stats data passed from Astro
   const regions = JSON.parse(regionsJson);
   const kabupatenData = JSON.parse(kabupatenDataJson);
   const siswaData = JSON.parse(siswaDataJson);
+  const kabVideosMap = JSON.parse(kabVideosMapJson);
 
   class InteractiveMap {
     constructor(container) {
@@ -307,6 +367,7 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
       const reg = regions.find(r => r.name === name);
       this.currentRegion = reg;
       this.currentVideoId = videoId;
+      this.currentKabName = name;
 
       this.modal.querySelector('.modal-title').textContent = `Pelatihan GASING di Kab. ${name}`;
       this.iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
@@ -314,81 +375,56 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
       // Set correct descriptive label
       const descEl = this.container.querySelector('.video-description');
       if (descEl) {
-        const videoObj = reg?.videos?.find(v => v.id === videoId);
+        const clean = (s) => s.toLowerCase().replace(/^(kab|kabupaten|kota)\.?\s+/g, '').trim();
+        const normName = clean(name);
+        const allVideos = kabVideosMap[normName] || [];
+        const videoObj = allVideos.find(v => v.id === videoId);
         descEl.textContent = videoObj ? `Menampilkan: ${videoObj.label}` : `Mendengar keceriaan anak-anak belajar numerasi lewat melodi lagu daerah.`;
       }
 
-      this.currentKabName = name;
       this.currentActiveTab = 'guru';
-      
       this.renderModalStats();
       
+      // Re-evaluate button state for other videos strictly from the same kabupaten
+      const clean = (s) => s.toLowerCase().replace(/^(kab|kabupaten|kota)\.?\s+/g, '').trim();
+      const normName = clean(name);
+      const allKabVideos = kabVideosMap[normName] || [];
+      const otherVideos = allKabVideos.filter(v => v.id !== videoId);
+
+      const btnOther = document.getElementById('btn-other-video');
+      if (btnOther) {
+        if (otherVideos.length > 0) {
+          btnOther.style.display = 'block';
+          btnOther.textContent = `🎥 Putar Video Lainnya (${otherVideos.length} Video Terkait)`;
+          btnOther.removeAttribute('disabled');
+          btnOther.style.opacity = '1';
+          btnOther.style.cursor = 'pointer';
+        } else {
+          // Disable button if no other videos from the same county exist
+          btnOther.textContent = `🎥 Hanya ada 1 video untuk wilayah ini`;
+          btnOther.setAttribute('disabled', 'true');
+          btnOther.style.opacity = '0.5';
+          btnOther.style.cursor = 'not-allowed';
+        }
+      }
+
       this.modal.classList.remove('pointer-events-none', 'opacity-0');
       this.modal.classList.add('opacity-100');
     }
 
     playRandomVideo() {
-      if (!this.currentRegion || !this.iframe) return;
+      if (!this.iframe || !this.currentKabName) return;
       
-      const reg = this.currentRegion;
-      const currentId = this.currentVideoId;
+      const clean = (s) => s.toLowerCase().replace(/^(kab|kabupaten|kota)\.?\s+/g, '').trim();
+      const normName = clean(this.currentKabName);
       
-      // Expanded diverse pool representing: Microteaching, Before-After, Pasangan 10, Lagu Gasing, Mencongak, and Testimonials
-      const generalVideos = [
-        // Microteaching
-        { id: 'Y6W649_yy44', label: 'Microteaching Penjumlahan (Aceh Barat)' },
-        { id: '_i38IL8acx0', label: 'Microteaching Perkalian (Baubau)' },
-        { id: 'HZymrugutnA', label: 'Microteaching Pembagian (Bangka Tengah)' },
-        { id: 'TDbbcitqfec', label: 'Microteaching Pengurangan (Baubau)' },
-        { id: 'WkZu8_UkyTc', label: 'Microteaching Anak Tengger (Pasuruan)' },
-        
-        // Before After comparison
-        { id: '56PgqOqrkfc', label: 'Before After Pelatihan (AKMIL)' },
-        { id: 'rVdExl5rsAY', label: 'Before After Belajar (Aceh Barat)' },
-        { id: 'pu_A06zYoMY', label: 'Before & After Belajar (Biak Numfor)' },
-        { id: '6QkZ8a6pdbM', label: 'Before & After Belajar (Jayapura)' },
-        
-        // Pasangan 10 (Zona Budaya)
-        { id: 'Lrd_w5EErYY', label: 'Lagu Pasangan 10 Suku Arfak (Peg. Arfak)' },
-        { id: 'gvpIPdlk414', label: 'Lagu Pasangan 10 (Manggarai Barat)' },
-        { id: 'Q2f8hLGHQQc', label: 'Lagu Pasangan 10 (Manokwari Selatan)' },
-        { id: 'ez5tA8gXypo', label: 'Lagu Pasangan 10 (Kepulauan Sangihe)' },
-        
-        // Lagu Gasing & Math Dance Floor
-        { id: '3_k6OgFWEPc', label: 'Lagu Goyang-Goyang GASING (Lagu PEDE)' },
-        { id: 'tN7NtOm7v0k', label: 'Lagu Matematika 1 2 3 (Bojonegoro)' },
-        { id: 'Rempgy2wTTc', label: 'Lagu GASING 8C (Karanganyar)' },
-        { id: 'l3oeo6k6RVE', label: 'Math Dance Floor Games (Madiun)' },
-        { id: 'J9y6A8EdYHw', label: 'Belajar Perkalian 4 dengan Lagu (Pekanbaru)' },
-        { id: 'WrOcPfuI1v8', label: 'Lagu Perkalian 3 (Manokwari Selatan)' },
-        
-        // Mencongak & Testimoni
-        { id: 'YrdeJSqdo-I', label: 'Testimoni Keseruan Pelatihan Akmil' },
-        { id: 'zz95o2SOjb0', label: 'Mencongak Cepat Pelatihan Kelila' },
-        { id: 'dTvCwhtnPf0', label: 'Testimoni Guru Pelatihan (Tolikara)' },
-        { id: 'ksDrodBOsAs', label: 'Siswa Papua Mencongak Cepat (Jayapura)' }
-      ];
+      const allKabVideos = kabVideosMap[normName] || [];
+      const otherVideos = allKabVideos.filter(v => v.id !== this.currentVideoId);
+      
+      if (otherVideos.length === 0) return;
 
-      // Combine region's own video library with the expanded general library
-      let pool = [];
-      if (reg.videos && reg.videos.length > 0) {
-        pool = [...reg.videos];
-      } else {
-        pool = [{ id: reg.id, label: 'Lagu Belajar Daerah' }];
-      }
-
-      // Add general fallbacks if not already present
-      generalVideos.forEach(v => {
-        if (!pool.some(p => p.id === v.id)) {
-          pool.push(v);
-        }
-      });
-
-      // Filter out the video that is currently playing
-      const availablePool = pool.filter(v => v.id !== currentId);
-      if (availablePool.length === 0) return;
-
-      const randomVideo = availablePool[Math.floor(Math.random() * availablePool.length)];
+      // Select a random video STRICTLY from the same kabupaten pool
+      const randomVideo = otherVideos[Math.floor(Math.random() * otherVideos.length)];
       this.currentVideoId = randomVideo.id;
       
       // Update iframe source
@@ -398,6 +434,13 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
       const descEl = this.container.querySelector('.video-description');
       if (descEl) {
         descEl.textContent = `Menampilkan: ${randomVideo.label}`;
+      }
+
+      // Update remaining count on button label
+      const remainingOthers = allKabVideos.filter(v => v.id !== randomVideo.id);
+      const btnOtherVideo = document.getElementById('btn-other-video');
+      if (btnOtherVideo) {
+        btnOtherVideo.textContent = `🎥 Putar Video Lainnya (${remainingOthers.length} Video Terkait)`;
       }
     }
 
@@ -835,7 +878,7 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
     overflow: hidden;
   }
 
-  /* Split Pane Layout Grid (Fractions updated: Left video pane is larger 1.3fr to 1fr) */
+  /* Split Pane Layout Grid */
   .modal-grid {
     display: grid;
     grid-template-columns: 1.3fr 1fr;
