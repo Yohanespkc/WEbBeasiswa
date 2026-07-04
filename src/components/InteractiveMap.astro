@@ -75,7 +75,14 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
 
         <!-- Right Pane: Grafana Statistics Graphs -->
         <div class="modal-col-stats">
-          <h4 class="text-xs font-black uppercase tracking-wider text-indigo-300 mb-3" style="font-family: Inter, sans-serif;">📈 Grafana Dashboard Pelatihan</h4>
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-xs font-black uppercase tracking-wider text-indigo-300" style="margin: 0; font-family: Inter, sans-serif;">📈 Grafana Dashboard Pelatihan</h4>
+            <!-- Chart Type Selectors -->
+            <div class="grafana-chart-type-selector">
+              <button class="chart-type-btn active" id="btn-chart-bar">📊 Batang</button>
+              <button class="chart-type-btn" id="btn-chart-line">📈 Garis</button>
+            </div>
+          </div>
           
           <!-- Toggle Tabs -->
           <div class="modal-tabs">
@@ -88,9 +95,14 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
             Jumlah Peserta: <span class="text-gold font-bold" id="stats-peserta-count">-</span>
           </div>
 
-          <!-- Charts List -->
-          <div class="stats-charts-list" id="stats-charts-list">
-            <!-- Injected by JS -->
+          <!-- Integrated Chart Canvas -->
+          <div class="grafana-chart-canvas" id="grafana-chart-canvas">
+            <!-- Dynamic SVG injected here -->
+          </div>
+          
+          <!-- Legend list of metrics for reference -->
+          <div class="grafana-legend-container" id="grafana-legend-container">
+            <!-- Dynamically populated stats summary list -->
           </div>
         </div>
       </div>
@@ -116,6 +128,7 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
 
       this.currentKabName = '';
       this.currentActiveTab = 'guru'; // default tab
+      this.currentChartType = 'bar'; // default chart type
 
       this.init();
     }
@@ -201,7 +214,7 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
         g.setAttribute('data-increase', increase);
         g.setAttribute('data-province', province);
 
-        // Central active gold/yellow dot (Pulsing ring removed per user request)
+        // Central active gold/yellow dot
         const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         dot.setAttribute('cx', reg.x.toString());
         dot.setAttribute('cy', reg.y.toString());
@@ -302,9 +315,10 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
     }
 
     renderModalStats() {
-      const statsList = document.getElementById('stats-charts-list');
+      const chartCanvas = document.getElementById('grafana-chart-canvas');
+      const legendContainer = document.getElementById('grafana-legend-container');
       const pesertaCount = document.getElementById('stats-peserta-count');
-      if (!statsList || !pesertaCount) return;
+      if (!chartCanvas || !legendContainer || !pesertaCount) return;
       
       const { gEntry, sEntry } = this.findStats(this.currentKabName);
       const entry = this.currentActiveTab === 'guru' ? gEntry : sEntry;
@@ -319,60 +333,145 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
       
       if (!entry) {
         pesertaCount.textContent = '0';
-        statsList.innerHTML = '<div style="text-align: center; color: rgba(255, 255, 255, 0.2); font-size: 0.75rem; padding: 50px 0; font-family: Inter, sans-serif;">Data statistik tidak tersedia untuk wilayah ini</div>';
+        chartCanvas.innerHTML = '<div style="text-align: center; color: rgba(255, 255, 255, 0.2); font-size: 0.75rem; padding: 60px 0; font-family: Inter, sans-serif;">Data statistik tidak tersedia untuk wilayah ini</div>';
+        legendContainer.innerHTML = '';
         return;
       }
       
       pesertaCount.textContent = entry.peserta.toLocaleString('id-ID');
       
-      const metricsList = [
-        { label: '🎯 BAKALKUBAGI', pre: entry.bakalkubagiPre, post: entry.bakalkubagiPost },
-        { label: '➕ Penjumlahan', pre: entry.penjumlahanPre, post: entry.penjumlahanPost },
-        { label: '➖ Pengurangan', pre: entry.penguranganPre, post: entry.penguranganPost },
-        { label: '✖️ Perkalian', pre: entry.perkalianPre, post: entry.perkalianPost },
-        { label: '➗ Pembagian', pre: entry.pembagianPre, post: entry.pembagianPost }
+      const metrics = [
+        { label: 'BakalKubagi', code: '🎯 Kubagi', pre: entry.bakalkubagiPre, post: entry.bakalkubagiPost },
+        { label: 'Penjumlahan', code: '➕ Tambah', pre: entry.penjumlahanPre, post: entry.penjumlahanPost },
+        { label: 'Pengurangan', code: '➖ Kurang', pre: entry.penguranganPre, post: entry.penguranganPost },
+        { label: 'Perkalian', code: '✖️ Kali', pre: entry.perkalianPre, post: entry.perkalianPost },
+        { label: 'Pembagian', code: '➗ Bagi', pre: entry.pembagianPre, post: entry.pembagianPost }
       ];
+
+      // ─── Draw SVG Grafana Graph ───
+      const valToY = (val) => 180 - (val * 1.5); // Maps 0-100% to Y coordinates 180 to 30
       
-      let html = '';
-      metricsList.forEach(m => {
+      let svgHtml = `
+        <svg viewBox="0 0 500 220" class="w-full h-auto" style="overflow: visible;">
+          <!-- Y-Axis Gridlines -->
+          <line x1="45" y1="30" x2="480" y2="30" stroke="#2c3235" stroke-dasharray="2 2" />
+          <text x="36" y="33" fill="#9fa7ad" font-size="9" text-anchor="end" font-family="monospace">100%</text>
+          
+          <line x1="45" y1="67.5" x2="480" y2="67.5" stroke="#2c3235" stroke-dasharray="2 2" />
+          <text x="36" y="70.5" fill="#9fa7ad" font-size="9" text-anchor="end" font-family="monospace">75%</text>
+          
+          <line x1="45" y1="105" x2="480" y2="105" stroke="#2c3235" stroke-dasharray="2 2" />
+          <text x="36" y="108" fill="#9fa7ad" font-size="9" text-anchor="end" font-family="monospace">50%</text>
+          
+          <line x1="45" y1="142.5" x2="480" y2="142.5" stroke="#2c3235" stroke-dasharray="2 2" />
+          <text x="36" y="145.5" fill="#9fa7ad" font-size="9" text-anchor="end" font-family="monospace">25%</text>
+          
+          <line x1="45" y1="180" x2="480" y2="180" stroke="#4f5d65" stroke-width="1.5" />
+          <text x="36" y="183" fill="#9fa7ad" font-size="9" text-anchor="end" font-family="monospace">0%</text>
+      `;
+
+      if (this.currentChartType === 'bar') {
+        // --- Bar Chart Render ---
+        metrics.forEach((m, idx) => {
+          const x = 85 + idx * 86;
+          const preY = valToY(m.pre);
+          const postY = valToY(m.post);
+          
+          // Pre Bar (Orange)
+          svgHtml += `
+            <rect x="${x - 18}" y="${preY}" width="16" height="${180 - preY}" fill="#ff780a" rx="1" />
+            <text x="${x - 10}" y="${preY - 5}" fill="#ff780a" font-size="8" font-family="monospace" text-anchor="middle" font-weight="700">${m.pre.toFixed(0)}%</text>
+          `;
+          
+          // Post Bar (Green)
+          svgHtml += `
+            <rect x="${x + 2}" y="${postY}" width="16" height="${180 - postY}" fill="#73bf69" rx="1" />
+            <text x="${x + 10}" y="${postY - 5}" fill="#73bf69" font-size="8" font-family="monospace" text-anchor="middle" font-weight="700">${m.post.toFixed(0)}%</text>
+          `;
+          
+          // X-Axis Column Name
+          svgHtml += `
+            <text x="${x}" y="200" fill="#c7d2d6" font-size="9" font-weight="700" text-anchor="middle" font-family="Inter, sans-serif">${m.code}</text>
+          `;
+        });
+      } else {
+        // --- Line Chart Render ---
+        let prePoints = [];
+        let postPoints = [];
+        metrics.forEach((m, idx) => {
+          const x = 85 + idx * 86;
+          const preY = valToY(m.pre);
+          const postY = valToY(m.post);
+          prePoints.push({ x, y: preY, val: m.pre });
+          postPoints.push({ x, y: postY, val: m.post });
+        });
+
+        // Pre area & line
+        let prePath = `M ${prePoints[0].x} ${prePoints[0].y}`;
+        for (let i = 1; i < prePoints.length; i++) {
+          prePath += ` L ${prePoints[i].x} ${prePoints[i].y}`;
+        }
+        const preAreaPath = `${prePath} L ${prePoints[prePoints.length - 1].x} 180 L ${prePoints[0].x} 180 Z`;
+        svgHtml += `<path d="${preAreaPath}" fill="rgba(255, 120, 10, 0.12)" />`;
+        svgHtml += `<path d="${prePath}" stroke="#ff780a" stroke-width="2.5" fill="none" stroke-linejoin="round" />`;
+
+        // Post area & line
+        let postPath = `M ${postPoints[0].x} ${postPoints[0].y}`;
+        for (let i = 1; i < postPoints.length; i++) {
+          postPath += ` L ${postPoints[i].x} ${postPoints[i].y}`;
+        }
+        const postAreaPath = `${postPath} L ${postPoints[postPoints.length - 1].x} 180 L ${postPoints[0].x} 180 Z`;
+        svgHtml += `<path d="${postAreaPath}" fill="rgba(115, 191, 105, 0.12)" />`;
+        svgHtml += `<path d="${postPath}" stroke="#73bf69" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round" />`;
+
+        // Draw points & labels
+        prePoints.forEach((pt) => {
+          svgHtml += `
+            <circle cx="${pt.x}" cy="${pt.y}" r="4" fill="#ff780a" stroke="#181b1f" stroke-width="1.5" />
+            <text x="${pt.x}" y="${pt.y - 7}" fill="#ff780a" font-size="8" font-family="monospace" text-anchor="middle" font-weight="700">${pt.val.toFixed(0)}%</text>
+          `;
+        });
+
+        postPoints.forEach((pt) => {
+          svgHtml += `
+            <circle cx="${pt.x}" cy="${pt.y}" r="4" fill="#73bf69" stroke="#181b1f" stroke-width="1.5" />
+            <text x="${pt.x}" y="${pt.y - 7}" fill="#73bf69" font-size="8" font-family="monospace" text-anchor="middle" font-weight="700">${pt.val.toFixed(0)}%</text>
+          `;
+        });
+
+        // Draw X-axis names
+        metrics.forEach((m, idx) => {
+          const x = 85 + idx * 86;
+          svgHtml += `
+            <text x="${x}" y="200" fill="#c7d2d6" font-size="9" font-weight="700" text-anchor="middle" font-family="Inter, sans-serif">${m.code}</text>
+          `;
+        });
+      }
+
+      svgHtml += `</svg>`;
+      chartCanvas.innerHTML = svgHtml;
+
+      // ─── Render Bottom Metric Summary list (Grafana Legend) ───
+      let legendHtml = '<div class="grafana-legend-grid">';
+      metrics.forEach(m => {
         const delta = m.pre > 0 ? (((m.post - m.pre) / m.pre) * 100) : 0;
+        let deltaColor = '#ef4444';
+        if (delta >= 40) deltaColor = '#73bf69';
+        else if (delta >= 20) deltaColor = '#eca938';
         
-        let deltaColor = '#ef4444'; // red
-        if (delta >= 40) deltaColor = '#73bf69'; // Grafana green
-        else if (delta >= 20) deltaColor = '#eca938'; // Grafana yellow/amber
-        
-        html += `
-          <div class="grafana-panel">
-            <div class="grafana-panel-header">
-              <span class="grafana-panel-title">📊 ${m.label}</span>
-              <span class="grafana-panel-delta" style="color: ${deltaColor}">+${delta.toFixed(0)}%</span>
-            </div>
-            <div class="grafana-panel-body">
-              <div class="grafana-chart-container">
-                <!-- Pre-test Row -->
-                <div class="grafana-bar-row">
-                  <span class="grafana-row-label">Pre-test</span>
-                  <div class="grafana-bar-track">
-                    <div class="grafana-bar-fill pre-fill" style="width: ${m.pre}%;"></div>
-                  </div>
-                  <span class="grafana-row-value text-orange">${m.pre.toFixed(1)}%</span>
-                </div>
-                
-                <!-- Post-test Row -->
-                <div class="grafana-bar-row">
-                  <span class="grafana-row-label">Post-test</span>
-                  <div class="grafana-bar-track">
-                    <div class="grafana-bar-fill post-fill" style="width: ${m.post}%;"></div>
-                  </div>
-                  <span class="grafana-row-value text-green">${m.post.toFixed(1)}%</span>
-                </div>
-              </div>
-            </div>
+        legendHtml += `
+          <div class="grafana-legend-item">
+            <span class="legend-metric-name">${m.code} ${m.label}</span>
+            <span class="legend-metric-vals">
+              <span style="color: #ff780a;">Pre: ${m.pre.toFixed(1)}%</span> ➔ 
+              <span style="color: #73bf69;">Post: ${m.post.toFixed(1)}%</span>
+              <span class="legend-delta-val" style="color: ${deltaColor}; font-weight: 800;">(+${delta.toFixed(0)}%)</span>
+            </span>
           </div>
         `;
       });
-      
-      statsList.innerHTML = html;
+      legendHtml += '</div>';
+      legendContainer.innerHTML = legendHtml;
     }
 
     setupModalEvents() {
@@ -397,6 +496,26 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
       if (tabSiswa) {
         tabSiswa.addEventListener('click', () => {
           this.currentActiveTab = 'siswa';
+          this.renderModalStats();
+        });
+      }
+
+      // Chart type switcher clicks
+      const btnBar = document.getElementById('btn-chart-bar');
+      const btnLine = document.getElementById('btn-chart-line');
+      if (btnBar) {
+        btnBar.addEventListener('click', () => {
+          this.currentChartType = 'bar';
+          btnBar.classList.add('active');
+          if (btnLine) btnLine.classList.remove('active');
+          this.renderModalStats();
+        });
+      }
+      if (btnLine) {
+        btnLine.addEventListener('click', () => {
+          this.currentChartType = 'line';
+          btnLine.classList.add('active');
+          if (btnBar) btnBar.classList.remove('active');
           this.renderModalStats();
         });
       }
@@ -613,8 +732,8 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
     width: 100%;
   }
 
-  /* Grafana Dashboard Layout Styling */
-  .modal-col-stats {
+  /* ═══ Grafana Panel Styling (Globally Scoped to prevent Astro dynamic element leakage) ═══ */
+  :global(.modal-col-stats) {
     width: 100%;
     background: #111217; /* Grafana dashboard background */
     border: 1px solid #2c3235;
@@ -624,7 +743,7 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
     flex-direction: column;
   }
 
-  .modal-tabs {
+  :global(.modal-tabs) {
     display: flex;
     gap: 2px;
     border-bottom: 2px solid #1f2226;
@@ -632,7 +751,7 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
     margin-bottom: 12px;
   }
 
-  .modal-tab-btn {
+  :global(.modal-tab-btn) {
     flex: 1;
     background: #181b1f;
     border: 1px solid #2c3235;
@@ -647,12 +766,12 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
     text-align: center;
   }
 
-  .modal-tab-btn:hover {
+  :global(.modal-tab-btn:hover) {
     background: #222529;
     color: #ffffff;
   }
 
-  .modal-tab-btn.active {
+  :global(.modal-tab-btn.active) {
     background: #111217;
     border: 1px solid #2c3235;
     border-bottom: 2px solid #ff780a; /* Grafana active orange tab line */
@@ -660,133 +779,104 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
     font-weight: 700;
   }
 
-  .stats-peserta-label {
+  :global(.stats-peserta-label) {
     font-size: 0.75rem;
     color: #9fa7ad;
     margin-bottom: 10px;
     font-family: Inter, sans-serif;
   }
 
-  .stats-charts-list {
+  :global(.grafana-chart-type-selector) {
     display: flex;
-    flex-direction: column;
-    gap: 12px;
-    max-height: 280px;
+    background: #181b1f;
+    border: 1px solid #2c3235;
+    border-radius: 4px;
+    padding: 2px;
+    gap: 2px;
+  }
+
+  :global(.chart-type-btn) {
+    background: transparent;
+    border: none;
+    color: #c7d2d6;
+    padding: 4px 8px;
+    border-radius: 2px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  :global(.chart-type-btn:hover) {
+    background: #2c3235;
+    color: #ffffff;
+  }
+
+  :global(.chart-type-btn.active) {
+    background: #2a2d33;
+    color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  :global(.grafana-chart-canvas) {
+    background: #181b1f; /* Grafana dark panel background */
+    border: 1px solid #2c3235;
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+  }
+
+  :global(.grafana-legend-container) {
+    max-height: 140px;
     overflow-y: auto;
     padding-right: 4px;
   }
 
-  /* Custom Scrollbar for list */
-  .stats-charts-list::-webkit-scrollbar {
+  /* Custom Scrollbar for legend list */
+  :global(.grafana-legend-container::-webkit-scrollbar) {
     width: 4px;
   }
-  .stats-charts-list::-webkit-scrollbar-track {
+  :global(.grafana-legend-container::-webkit-scrollbar-track) {
     background: #111217;
   }
-  .stats-charts-list::-webkit-scrollbar-thumb {
+  :global(.grafana-legend-container::-webkit-scrollbar-thumb) {
     background: #2c3235;
     border-radius: 99px;
   }
 
-  /* Grafana Panels */
-  .grafana-panel {
-    background: #181b1f; /* Grafana dark panel bg */
-    border: 1px solid #2c3235; /* Grafana card border */
-    border-radius: 4px;
+  :global(.grafana-legend-grid) {
     display: flex;
     flex-direction: column;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    gap: 6px;
   }
 
-  .grafana-panel-header {
-    background: #1c1f24;
-    border-bottom: 1px solid #2c3235;
-    padding: 6px 10px;
+  :global(.grafana-legend-item) {
+    background: #181b1f;
+    border: 1px solid #2c3235;
+    border-radius: 4px;
+    padding: 6px 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
-
-  .grafana-panel-title {
-    color: #c7d2d6;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    font-family: Inter, sans-serif;
-  }
-
-  .grafana-panel-delta {
     font-size: 0.75rem;
-    font-weight: 900;
-    font-family: monospace;
-  }
-
-  .grafana-panel-body {
-    padding: 10px;
-  }
-
-  .grafana-chart-container {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .grafana-bar-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .grafana-row-label {
-    width: 54px;
-    color: #9fa7ad;
-    font-size: 0.68rem;
-    font-weight: 600;
-    text-align: right;
     font-family: Inter, sans-serif;
   }
 
-  .grafana-bar-track {
-    flex: 1;
-    height: 10px;
-    background: #0b0c0e; /* Charcoal background */
-    border: 1px solid #202226;
-    position: relative;
-    /* Gridline simulation effect */
-    background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-    background-size: 10% 100%;
+  :global(.legend-metric-name) {
+    color: #c7d2d6;
+    font-weight: 600;
   }
 
-  .grafana-bar-fill {
-    height: 100%;
-    transition: width 0.8s cubic-bezier(0.19, 1, 0.22, 1);
-  }
-
-  /* Grafana Classic Palette */
-  .pre-fill {
-    background: #ff780a; /* Grafana Orange series */
-    box-shadow: 0 0 3px rgba(255, 120, 10, 0.2);
-  }
-
-  .post-fill {
-    background: #73bf69; /* Grafana Green series */
-    box-shadow: 0 0 3px rgba(115, 191, 105, 0.2);
-  }
-
-  .grafana-row-value {
-    width: 42px;
-    text-align: right;
+  :global(.legend-metric-vals) {
+    color: #9fa7ad;
     font-family: monospace;
-    font-weight: 700;
-    font-size: 0.72rem;
   }
 
-  .text-orange {
-    color: #ff780a;
-  }
-
-  .text-green {
-    color: #73bf69;
+  :global(.legend-delta-val) {
+    margin-left: 6px;
   }
 </style>
