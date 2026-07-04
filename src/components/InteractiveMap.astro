@@ -1,7 +1,10 @@
 ---
 import { BUDAYA_REGISTRY } from '../data/budayaRegistry';
+import { KABUPATEN_DATA, SISWA_DATA } from '../data/statistikRegistry';
 
 const regionsJson = JSON.stringify(BUDAYA_REGISTRY);
+const kabupatenDataJson = JSON.stringify(KABUPATEN_DATA);
+const siswaDataJson = JSON.stringify(SISWA_DATA);
 ---
 
 <div class="map-card glass-panel">
@@ -43,33 +46,63 @@ const regionsJson = JSON.stringify(BUDAYA_REGISTRY);
         <span class="stat-val text-white">GASING Hore</span>
       </div>
     </div>
-    <p class="tooltip-helper text-muted text-[10px] mt-2 italic">*Klik untuk memutar video lagu belajar daerah</p>
+    <p class="tooltip-helper text-muted text-[10px] mt-2 italic">*Klik untuk melihat statistik & memutar video</p>
   </div>
 
-  <!-- Video Modal -->
-  <div class="video-modal pointer-events-none opacity-0 fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-md transition-all duration-300" id="video-modal">
-    <div class="modal-card glass-panel p-6 max-w-3xl w-full relative">
+  <!-- Detail & Video Modal -->
+  <div class="video-modal pointer-events-none opacity-0 fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-950/85 backdrop-blur-md transition-all duration-300" id="video-modal">
+    <div class="modal-card glass-panel p-6 max-w-5xl w-full relative">
       <button class="modal-close-btn" id="modal-close-btn">✖</button>
-      <h3 class="modal-title font-serif text-xl text-center text-gold mb-4">Pemutar Video Pelatihan</h3>
-      <div class="video-wrapper">
-        <iframe
-          id="modal-iframe"
-          class="w-full aspect-video rounded-xl border border-white/10"
-          src=""
-          title="Video Pelatihan GASING"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen
-        ></iframe>
+      <h3 class="modal-title font-serif text-xl text-center text-gold mb-4">Pelatihan GASING di Kabupaten</h3>
+      
+      <!-- Combined Layout Grid -->
+      <div class="modal-grid">
+        <!-- Left Pane: Video Player -->
+        <div class="modal-col-video">
+          <div class="video-wrapper">
+            <iframe
+              id="modal-iframe"
+              class="w-full aspect-video rounded-xl border border-white/10"
+              src=""
+              title="Video Pelatihan GASING"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+            ></iframe>
+          </div>
+          <p class="text-xs text-muted text-center mt-3">Mendengar keceriaan anak-anak belajar numerasi lewat melodi lagu daerah mereka.</p>
+        </div>
+
+        <!-- Right Pane: Statistics Graphs -->
+        <div class="modal-col-stats">
+          <h4 class="text-xs font-black uppercase tracking-wider text-indigo-300 mb-3">📈 Hasil Statistik Pelatihan</h4>
+          
+          <!-- Toggle Tabs -->
+          <div class="modal-tabs">
+            <button class="modal-tab-btn active" id="btn-tab-guru">👨‍🏫 Data Guru</button>
+            <button class="modal-tab-btn" id="btn-tab-siswa">👨‍🎓 Data Siswa</button>
+          </div>
+          
+          <!-- Participant Count -->
+          <div class="stats-peserta-label" id="stats-peserta-label">
+            Jumlah Peserta: <span class="text-gold font-bold" id="stats-peserta-count">-</span>
+          </div>
+
+          <!-- Charts List -->
+          <div class="stats-charts-list" id="stats-charts-list">
+            <!-- Injected by JS -->
+          </div>
+        </div>
       </div>
-      <p class="text-xs text-muted text-center mt-3">Mendengar keceriaan anak-anak belajar numerasi lewat melodi lagu daerah mereka.</p>
     </div>
   </div>
 </div>
 
-<script define:vars={{ regionsJson }}>
-  // Parse regions data passed from Astro
+<script define:vars={{ regionsJson, kabupatenDataJson, siswaDataJson }}>
+  // Parse regions and stats data passed from Astro
   const regions = JSON.parse(regionsJson);
+  const kabupatenData = JSON.parse(kabupatenDataJson);
+  const siswaData = JSON.parse(siswaDataJson);
 
   class InteractiveMap {
     constructor(container) {
@@ -80,6 +113,9 @@ const regionsJson = JSON.stringify(BUDAYA_REGISTRY);
       this.modal = document.getElementById('video-modal');
       this.modalClose = document.getElementById('modal-close-btn');
       this.iframe = document.getElementById('modal-iframe');
+
+      this.currentKabName = '';
+      this.currentActiveTab = 'guru'; // default tab
 
       this.init();
     }
@@ -120,6 +156,16 @@ const regionsJson = JSON.stringify(BUDAYA_REGISTRY);
       } catch (e) {
         console.error("Gagal memuat peta Indonesia SVG:", e);
       }
+    }
+
+    findStats(kabName) {
+      const clean = (s) => s.toLowerCase().replace(/^(kab|kabupaten|kota)\.?\s+/g, '').trim();
+      const cleanName = clean(kabName);
+      
+      const gEntry = kabupatenData.find(d => clean(d.kabupaten) === cleanName);
+      const sEntry = siswaData.find(d => clean(d.kabupaten) === cleanName);
+      
+      return { gEntry, sEntry };
     }
 
     renderPins() {
@@ -188,12 +234,45 @@ const regionsJson = JSON.stringify(BUDAYA_REGISTRY);
       });
     }
 
-    showTooltip(e, name, province, increase) {
+    showTooltip(e, name, province, defaultIncrease) {
       if (!this.tooltip) return;
+      
+      const { gEntry, sEntry } = this.findStats(name);
       
       this.tooltip.querySelector('.tooltip-title').textContent = `Kab. ${name}`;
       this.tooltip.querySelector('.tooltip-region').textContent = province;
-      this.tooltip.querySelector('.stat-val').textContent = increase;
+      
+      // Calculate dynamic tooltip stats from Excel D1 cache
+      let increaseHtml = '';
+      if (gEntry || sEntry) {
+        if (gEntry) {
+          const pre = gEntry.bakalkubagiPre;
+          const post = gEntry.bakalkubagiPost;
+          const pct = pre > 0 ? ((post - pre) / pre * 100) : 0;
+          increaseHtml += `<div>👨‍🏫 Guru: ${pre.toFixed(0)}% ➔ ${post.toFixed(0)}% (+${pct.toFixed(0)}%)</div>`;
+        }
+        if (sEntry) {
+          const pre = sEntry.bakalkubagiPre;
+          const post = sEntry.bakalkubagiPost;
+          const pct = pre > 0 ? ((post - pre) / pre * 100) : 0;
+          increaseHtml += `<div style="margin-top: 4px;">👨‍🎓 Siswa: ${pre.toFixed(0)}% ➔ ${post.toFixed(0)}% (+${pct.toFixed(0)}%)</div>`;
+        }
+      } else {
+        increaseHtml = `<div>Peningkatan: ${defaultIncrease}</div>`;
+      }
+      
+      this.tooltip.querySelector('.stat-val').innerHTML = increaseHtml;
+      
+      // Set secondary statistic line
+      const methodValEl = this.tooltip.querySelectorAll('.stat-val')[1];
+      if (methodValEl) {
+        if (gEntry || sEntry) {
+          const totalPeserta = (gEntry?.peserta || 0) + (sEntry?.peserta || 0);
+          methodValEl.textContent = `${totalPeserta} Peserta Pelatihan`;
+        } else {
+          methodValEl.textContent = 'GASING Hore';
+        }
+      }
       
       this.tooltip.classList.remove('opacity-0', 'pointer-events-none');
       this.tooltip.classList.add('opacity-100');
@@ -219,10 +298,88 @@ const regionsJson = JSON.stringify(BUDAYA_REGISTRY);
 
     playVideo(videoId, name) {
       if (!this.modal || !this.iframe) return;
-      this.modal.querySelector('.modal-title').textContent = `Pelatihan GASING di ${name}`;
+      
+      this.modal.querySelector('.modal-title').textContent = `Pelatihan GASING di Kab. ${name}`;
       this.iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+      
+      this.currentKabName = name;
+      this.currentActiveTab = 'guru';
+      
+      this.renderModalStats();
+      
       this.modal.classList.remove('pointer-events-none', 'opacity-0');
       this.modal.classList.add('opacity-100');
+    }
+
+    renderModalStats() {
+      const statsList = document.getElementById('stats-charts-list');
+      const pesertaCount = document.getElementById('stats-peserta-count');
+      if (!statsList || !pesertaCount) return;
+      
+      const { gEntry, sEntry } = this.findStats(this.currentKabName);
+      const entry = this.currentActiveTab === 'guru' ? gEntry : sEntry;
+      
+      // Handle tab button visual states
+      const tabGuru = document.getElementById('btn-tab-guru');
+      const tabSiswa = document.getElementById('btn-tab-siswa');
+      if (tabGuru && tabSiswa) {
+        tabGuru.classList.toggle('active', this.currentActiveTab === 'guru');
+        tabSiswa.classList.toggle('active', this.currentActiveTab === 'siswa');
+      }
+      
+      if (!entry) {
+        pesertaCount.textContent = '0';
+        statsList.innerHTML = '<div style="text-align: center; color: rgba(255, 255, 255, 0.3); font-size: 0.75rem; padding: 40px 0;">Data statistik tidak tersedia untuk wilayah ini</div>';
+        return;
+      }
+      
+      pesertaCount.textContent = entry.peserta.toLocaleString('id-ID');
+      
+      const metricsList = [
+        { label: '🎯 BAKALKUBAGI', pre: entry.bakalkubagiPre, post: entry.bakalkubagiPost },
+        { label: '➕ Penjumlahan', pre: entry.penjumlahanPre, post: entry.penjumlahanPost },
+        { label: '➖ Pengurangan', pre: entry.penguranganPre, post: entry.penguranganPost },
+        { label: '✖️ Perkalian', pre: entry.perkalianPre, post: entry.perkalianPost },
+        { label: '➗ Pembagian', pre: entry.pembagianPre, post: entry.pembagianPost }
+      ];
+      
+      let html = '';
+      metricsList.forEach(m => {
+        const delta = m.pre > 0 ? (((m.post - m.pre) / m.pre) * 100) : 0;
+        
+        let deltaColor = '#ef4444'; // red
+        if (delta >= 40) deltaColor = '#10b981'; // green
+        else if (delta >= 20) deltaColor = '#fbbf24'; // yellow
+        
+        html += `
+          <div class="bar-pair-item">
+            <div class="bar-pair-header">
+              <span class="bar-pair-label">${m.label}</span>
+              <span class="bar-pair-delta" style="color: ${deltaColor}">↑ +${delta.toFixed(0)}%</span>
+            </div>
+            
+            <!-- Pre bar -->
+            <div class="bar-row">
+              <span class="bar-row-lbl">Pre</span>
+              <div class="bar-track">
+                <div class="bar-fill" style="width: ${m.pre}%; background: #fb923c;"></div>
+              </div>
+              <span class="bar-val" style="color: #fb923c">${m.pre.toFixed(0)}</span>
+            </div>
+            
+            <!-- Post bar -->
+            <div class="bar-row">
+              <span class="bar-row-lbl">Post</span>
+              <div class="bar-track">
+                <div class="bar-fill" style="width: ${m.post}%; background: #10b981;"></div>
+              </div>
+              <span class="bar-val" style="color: #10b981">${m.post.toFixed(0)}</span>
+            </div>
+          </div>
+        `;
+      });
+      
+      statsList.innerHTML = html;
     }
 
     setupModalEvents() {
@@ -232,6 +389,22 @@ const regionsJson = JSON.stringify(BUDAYA_REGISTRY);
       if (this.modal) {
         this.modal.addEventListener('click', (e) => {
           if (e.target === this.modal) this.closeModal();
+        });
+      }
+      
+      // Tab switcher clicks
+      const tabGuru = document.getElementById('btn-tab-guru');
+      const tabSiswa = document.getElementById('btn-tab-siswa');
+      if (tabGuru) {
+        tabGuru.addEventListener('click', () => {
+          this.currentActiveTab = 'guru';
+          this.renderModalStats();
+        });
+      }
+      if (tabSiswa) {
+        tabSiswa.addEventListener('click', () => {
+          this.currentActiveTab = 'siswa';
+          this.renderModalStats();
         });
       }
     }
@@ -348,7 +521,7 @@ const regionsJson = JSON.stringify(BUDAYA_REGISTRY);
   .map-tooltip {
     border-radius: var(--border-radius-sm);
     border-color: rgba(245, 158, 11, 0.3);
-    min-width: 200px;
+    min-width: 260px;
     box-shadow: var(--glass-shadow);
     transition: opacity 0.2s ease;
   }
@@ -374,10 +547,12 @@ const regionsJson = JSON.stringify(BUDAYA_REGISTRY);
 
   .stat-lbl {
     color: var(--color-text-secondary);
+    font-size: 0.75rem;
   }
 
   .stat-val {
     font-weight: 600;
+    font-size: 0.75rem;
   }
 
   .text-gold {
@@ -400,7 +575,7 @@ const regionsJson = JSON.stringify(BUDAYA_REGISTRY);
     100% { transform: scale(0.9); opacity: 0.8; }
   }
 
-  /* Video Modal Styles */
+  /* Video & Stats Modal Styles */
   .video-modal {
     transition: opacity 0.3s ease;
   }
@@ -436,5 +611,158 @@ const regionsJson = JSON.stringify(BUDAYA_REGISTRY);
 
   .video-wrapper {
     overflow: hidden;
+  }
+
+  /* Split Pane Layout Grid */
+  .modal-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 24px;
+    align-items: start;
+    margin-top: 16px;
+  }
+
+  @media (max-width: 768px) {
+    .modal-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .modal-col-video {
+    width: 100%;
+  }
+
+  .modal-col-stats {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.02);
+    border: var(--glass-border);
+    border-radius: var(--border-radius-md);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 8px;
+  }
+
+  .modal-tab-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--color-text-secondary);
+    padding: 8px 12px;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    text-align: center;
+  }
+
+  .modal-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-text-primary);
+  }
+
+  .modal-tab-btn.active {
+    background: var(--color-accent-gold);
+    border-color: var(--color-accent-gold);
+    color: #0b0f19;
+  }
+
+  .stats-peserta-label {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    margin-top: 12px;
+    margin-bottom: 12px;
+  }
+
+  .stats-charts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 280px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  /* Custom Scrollbar for list */
+  .stats-charts-list::-webkit-scrollbar {
+    width: 4px;
+  }
+  .stats-charts-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .stats-charts-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 99px;
+  }
+
+  /* Bar Items */
+  .bar-pair-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-sm);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .bar-pair-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .bar-pair-label {
+    color: var(--color-text-primary);
+  }
+
+  .bar-pair-delta {
+    font-size: 0.75rem;
+    font-weight: 900;
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+  }
+
+  .bar-row-lbl {
+    width: 24px;
+    text-align: right;
+    color: var(--color-text-secondary);
+    font-weight: 700;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+  }
+
+  .bar-val {
+    width: 28px;
+    text-align: right;
+    font-family: monospace;
+    font-weight: 700;
   }
 </style>
