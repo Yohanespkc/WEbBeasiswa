@@ -110,7 +110,7 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
 
   <!-- Detail & Video Modal -->
   <div class="video-modal pointer-events-none opacity-0 fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-950/85 backdrop-blur-md transition-all duration-300" id="video-modal">
-    <div class="modal-card glass-panel p-6 max-w-5xl w-full relative">
+    <div class="modal-card glass-panel p-6 max-w-6xl w-full relative">
       <button class="modal-close-btn" id="modal-close-btn">✖</button>
       <h3 class="modal-title font-serif text-xl text-center text-gold mb-4">Pelatihan GASING di Kabupaten</h3>
       
@@ -878,12 +878,12 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
     overflow: hidden;
   }
 
-  /* Split Pane Layout Grid */
+  /* Split Pane Layout Grid (Fractions updated: Left video pane is larger 1.4fr to 1fr) */
   .modal-grid {
     display: grid;
-    grid-template-columns: 1.3fr 1fr;
-    gap: 24px;
-    align-items: start;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 28px;
+    align-items: flex-start;
     margin-top: 16px;
   }
 
@@ -893,19 +893,19 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
     }
   }
 
-  /* Centered video player column layout */
+  /* Centered video player column layout with zero constraint max-width */
   :global(.modal-col-video) {
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     text-align: center;
   }
 
   :global(.video-wrapper) {
     width: 100%;
-    max-width: 540px;
+    max-width: 100%; /* stretched to fit column completely */
     margin: 0 auto;
     border-radius: var(--border-radius-lg);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
