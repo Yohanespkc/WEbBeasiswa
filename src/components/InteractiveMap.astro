@@ -333,12 +333,13 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
       
       pesertaCount.textContent = entry.peserta.toLocaleString('id-ID');
       
+      // Reordered per GASING teaching steps: Tambah, Kali, Kurang, Bagi, BAKALKUBAGI
       const metrics = [
-        { label: 'BakalKubagi', code: '🎯 Kubagi', pre: entry.bakalkubagiPre, post: entry.bakalkubagiPost },
         { label: 'Penjumlahan', code: '➕ Tambah', pre: entry.penjumlahanPre, post: entry.penjumlahanPost },
-        { label: 'Pengurangan', code: '➖ Kurang', pre: entry.penguranganPre, post: entry.penguranganPost },
         { label: 'Perkalian', code: '✖️ Kali', pre: entry.perkalianPre, post: entry.perkalianPost },
-        { label: 'Pembagian', code: '➗ Bagi', pre: entry.pembagianPre, post: entry.pembagianPost }
+        { label: 'Pengurangan', code: '➖ Kurang', pre: entry.penguranganPre, post: entry.penguranganPost },
+        { label: 'Pembagian', code: '➗ Bagi', pre: entry.pembagianPre, post: entry.pembagianPost },
+        { label: 'BakalKubagi', code: '🎯 BAKALKUBAGI', pre: entry.bakalkubagiPre, post: entry.bakalkubagiPost }
       ];
 
       // ─── Draw SVG Grafana Graph ───
@@ -346,21 +347,21 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
       
       let svgHtml = `
         <svg viewBox="0 0 500 220" class="w-full h-auto" style="overflow: visible;">
-          <!-- SVG Internal Legend (Pre-test, Post-test & Increase indicator) -->
-          <g transform="translate(45, 12)">
+          <!-- SVG Internal Legend (Wider gaps to prevent overlaps: X = 60, 200, 340) -->
+          <g transform="translate(60, 12)">
             <!-- Pre-test Legend -->
             <rect x="0" y="0" width="8" height="8" fill="#ff780a" rx="1.5" />
             <text x="12" y="8" fill="#9fa7ad" font-size="8.5" font-family="Inter, sans-serif">Pre-test (Nilai)</text>
             
             <!-- Post-test Legend -->
-            <rect x="110" y="0" width="8" height="8" fill="#73bf69" rx="1.5" />
-            <text x="122" y="8" fill="#9fa7ad" font-size="8.5" font-family="Inter, sans-serif">Post-test (Nilai)</text>
+            <rect x="140" y="0" width="8" height="8" fill="#73bf69" rx="1.5" />
+            <text x="152" y="8" fill="#9fa7ad" font-size="8.5" font-family="Inter, sans-serif">Post-test (Nilai)</text>
             
             <!-- Delta/Increase Legend -->
-            <text x="230" y="8" fill="#fbbf24" font-size="8.5" font-family="Inter, sans-serif" font-weight="700">↑ Kenaikan (%)</text>
+            <text x="280" y="8" fill="#fbbf24" font-size="8.5" font-family="Inter, sans-serif" font-weight="700">↑ Kenaikan (%)</text>
           </g>
 
-          <!-- Y-Axis Gridlines (Values changed to plain numbers as requested) -->
+          <!-- Y-Axis Gridlines -->
           <line x1="45" y1="40" x2="480" y2="40" stroke="#2c3235" stroke-dasharray="2 2" />
           <text x="36" y="43" fill="#9fa7ad" font-size="9" text-anchor="end" font-family="monospace">100</text>
           
@@ -389,9 +390,10 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
           if (delta >= 40) deltaColor = '#73bf69';
           else if (delta >= 20) deltaColor = '#eca938';
           
-          // Determine position for percentage increase badge (highest bar height plus offset)
-          const highestBarY = Math.min(preY, postY);
-          const deltaTextY = highestBarY - 18;
+          // Arch parameters for growth indicator
+          const preCenterX = x - 10;
+          const postCenterX = x + 10;
+          const controlY = Math.min(preY, postY) - 16;
 
           // Pre Bar (Orange - plain number)
           svgHtml += `
@@ -405,14 +407,16 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
             <text x="${x + 10}" y="${postY - 4}" fill="#73bf69" font-size="8" font-family="monospace" text-anchor="middle" font-weight="700">${m.post.toFixed(0)}</text>
           `;
           
-          // Percentage Increase Badge (+XX%)
+          // McKinsey-style Bezier Curve connector for delta growth
           svgHtml += `
-            <text x="${x}" y="${deltaTextY}" fill="${deltaColor}" font-size="8" font-family="monospace" text-anchor="middle" font-weight="900">+${delta.toFixed(0)}%</text>
+            <path d="M ${preCenterX} ${preY} Q ${x} ${controlY} ${postCenterX} ${postY}" 
+                  stroke="${deltaColor}" stroke-width="1.2" stroke-dasharray="2 2" fill="none" />
+            <text x="${x}" y="${controlY - 4}" fill="${deltaColor}" font-size="8" font-family="monospace" text-anchor="middle" font-weight="900">+${delta.toFixed(0)}%</text>
           `;
 
-          // X-Axis Column Name
+          // X-Axis Column Name (Slightly smaller font size to fit long BAKALKUBAGI text)
           svgHtml += `
-            <text x="${x}" y="200" fill="#c7d2d6" font-size="9" font-weight="700" text-anchor="middle" font-family="Inter, sans-serif">${m.code}</text>
+            <text x="${x}" y="200" fill="#c7d2d6" font-size="7.5" font-weight="700" text-anchor="middle" font-family="Inter, sans-serif">${m.code}</text>
           `;
         });
       } else {
@@ -443,9 +447,9 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
         }
         const postAreaPath = `${postPath} L ${postPoints[postPoints.length - 1].x} 180 L ${postPoints[0].x} 180 Z`;
         svgHtml += `<path d="${postAreaPath}" fill="rgba(115, 191, 105, 0.12)" />`;
-        svgHtml += `<path d="${postPath}" stroke="#73bf69" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round" />`;
+        svgHtml += `<path d="${postPath}" stroke="#73bf69" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round" stroke-linecap="round" />`;
 
-        // Draw points & labels (plain numbers) & percentage increases
+        // Draw points & growth vertical dashed lines
         metrics.forEach((m, idx) => {
           const x = 85 + idx * 86;
           const prePt = prePoints[idx];
@@ -456,8 +460,10 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
           if (delta >= 40) deltaColor = '#73bf69';
           else if (delta >= 20) deltaColor = '#eca938';
           
-          const highestPtY = Math.min(prePt.y, postPt.y);
-          const deltaTextY = highestPtY - 18;
+          // Vertical growth connector line with middle badge
+          svgHtml += `
+            <line x1="${x}" y1="${prePt.y}" x2="${x}" y2="${postPt.y}" stroke="${deltaColor}" stroke-dasharray="2 2" stroke-width="1.2" />
+          `;
 
           // Pre Point Dot & label
           svgHtml += `
@@ -471,17 +477,19 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
             <text x="${postPt.x}" y="${postPt.y - 6}" fill="#73bf69" font-size="8" font-family="monospace" text-anchor="middle" font-weight="700">${postPt.val.toFixed(0)}</text>
           `;
 
-          // Percentage Increase Badge (+XX%)
+          // Masked mid-way delta growth pill
+          const midY = (prePt.y + postPt.y) / 2;
           svgHtml += `
-            <text x="${x}" y="${deltaTextY}" fill="${deltaColor}" font-size="8" font-family="monospace" text-anchor="middle" font-weight="900">+${delta.toFixed(0)}%</text>
+            <rect x="${x - 16}" y="${midY - 6}" width="32" height="12" fill="#181b1f" rx="2" />
+            <text x="${x}" y="${midY + 3}" fill="${deltaColor}" font-size="8" font-family="monospace" text-anchor="middle" font-weight="900">+${delta.toFixed(0)}%</text>
           `;
         });
 
-        // Draw X-axis names
+        // Draw X-axis names (Slightly smaller font size to fit long BAKALKUBAGI text)
         metrics.forEach((m, idx) => {
           const x = 85 + idx * 86;
           svgHtml += `
-            <text x="${x}" y="200" fill="#c7d2d6" font-size="9" font-weight="700" text-anchor="middle" font-family="Inter, sans-serif">${m.code}</text>
+            <text x="${x}" y="200" fill="#c7d2d6" font-size="7.5" font-weight="700" text-anchor="middle" font-family="Inter, sans-serif">${m.code}</text>
           `;
         });
       }
