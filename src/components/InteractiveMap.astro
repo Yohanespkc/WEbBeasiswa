@@ -333,17 +333,43 @@ const siswaDataJson = JSON.stringify(SISWA_DATA);
       const reg = this.currentRegion;
       const currentId = this.currentVideoId;
       
-      // Fallback pool of general educational training, mencongak, and testimonial videos
+      // Expanded diverse pool representing: Microteaching, Before-After, Pasangan 10, Lagu Gasing, Mencongak, and Testimonials
       const generalVideos = [
-        { id: 'YrdeJSqdo-I', label: 'Pelatihan Gasing Akmil Magelang' },
-        { id: 'zz95o2SOjb0', label: 'Mencongak Seru Pelatihan Gasing' },
-        { id: 'dTvCwhtnPf0', label: 'Testimoni Guru Pelatihan Tolikara' },
-        { id: 'ksyGu4fS41w', label: 'Keceriaan Belajar Matematika Gasing' },
-        { id: 'ksDrodBOsAs', label: 'Siswa Papua Mencongak Cepat' },
-        { id: 'bgCK2buLvEs', label: 'Pasangan 10 Seru dan Asyik' }
+        // Microteaching
+        { id: 'Y6W649_yy44', label: 'Microteaching Penjumlahan (Aceh Barat)' },
+        { id: '_i38IL8acx0', label: 'Microteaching Perkalian (Baubau)' },
+        { id: 'HZymrugutnA', label: 'Microteaching Pembagian (Bangka Tengah)' },
+        { id: 'TDbbcitqfec', label: 'Microteaching Pengurangan (Baubau)' },
+        { id: 'WkZu8_UkyTc', label: 'Microteaching Anak Tengger (Pasuruan)' },
+        
+        // Before After comparison
+        { id: '56PgqOqrkfc', label: 'Before After Pelatihan (AKMIL)' },
+        { id: 'rVdExl5rsAY', label: 'Before After Belajar (Aceh Barat)' },
+        { id: 'pu_A06zYoMY', label: 'Before & After Belajar (Biak Numfor)' },
+        { id: '6QkZ8a6pdbM', label: 'Before & After Belajar (Jayapura)' },
+        
+        // Pasangan 10 (Zona Budaya)
+        { id: 'Lrd_w5EErYY', label: 'Lagu Pasangan 10 Suku Arfak (Peg. Arfak)' },
+        { id: 'gvpIPdlk414', label: 'Lagu Pasangan 10 (Manggarai Barat)' },
+        { id: 'Q2f8hLGHQQc', label: 'Lagu Pasangan 10 (Manokwari Selatan)' },
+        { id: 'ez5tA8gXypo', label: 'Lagu Pasangan 10 (Kepulauan Sangihe)' },
+        
+        // Lagu Gasing & Math Dance Floor
+        { id: '3_k6OgFWEPc', label: 'Lagu Goyang-Goyang GASING (Lagu PEDE)' },
+        { id: 'tN7NtOm7v0k', label: 'Lagu Matematika 1 2 3 (Bojonegoro)' },
+        { id: 'Rempgy2wTTc', label: 'Lagu GASING 8C (Karanganyar)' },
+        { id: 'l3oeo6k6RVE', label: 'Math Dance Floor Games (Madiun)' },
+        { id: 'J9y6A8EdYHw', label: 'Belajar Perkalian 4 dengan Lagu (Pekanbaru)' },
+        { id: 'WrOcPfuI1v8', label: 'Lagu Perkalian 3 (Manokwari Selatan)' },
+        
+        // Mencongak & Testimoni
+        { id: 'YrdeJSqdo-I', label: 'Testimoni Keseruan Pelatihan Akmil' },
+        { id: 'zz95o2SOjb0', label: 'Mencongak Cepat Pelatihan Kelila' },
+        { id: 'dTvCwhtnPf0', label: 'Testimoni Guru Pelatihan (Tolikara)' },
+        { id: 'ksDrodBOsAs', label: 'Siswa Papua Mencongak Cepat (Jayapura)' }
       ];
 
-      // Combine region's own video library with the general fallback library
+      // Combine region's own video library with the expanded general library
       let pool = [];
       if (reg.videos && reg.videos.length > 0) {
         pool = [...reg.videos];
