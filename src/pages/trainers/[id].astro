@@ -1,0 +1,348 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+// Force SSR for request-time dynamic database queries
+export const prerender = false;
+
+interface Trainer {
+  id: number;
+  name: string;
+  photo_url: string;
+  major: string;
+  university: string;
+  bio: string;
+  story_emotional: string;
+  home_regency: string;
+  home_province: string;
+  target_funding: number;
+  current_funding: number;
+  is_funded: number;
+}
+
+const { id } = Astro.params;
+let trainer: Trainer | null = null;
+let dbError = "";
+
+import { env } from 'cloudflare:workers';
+
+try {
+  if (env && env.DB) {
+    const result = await env.DB.prepare("SELECT * FROM trainers WHERE id = ?").bind(Number(id)).first();
+    trainer = result as unknown as Trainer;
+  } else {
+    dbError = "Database D1 tidak terdeteksi.";
+  }
+} catch (err: any) {
+  console.error("Database query error:", err);
+  dbError = `Gagal memuat data trainer: ${err.message}`;
+}
+
+// Redirect if not found
+if (!trainer && !dbError) {
+  return Astro.redirect('/trainers');
+}
+
+const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / trainer.target_funding) * 100)) : 0;
+---
+
+<Layout title={trainer ? `Profil ${trainer.name}` : "Profil Trainer"} description={trainer ? trainer.bio : "Detail profil calon penerima beasiswa."}>
+  <section class="section-padding">
+    <div class="container">
+      
+      {dbError && (
+        <div class="error-banner glass-panel">
+          <p>⚠️ {dbError}</p>
+        </div>
+      )}
+
+      {trainer && (
+        <div class="trainer-details-grid">
+          <!-- Left Column: Media & Story -->
+          <div class="details-left">
+            <div class="glass-panel profile-hero-card">
+              <div class="profile-image-container">
+                <img src={trainer.photo_url} alt={trainer.name} class="profile-image" />
+                {trainer.is_funded === 1 && (
+                  <span class="funded-badge">🎉 Didanai Penuh</span>
+                )}
+              </div>
+              <div class="profile-meta p-6">
+                <span class="loc-text">{trainer.home_regency}, {trainer.home_province}</span>
+                <h2>{trainer.name}</h2>
+                <h4 class="major-text text-gold">{trainer.major}</h4>
+                <p class="univ-text text-sm text-muted">{trainer.university}</p>
+              </div>
+            </div>
+
+            <!-- Emotional Story Card -->
+            <div class="glass-panel story-card mt-6 p-6">
+              <h3 class="section-title text-gold font-serif">📖 Kisah Perjuangan di Pelosok</h3>
+              <p class="story-content leading-relaxed text-justify mt-3">{trainer.story_emotional}</p>
+            </div>
+          </div>
+
+          <!-- Right Column: Funding Status & Impact Calculator -->
+          <div class="details-right">
+            <!-- Funding Summary Card -->
+            <div class="glass-panel funding-card p-6">
+              <h3 class="font-serif mb-4 text-center">Status Pendanaan Studi</h3>
+              
+              <div class="funding-stats flex justify-between text-center mb-6">
+                <div>
+                  <span class="lbl block text-[10px] uppercase text-muted tracking-wider">Terkumpul</span>
+                  <span class="val text-lg font-bold text-success">Rp {trainer.current_funding.toLocaleString('id-ID')}</span>
+                </div>
+                <div class="border-divider"></div>
+                <div>
+                  <span class="lbl block text-[10px] uppercase text-muted tracking-wider">Target Biaya</span>
+                  <span class="val text-lg font-bold">Rp {trainer.target_funding.toLocaleString('id-ID')}</span>
+                </div>
+              </div>
+
+              <div class="progress-container mb-6">
+                <div class="flex justify-between text-xs mb-1">
+                  <span>Progres Beasiswa</span>
+                  <span>{percent}%</span>
+                </div>
+                <div class="bar-bg">
+                  <div class="bar-fill" style={`width: ${percent}%;`}></div>
+                </div>
+              </div>
+
+              <p class="text-xs text-muted leading-relaxed text-center italic">*Seluruh dana akan langsung ditransfer ke rekening rektorat universitas penerima untuk melunasi tagihan biaya kuliah.</p>
+            </div>
+
+            <!-- Interactive Impact Calculator -->
+            <div class="glass-panel calculator-card mt-6 p-6" id="impact-calculator">
+              <h3 class="font-serif text-gold text-center mb-4">🧮 Kalkulator Dampak Donasi</h3>
+              <p class="text-xs text-muted text-center mb-6">Geser slider untuk mensimulasikan dampak nyata bantuan Anda terhadap kelancaran studi {trainer.name}.</p>
+              
+              <!-- Slider Input -->
+              <div class="slider-wrapper">
+                <input 
+                  type="range" 
+                  min="50000" 
+                  max="10000000" 
+                  step="50000" 
+                  value="1000000" 
+                  class="impact-slider" 
+                  id="impact-slider"
+                />
+                <div class="flex justify-between text-[10px] text-muted mt-2">
+                  <span>Rp 50.000</span>
+                  <span>Rp 5.000.000</span>
+                  <span>Rp 10.000.000+</span>
+                </div>
+              </div>
+
+              <!-- Animated Impact Result Box -->
+              <div class="impact-result-box glass-panel p-4 mt-6 text-center">
+                <span class="lbl text-[10px] text-gold uppercase tracking-wider block">Nilai Donasi Simulasi</span>
+                <span class="simulated-val text-xl font-bold block my-1" id="simulated-amount">Rp 1.000.000</span>
+                <p class="impact-text text-sm leading-relaxed text-white mt-3" id="simulated-impact">
+                  Membantu membiayai transport riset pengabdian numerasi {trainer.name} ke daerah 3T selama 1 Semester.
+                </p>
+              </div>
+
+              <button class="btn btn-primary w-full text-center mt-6" id="donate-now-btn">
+                Donasikan Jumlah Ini Sekarang
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+</Layout>
+
+<script define:vars={{ trainerId: id, trainerName: trainer?.name || "" }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const slider = document.getElementById('impact-slider');
+    const displayAmount = document.getElementById('simulated-amount');
+    const displayImpact = document.getElementById('simulated-impact');
+    const donateBtn = document.getElementById('donate-now-btn');
+
+    if (!slider || !displayAmount || !displayImpact || !donateBtn) return;
+
+    // Define impact tiers
+    const updateImpact = (val) => {
+      const amount = Number(val);
+      displayAmount.textContent = `Rp ${amount.toLocaleString('id-ID')}`;
+
+      if (amount < 250000) {
+        displayImpact.textContent = `Membantu menanggung paket modul buku pegangan matematika GASING dan alat peraga manipulatif konkret untuk studi ${trainerName}.`;
+      } else if (amount >= 250000 && amount < 1000000) {
+        displayImpact.textContent = `Membantu menutupi biaya internet kuota data kuliah daring dan buku referensi wajib untuk mendukung tesis ${trainerName}.`;
+      } else if (amount >= 1000000 && amount < 4000000) {
+        displayImpact.textContent = `Membantu membiayai transport tiket pesawat riset/pengabdian numerasi ${trainerName} ke sekolah-sekolah di pelosok daerah asal.`;
+      } else if (amount >= 4000000 && amount < 8000000) {
+        displayImpact.textContent = `Membantu membiayai sewa tempat tinggal (kos) dan tunjangan hidup bulanan ${trainerName} di sekitar kampus selama 1 Semester perkuliahan.`;
+      } else {
+        displayImpact.textContent = `Luar Biasa! Kontribusi Anda akan langsung memotong/melunasi biaya Sumbangan Pembinaan Pendidikan (SPP) Kuliah Semester ${trainerName} secara signifikan.`;
+      }
+    };
+
+    // Listen slider movements
+    slider.addEventListener('input', (e) => {
+      updateImpact(e.target.value);
+    });
+
+    // Handle donation button click
+    donateBtn.addEventListener('click', () => {
+      const finalAmount = slider.value;
+      window.location.href = `/donasi?trainerId=${trainerId}&amount=${finalAmount}`;
+    });
+
+    // Run initial trigger
+    updateImpact(slider.value);
+  });
+</script>
+
+<style>
+  .trainer-details-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+
+  @media (max-width: 992px) {
+    .trainer-details-grid {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+  }
+
+  .profile-hero-card {
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+  }
+
+  .profile-image-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1.3;
+    overflow: hidden;
+  }
+
+  .profile-image {
+    width: 100%;
+    height: 100%;
+    object-cover: cover;
+  }
+
+  .funded-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    padding: 6px 12px;
+    background: rgba(16, 185, 129, 0.95);
+    border-radius: var(--border-radius-sm);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .loc-text {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .major-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-top: 4px;
+  }
+
+  .univ-text {
+    margin-top: 2px;
+  }
+
+  .story-card {
+    border-radius: var(--border-radius-lg);
+  }
+
+  .story-content {
+    color: var(--color-text-secondary);
+  }
+
+  /* Right column / Funding & Calculator */
+  .funding-card, .calculator-card {
+    border-radius: var(--border-radius-lg);
+  }
+
+  .border-divider {
+    width: 1px;
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .bar-bg {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-accent-gold) 0%, #f59e0b 100%);
+    border-radius: 100px;
+  }
+
+  /* Slider Styling */
+  .slider-wrapper {
+    margin-top: 16px;
+  }
+
+  .impact-slider {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 6px;
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .impact-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-accent-gold);
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+    transition: transform 0.1s ease;
+  }
+
+  .impact-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+  }
+
+  .impact-result-box {
+    border-color: rgba(245, 158, 11, 0.25);
+    background: rgba(245, 158, 11, 0.02);
+  }
+
+  .simulated-val {
+    color: var(--color-text-gold);
+  }
+
+  .w-full {
+    width: 100%;
+  }
+
+  .error-banner {
+    padding: 20px;
+    color: var(--color-danger);
+    background: rgba(239, 68, 68, 0.05);
+    border-color: rgba(239, 68, 68, 0.2);
+    border-radius: var(--border-radius-md);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+</style>

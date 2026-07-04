@@ -1,0 +1,282 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Force SSR for dynamic query
+export const prerender = false;
+
+interface DonationRecord {
+  donor_name: string;
+  amount: number;
+  message: string | null;
+  created_at: string;
+}
+
+let totalRaised = 0;
+let donorCount = 0;
+let donorWall: DonationRecord[] = [];
+let dbError = "";
+
+import { env } from 'cloudflare:workers';
+
+try {
+  if (env && env.DB) {
+    // 1. Get total funds raised
+    const totalResult = await env.DB.prepare(
+      "SELECT SUM(amount) as total FROM donations WHERE payment_status = 'settlement'"
+    ).first() as any;
+    totalRaised = totalResult?.total || 0;
+
+    // 2. Get donor count
+    const countResult = await env.DB.prepare(
+      "SELECT COUNT(*) as count FROM donations WHERE payment_status = 'settlement'"
+    ).first() as any;
+    donorCount = countResult?.count || 0;
+
+    // 3. Fetch successful donations for Donor Wall
+    const { results } = await env.DB.prepare(
+      `SELECT donor_name, amount, message, created_at 
+       FROM donations 
+       WHERE payment_status = 'settlement' 
+       ORDER BY created_at DESC 
+       LIMIT 40`
+    ).all();
+    donorWall = results as unknown as DonationRecord[];
+
+  } else {
+    dbError = "Database D1 tidak terdeteksi.";
+  }
+} catch (err: any) {
+  console.error("Database query error:", err);
+  dbError = `Gagal memuat dashboard transparansi: ${err.message}`;
+}
+---
+
+<Layout title="Transparansi & Dinding Donatur" description="Laporan transparansi alokasi dana 100% beasiswa dan daftar donatur publik yang mendukung para trainer GASING.">
+  <section class="section-padding">
+    <div class="container">
+      
+      <div class="transparency-header text-center mb-12">
+        <span class="badge">🛡️ KEPATUHAN & TRANSPARANSI</span>
+        <h2>Transparansi Keuangan & Dinding Donatur</h2>
+        <p>Kami menjamin akuntabilitas setiap rupiah yang Anda donasikan. Semua dana publik disalurkan utuh 100% tanpa potongan.</p>
+      </div>
+
+      {dbError && (
+        <div class="error-banner glass-panel mb-8">
+          <p>⚠️ {dbError}</p>
+        </div>
+      )}
+
+      <!-- Financial Dashboard Grid -->
+      <div class="transparency-grid mb-12">
+        <!-- Live Statistics Card -->
+        <div class="glass-panel stat-summary-card p-8 flex flex-col justify-center text-center">
+          <span class="lbl text-xs text-muted uppercase tracking-wider block mb-2">TOTAL DANA TERKUMPUL</span>
+          <h1 class="total-funds text-success font-serif text-3xl md:text-4xl my-2">Rp {totalRaised.toLocaleString('id-ID')}</h1>
+          <p class="text-sm text-secondary mt-2">Dari total <strong>{donorCount} donatur</strong> luar biasa di seluruh Indonesia.</p>
+        </div>
+
+        <!-- Allocation Chart Card -->
+        <div class="glass-panel allocation-card p-8">
+          <h3 class="font-serif mb-4 text-center">Alokasi Penggunaan Dana</h3>
+          
+          <div class="allocation-bar-container flex mb-4">
+            <div class="alloc-segment spp" style="width: 50%;" title="SPP Kuliah / Tuition Fee - 50%"></div>
+            <div class="alloc-segment living" style="width: 35%;" title="Uang Saku / Living Allowance - 35%"></div>
+            <div class="alloc-segment books" style="width: 15%;" title="Buku & Riset / Study Materials - 15%"></div>
+          </div>
+
+          <div class="allocation-legend text-xs flex flex-col gap-2">
+            <div class="legend-row flex justify-between">
+              <span class="flex items-center gap-2"><span class="legend-color spp-color"></span>SPP Kuliah (Tuition Fee)</span>
+              <span><strong>50%</strong></span>
+            </div>
+            <div class="legend-row flex justify-between">
+              <span class="flex items-center gap-2"><span class="legend-color living-color"></span>Biaya Hidup (Living Allowance)</span>
+              <span><strong>35%</strong></span>
+            </div>
+            <div class="legend-row flex justify-between">
+              <span class="flex items-center gap-2"><span class="legend-color books-color"></span>Buku, Modul & Riset Lapangan</span>
+              <span><strong>15%</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Donor Wall (Dinding Donatur) -->
+      <div class="donor-wall-container">
+        <h3 class="font-serif text-center text-gold text-2xl mb-8">❤️ Dinding Donatur Kebajikan</h3>
+        
+        <div class="donor-wall-grid">
+          {donorWall.length > 0 ? (
+            donorWall.map((donor) => (
+              <div class="glass-panel donor-card p-6 flex flex-col justify-between">
+                <div>
+                  <div class="donor-header flex justify-between items-start mb-3">
+                    <h4 class="font-sans font-semibold text-white">{donor.donor_name}</h4>
+                    <span class="donor-badge-amt">Rp {donor.amount.toLocaleString('id-ID')}</span>
+                  </div>
+                  {donor.message && (
+                    <p class="donor-msg text-sm italic text-secondary leading-relaxed">
+                      "{donor.message}"
+                    </p>
+                  )}
+                </div>
+                <div class="donor-footer text-[10px] text-muted mt-4 text-right">
+                  {new Date(donor.created_at).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </div>
+              </div>
+            ))
+          ) : (
+            !dbError && <p class="text-center text-muted col-span-3">Belum ada riwayat donatur sukses. Jadilah donatur pertama!</p>
+          )}
+        </div>
+      </div>
+
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .transparency-header h2 {
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(10, 15, 30, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 100px;
+    color: var(--color-success);
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .transparency-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+
+  @media (max-width: 768px) {
+    .transparency-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+
+  .stat-summary-card {
+    border-radius: var(--border-radius-lg);
+    border-color: rgba(16, 185, 129, 0.15);
+  }
+
+  .total-funds {
+    text-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+  }
+
+  .allocation-card {
+    border-radius: var(--border-radius-lg);
+  }
+
+  /* Allocation Bar styling */
+  .allocation-bar-container {
+    height: 16px;
+    border-radius: 100px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .alloc-segment {
+    height: 100%;
+    cursor: help;
+    transition: opacity 0.2s ease;
+  }
+
+  .alloc-segment:hover {
+    opacity: 0.85;
+  }
+
+  .spp {
+    background-color: var(--color-accent-gold);
+  }
+
+  .living {
+    background-color: var(--color-success);
+  }
+
+  .books {
+    background-color: #3b82f6; /* Blue for materials */
+  }
+
+  .legend-color {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  .spp-color { background-color: var(--color-accent-gold); }
+  .living-color { background-color: var(--color-success); }
+  .books-color { background-color: #3b82f6; }
+
+  /* Donor Wall card grid styling */
+  .donor-wall-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    margin-top: 20px;
+  }
+
+  .col-span-3 {
+    grid-column: span 3;
+  }
+
+  .donor-card {
+    border-radius: var(--border-radius-md);
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .donor-badge-amt {
+    padding: 4px 8px;
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.15);
+    border-radius: 6px;
+    color: var(--color-success);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .donor-msg {
+    color: var(--color-text-secondary);
+  }
+
+  .text-gold {
+    color: var(--color-text-gold);
+  }
+
+  .text-success {
+    color: var(--color-success);
+  }
+
+  .error-banner {
+    padding: 20px;
+    color: var(--color-danger);
+    background: rgba(239, 68, 68, 0.05);
+    border-color: rgba(239, 68, 68, 0.2);
+    border-radius: var(--border-radius-md);
+    text-align: center;
+  }
+</style>

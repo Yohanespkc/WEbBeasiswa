@@ -1,0 +1,322 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Force SSR for dynamic query
+export const prerender = false;
+
+interface TrainerSelect {
+  id: number;
+  name: string;
+}
+
+let trainers: TrainerSelect[] = [];
+let dbError = "";
+
+// Get query parameters for pre-population
+const url = new URL(Astro.request.url);
+const paramTrainerId = url.searchParams.get('trainerId') || "";
+const paramAmount = url.searchParams.get('amount') || "";
+
+import { env } from 'cloudflare:workers';
+
+try {
+  if (env && env.DB) {
+    const { results } = await env.DB.prepare("SELECT id, name FROM trainers WHERE is_funded = 0 ORDER BY id ASC").all();
+    trainers = results as unknown as TrainerSelect[];
+  } else {
+    dbError = "Database D1 tidak terdeteksi.";
+  }
+} catch (err: any) {
+  console.error("Database select error:", err);
+  dbError = `Gagal memuat daftar trainer: ${err.message}`;
+}
+---
+
+<Layout title="Kirim Donasi Beasiswa" description="Formulir donasi resmi untuk mendanai kelancaran pendidikan beasiswa S2 & S3 para trainer GASING.">
+  <section class="section-padding">
+    <div class="container max-w-md">
+      
+      <div class="form-header text-center mb-8">
+        <span class="badge">💳 PEMBAYARAN AMAN</span>
+        <h2>Salurkan Bantuan Anda</h2>
+        <p>Isi formulir di bawah ini untuk mendukung kebutuhan kuliah trainer pilihan Anda secara aman.</p>
+      </div>
+
+      {dbError && (
+        <div class="error-banner glass-panel">
+          <p>⚠️ {dbError}</p>
+        </div>
+      )}
+
+      <!-- Donation Form Card -->
+      <div class="glass-panel form-card p-8">
+        <form id="donation-form">
+          <!-- Name Field -->
+          <div class="input-group">
+            <label for="donor-name">Nama Donatur</label>
+            <input 
+              type="text" 
+              id="donor-name" 
+              placeholder="Nama Lengkap Anda (atau 'Anonim')" 
+              required
+            />
+          </div>
+
+          <!-- Email Field -->
+          <div class="input-group">
+            <label for="donor-email">Alamat Email</label>
+            <input 
+              type="email" 
+              id="donor-email" 
+              placeholder="nama@email.com (untuk resi & laporan)" 
+              required
+            />
+          </div>
+
+          <!-- Target Trainer Select Field -->
+          <div class="input-group">
+            <label for="target-trainer">Penerima Beasiswa Sasaran</label>
+            <select id="target-trainer">
+              <option value="">-- Donasi Umum (Disalurkan Sesuai Urgensi) --</option>
+              {trainers.map(t => (
+                <option value={t.id} selected={paramTrainerId === t.id.toString()}>{t.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <!-- Amount Field -->
+          <div class="input-group">
+            <label for="donation-amount">Nominal Donasi (Rupiah)</label>
+            <input 
+              type="number" 
+              id="donation-amount" 
+              min="10000" 
+              placeholder="Minimal Rp 10.000" 
+              value={paramAmount}
+              required
+            />
+            <div class="preset-buttons mt-2">
+              <button type="button" class="preset-btn" data-val="100000">100rb</button>
+              <button type="button" class="preset-btn" data-val="500000">500rb</button>
+              <button type="button" class="preset-btn" data-val="1000000">1jt</button>
+              <button type="button" class="preset-btn" data-val="5000000">5jt</button>
+            </div>
+          </div>
+
+          <!-- Message Field -->
+          <div class="input-group">
+            <label for="donor-message">Pesan Dukungan (Opsional)</label>
+            <textarea 
+              id="donor-message" 
+              rows="3" 
+              placeholder="Tuliskan kata-kata penyemangat untuk perjuangan studi mereka..."
+            ></textarea>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary w-full text-center mt-4" id="submit-btn">
+            Lanjutkan ke Pembayaran
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </section>
+</Layout>
+
+<!-- Load Midtrans Snap Sandbox client-side JS library -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('donation-form') as HTMLFormElement;
+    const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+    const amountInput = document.getElementById('donation-amount') as HTMLInputElement;
+    const presetBtns = document.querySelectorAll('.preset-btn');
+
+    if (!form || !submitBtn || !amountInput) return;
+
+    // Handle preset amount button clicks
+    presetBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const val = (e.target as HTMLButtonElement).getAttribute('data-val');
+        if (val) amountInput.value = val;
+      });
+    });
+
+    // Form submit listener
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const name = (document.getElementById('donor-name') as HTMLInputElement).value;
+      const email = (document.getElementById('donor-email') as HTMLInputElement).value;
+      const trainerId = (document.getElementById('target-trainer') as HTMLSelectElement).value;
+      const amount = amountInput.value;
+      const message = (document.getElementById('donor-message') as HTMLTextAreaElement).value;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Menginisialisasi Pembayaran...";
+
+      try {
+        const response = await fetch('/api/payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, amount, message, trainerId })
+        });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || "Gagal menginisialisasi donasi.");
+        }
+
+        if (data.mock) {
+          // If it's a simulated mockup, redirect to our mock checkout UI
+          window.location.href = data.redirect_url;
+        } else {
+          // If a real Midtrans Snap Token was returned, load Midtrans Snap JS dynamically
+          const script = document.createElement('script');
+          script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
+          script.setAttribute('data-client-key', 'SB-Mid-client-dummykey');
+          script.onload = () => {
+            // @ts-ignore (Snap is loaded inline from cdn)
+            window.snap.pay(data.token, {
+              onSuccess: function(result: any) {
+                window.location.href = `/donasi/sukses?orderId=${data.orderId}&amount=${amount}`;
+              },
+              onPending: function(result: any) {
+                alert("Pembayaran Anda sedang menunggu penyelesaian.");
+                window.location.href = "/trainers";
+              },
+              onError: function(result: any) {
+                alert("Terjadi kesalahan saat memproses pembayaran.");
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Lanjutkan ke Pembayaran";
+              },
+              onClose: function() {
+                alert("Anda menutup halaman checkout donasi sebelum menyelesaikan pembayaran.");
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Lanjutkan ke Pembayaran";
+              }
+            });
+          };
+          script.onerror = () => {
+            // Fallback to mock checkout if script fails to load
+            window.location.href = data.redirect_url;
+          };
+          document.body.appendChild(script);
+        }
+      } catch (err: any) {
+        alert(`Gagal: ${err.message}`);
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Lanjutkan ke Pembayaran";
+      }
+    });
+  });
+</script>
+
+<style>
+  .max-w-md {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .form-header h2 {
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 100px;
+    color: var(--color-success);
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .form-card {
+    border-radius: var(--border-radius-lg);
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .input-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  .input-group input, 
+  .input-group select, 
+  .input-group textarea {
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    border-radius: var(--border-radius-sm);
+    outline: none;
+    transition: var(--transition-smooth);
+  }
+
+  .input-group input:focus, 
+  .input-group select:focus, 
+  .input-group textarea:focus {
+    border-color: var(--color-accent-gold);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Dropdown Select option styling override */
+  .input-group select option {
+    background-color: var(--color-bg-dark);
+    color: #ffffff;
+  }
+
+  /* Preset Nominal Buttons */
+  .preset-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .preset-btn {
+    flex: 1;
+    padding: 6px 0;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--color-text-secondary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+  }
+
+  .preset-btn:hover {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: var(--color-accent-gold);
+    color: var(--color-text-gold);
+  }
+
+  .w-full {
+    width: 100%;
+  }
+
+  .error-banner {
+    padding: 16px;
+    border-color: rgba(239, 68, 68, 0.2);
+    background: rgba(239, 68, 68, 0.05);
+    color: var(--color-danger);
+    border-radius: var(--border-radius-sm);
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 0.9rem;
+  }
+</style>

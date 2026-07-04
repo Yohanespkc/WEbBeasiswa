@@ -1,0 +1,120 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+// Force SSR to read request query params
+export const prerender = false;
+
+const url = new URL(Astro.request.url);
+const orderId = url.searchParams.get('orderId') || "";
+const amount = Number(url.searchParams.get('amount') || "0");
+---
+
+<Layout title="Donasi Sukses" description="Terima kasih atas bantuan Anda untuk mendukung kelancaran studi beasiswa S2 & S3 Trainer GASING.">
+  <section class="section-padding text-center">
+    <div class="container max-w-md">
+      
+      <div class="glass-panel success-card p-10">
+        <!-- Animated Checkmark -->
+        <div class="checkmark-wrapper mb-6">
+          <div class="checkmark-circle">
+            <span class="checkmark-icon">✓</span>
+          </div>
+        </div>
+
+        <span class="badge">❤️ TERIMA KASIH</span>
+        <h2 class="font-serif text-3xl mb-4">Donasi Anda Berhasil!</h2>
+        
+        <p class="mb-6 leading-relaxed">Dukungan finansial sebesar <strong class="text-gold">Rp {amount.toLocaleString('id-ID')}</strong> telah berhasil kami terima dan catat di database Cloudflare D1.</p>
+        
+        <div class="invoice-box glass-panel p-4 mb-8 text-xs text-muted font-mono">
+          <div class="flex justify-between mb-1">
+            <span>Transaksi ID:</span>
+            <span>{orderId}</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Status Pembayaran:</span>
+            <span class="text-success uppercase font-bold">SETTLEMENT (SUKSES)</span>
+          </div>
+        </div>
+
+        <p class="text-sm text-secondary mb-8 leading-relaxed">Dana bantuan Anda 100% dipasangkan langsung untuk menunjang studi beasiswa lanjutan trainer pilihan Anda. Nama Anda kini telah tercantum pada dinding donatur publik kami sebagai apresiasi.</p>
+
+        <div class="success-actions flex flex-col gap-3">
+          <a href="/trainers" class="btn btn-primary">
+            Lihat Progres Penerima Beasiswa
+          </a>
+          <a href="/" class="btn btn-secondary">
+            Kembali ke Beranda
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .max-w-md {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .success-card {
+    border-radius: var(--border-radius-lg);
+    border-color: rgba(16, 185, 129, 0.3);
+    box-shadow: 0 0 40px rgba(16, 185, 129, 0.1);
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-radius: 100px;
+    color: var(--color-success);
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  /* Animated Checkmark Styling */
+  .checkmark-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(16, 185, 129, 0.1);
+    border: 3px solid var(--color-success);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .checkmark-icon {
+    color: var(--color-success);
+    font-size: 2.5rem;
+    font-weight: bold;
+  }
+
+  @keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+    70% { transform: scale(0.9); opacity: 0.9; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .invoice-box {
+    border-color: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .text-gold {
+    color: var(--color-text-gold);
+  }
+
+  .text-success {
+    color: var(--color-success);
+  }
+</style>

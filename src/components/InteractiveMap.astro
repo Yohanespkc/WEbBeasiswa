@@ -1,0 +1,440 @@
+---
+import { BUDAYA_REGISTRY } from '../data/budayaRegistry';
+
+const regionsJson = JSON.stringify(BUDAYA_REGISTRY);
+---
+
+<div class="map-card glass-panel">
+  <div class="map-header">
+    <h3>🗺️ Peta Dampak Pelatihan GASING Nusantara</h3>
+    <p>Sentuh atau klik titik bercahaya pada peta untuk melihat bukti nyata perubahan numerasi anak-anak bangsa di daerah tersebut.</p>
+  </div>
+
+  <div class="map-canvas-container relative">
+    <div class="map-loading">
+      <div class="spinner"></div>
+      <p>Memuat Peta Nusantara...</p>
+    </div>
+    <!-- SVG Indonesia Map will be injected dynamically here -->
+  </div>
+
+  <div class="map-legend">
+    <div class="legend-item">
+      <span class="legend-dot active-dot-glow"></span>
+      <span>127+ Wilayah Sukses Terintervensi</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot waiting-dot"></span>
+      <span>387 Wilayah Menunggu Dukungan Anda</span>
+    </div>
+  </div>
+
+  <!-- Custom Tooltip -->
+  <div class="map-tooltip opacity-0 pointer-events-none absolute z-[80] glass-panel p-4" id="map-tooltip">
+    <h4 class="tooltip-title text-gold font-serif">Kabupaten</h4>
+    <p class="tooltip-region text-muted text-xs uppercase tracking-wider mb-2">Papua</p>
+    <div class="tooltip-stats">
+      <div class="tooltip-stat">
+        <span class="stat-lbl">Peningkatan:</span>
+        <span class="stat-val text-success">10.04x Lipat</span>
+      </div>
+      <div class="tooltip-stat">
+        <span class="stat-lbl">Metode:</span>
+        <span class="stat-val text-white">GASING Hore</span>
+      </div>
+    </div>
+    <p class="tooltip-helper text-muted text-[10px] mt-2 italic">*Klik untuk memutar video lagu belajar daerah</p>
+  </div>
+
+  <!-- Video Modal -->
+  <div class="video-modal pointer-events-none opacity-0 fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-md transition-all duration-300" id="video-modal">
+    <div class="modal-card glass-panel p-6 max-w-3xl w-full relative">
+      <button class="modal-close-btn" id="modal-close-btn">✖</button>
+      <h3 class="modal-title font-serif text-xl text-center text-gold mb-4">Pemutar Video Pelatihan</h3>
+      <div class="video-wrapper">
+        <iframe
+          id="modal-iframe"
+          class="w-full aspect-video rounded-xl border border-white/10"
+          src=""
+          title="Video Pelatihan GASING"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+      </div>
+      <p class="text-xs text-muted text-center mt-3">Mendengar keceriaan anak-anak belajar numerasi lewat melodi lagu daerah mereka.</p>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ regionsJson }}>
+  // Parse regions data passed from Astro
+  const regions = JSON.parse(regionsJson);
+
+  class InteractiveMap {
+    constructor(container) {
+      this.container = container;
+      this.canvasContainer = container.querySelector('.map-canvas-container');
+      this.loadingEl = container.querySelector('.map-loading');
+      this.tooltip = document.getElementById('map-tooltip');
+      this.modal = document.getElementById('video-modal');
+      this.modalClose = document.getElementById('modal-close-btn');
+      this.iframe = document.getElementById('modal-iframe');
+
+      this.init();
+    }
+
+    async init() {
+      await this.loadMap();
+      this.renderPins();
+      this.setupModalEvents();
+    }
+
+    async loadMap() {
+      try {
+        const res = await fetch('/indonesia.svg');
+        const svgText = await res.text();
+        
+        // Remove loading state
+        if (this.loadingEl) this.loadingEl.remove();
+
+        // Parse and append SVG
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(svgText, 'image/svg+xml');
+        const svgEl = doc.querySelector('svg');
+        
+        if (svgEl) {
+          // Adjust class for responsiveness
+          svgEl.setAttribute('class', 'w-full h-auto drop-shadow-2xl');
+          svgEl.removeAttribute('style');
+          
+          // Create markers group
+          const markersGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          markersGroup.setAttribute('id', 'markers-container');
+          svgEl.appendChild(markersGroup);
+
+          this.canvasContainer.appendChild(svgEl);
+          this.svg = svgEl;
+          this.markersContainer = markersGroup;
+        }
+      } catch (e) {
+        console.error("Gagal memuat peta Indonesia SVG:", e);
+      }
+    }
+
+    renderPins() {
+      if (!this.markersContainer) return;
+
+      regions.forEach((reg) => {
+        // Create a group for the pin
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'map-pin cursor-pointer');
+        g.setAttribute('data-name', reg.name);
+        g.setAttribute('data-id', reg.id);
+        
+        // Dynamic mock statistics based on regional history
+        let increase = '3.5x Lipat';
+        let province = 'Indonesia';
+        if (reg.y > 200 && reg.x > 800) {
+          increase = '10.04x Lipat';
+          province = 'Papua';
+        } else if (reg.x < 200) {
+          increase = '4.8x Lipat';
+          province = 'Sumatera';
+        } else if (reg.x > 250 && reg.x < 420 && reg.y > 280) {
+          increase = '5.6x Lipat';
+          province = 'Jawa';
+        } else if (reg.x > 500 && reg.x < 680 && reg.y > 100 && reg.y < 260) {
+          increase = '6.2x Lipat';
+          province = 'Sulawesi';
+        } else if (reg.x > 500 && reg.x < 650 && reg.y > 320) {
+          increase = '7.5x Lipat';
+          province = 'Nusa Tenggara';
+        }
+
+        g.setAttribute('data-increase', increase);
+        g.setAttribute('data-province', province);
+
+        // 1. Pulsing ring animation
+        const pulse = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        pulse.setAttribute('cx', reg.x.toString());
+        pulse.setAttribute('cy', reg.y.toString());
+        pulse.setAttribute('r', '8');
+        pulse.setAttribute('fill', '#10b981');
+        pulse.setAttribute('opacity', '0.4');
+        pulse.setAttribute('class', 'pulse-circle');
+
+        // 2. Central active dot
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', reg.x.toString());
+        dot.setAttribute('cy', reg.y.toString());
+        dot.setAttribute('r', '3.5');
+        dot.setAttribute('fill', '#fbbf24');
+        dot.setAttribute('stroke', '#ffffff');
+        dot.setAttribute('stroke-width', '1');
+
+        g.appendChild(pulse);
+        g.appendChild(dot);
+
+        // Hover events
+        g.addEventListener('mouseenter', (e) => this.showTooltip(e, reg.name, province, increase));
+        g.addEventListener('mouseleave', () => this.hideTooltip());
+        g.addEventListener('mousemove', (e) => this.moveTooltip(e));
+
+        // Click events
+        g.addEventListener('click', () => this.playVideo(reg.id, reg.name));
+
+        this.markersContainer.appendChild(g);
+      });
+    }
+
+    showTooltip(e, name, province, increase) {
+      if (!this.tooltip) return;
+      
+      this.tooltip.querySelector('.tooltip-title').textContent = `Kab. ${name}`;
+      this.tooltip.querySelector('.tooltip-region').textContent = province;
+      this.tooltip.querySelector('.stat-val').textContent = increase;
+      
+      this.tooltip.classList.remove('opacity-0', 'pointer-events-none');
+      this.tooltip.classList.add('opacity-100');
+    }
+
+    moveTooltip(e) {
+      if (!this.tooltip) return;
+      
+      // Calculate position relative to container
+      const rect = this.canvasContainer.getBoundingClientRect();
+      const x = e.clientX - rect.left + 15;
+      const y = e.clientY - rect.top + 15;
+      
+      this.tooltip.style.left = `${x}px`;
+      this.tooltip.style.top = `${y}px`;
+    }
+
+    hideTooltip() {
+      if (!this.tooltip) return;
+      this.tooltip.classList.remove('opacity-100');
+      this.tooltip.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    playVideo(videoId, name) {
+      if (!this.modal || !this.iframe) return;
+      this.modal.querySelector('.modal-title').textContent = `Pelatihan GASING di ${name}`;
+      this.iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+      this.modal.classList.remove('pointer-events-none', 'opacity-0');
+      this.modal.classList.add('opacity-100');
+    }
+
+    setupModalEvents() {
+      if (this.modalClose) {
+        this.modalClose.addEventListener('click', () => this.closeModal());
+      }
+      if (this.modal) {
+        this.modal.addEventListener('click', (e) => {
+          if (e.target === this.modal) this.closeModal();
+        });
+      }
+    }
+
+    closeModal() {
+      if (!this.modal || !this.iframe) return;
+      this.modal.classList.add('pointer-events-none', 'opacity-0');
+      this.modal.classList.remove('opacity-100');
+      this.iframe.src = ''; // Stop video playback
+    }
+  }
+
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    const mapCard = document.querySelector('.map-card');
+    if (mapCard) {
+      new InteractiveMap(mapCard);
+    }
+  });
+</script>
+
+<style>
+  .map-card {
+    padding: 32px;
+    border-radius: var(--border-radius-lg);
+    margin: 40px auto;
+    width: 100%;
+    max-width: 1200px;
+    overflow: hidden;
+  }
+
+  .map-header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .map-header h3 {
+    font-size: 1.6rem;
+    color: var(--color-text-primary);
+    margin-bottom: 8px;
+  }
+
+  .map-header p {
+    font-size: 0.95rem;
+    color: var(--color-text-secondary);
+  }
+
+  .map-canvas-container {
+    background: rgba(10, 15, 30, 0.5);
+    border: var(--glass-border);
+    border-radius: var(--border-radius-md);
+    min-height: 380px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 8px;
+  }
+
+  .map-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    color: var(--color-text-secondary);
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(245, 158, 11, 0.1);
+    border-top: 3px solid var(--color-accent-gold);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .map-legend {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-top: 24px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .active-dot-glow {
+    background-color: var(--color-success);
+    box-shadow: 0 0 10px var(--color-success);
+  }
+
+  .waiting-dot {
+    background-color: var(--color-danger);
+    box-shadow: 0 0 10px var(--color-danger);
+  }
+
+  /* Custom Tooltip Styling */
+  .map-tooltip {
+    border-radius: var(--border-radius-sm);
+    border-color: rgba(245, 158, 11, 0.3);
+    min-width: 200px;
+    box-shadow: var(--glass-shadow);
+    transition: opacity 0.2s ease;
+  }
+
+  .tooltip-title {
+    font-size: 1rem;
+    margin-bottom: 2px;
+  }
+
+  .tooltip-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.8rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 8px;
+  }
+
+  .tooltip-stat {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .stat-lbl {
+    color: var(--color-text-secondary);
+  }
+
+  .stat-val {
+    font-weight: 600;
+  }
+
+  .text-gold {
+    color: var(--color-text-gold);
+  }
+
+  .text-success {
+    color: var(--color-success);
+  }
+
+  /* Pulse animation on markers */
+  :global(.pulse-circle) {
+    transform-origin: center;
+    animation: markerPulse 2.4s infinite ease-in-out;
+  }
+
+  @keyframes markerPulse {
+    0% { transform: scale(0.9); opacity: 0.8; }
+    50% { transform: scale(1.6); opacity: 0.2; }
+    100% { transform: scale(0.9); opacity: 0.8; }
+  }
+
+  /* Video Modal Styles */
+  .video-modal {
+    transition: opacity 0.3s ease;
+  }
+
+  .modal-card {
+    border-color: rgba(245, 158, 11, 0.5);
+    box-shadow: 0 0 50px rgba(0,0,0,0.8);
+  }
+
+  .modal-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--color-text-primary);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+  }
+
+  .modal-close-btn:hover {
+    background: var(--color-danger);
+    border-color: var(--color-danger);
+    transform: rotate(90deg);
+  }
+
+  .video-wrapper {
+    overflow: hidden;
+  }
+</style>

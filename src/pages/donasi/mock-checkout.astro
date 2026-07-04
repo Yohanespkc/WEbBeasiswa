@@ -1,0 +1,150 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+// Force SSR to read request query params
+export const prerender = false;
+
+const url = new URL(Astro.request.url);
+const orderId = url.searchParams.get('orderId') || "";
+const amount = Number(url.searchParams.get('amount') || "0");
+const name = url.searchParams.get('name') || "Donatur";
+---
+
+<Layout title="Simulasi Pembayaran Donasi" description="Halaman sandbox pembayaran donasi untuk simulasi transfer beasiswa.">
+  <section class="section-padding">
+    <div class="container max-w-md">
+      
+      <div class="checkout-header text-center mb-8">
+        <span class="badge">⚙️ SANDBOX SIMULATOR</span>
+        <h2>Instruksi Pembayaran</h2>
+        <p>Gunakan petunjuk di bawah ini untuk mensimulasikan transfer dana donasi Anda.</p>
+      </div>
+
+      <!-- Mock Invoice Card -->
+      <div class="glass-panel invoice-card p-8">
+        <div class="invoice-summary text-center mb-6">
+          <span class="text-xs text-muted block uppercase tracking-wider">TOTAL INVOICE DONASI</span>
+          <h2 class="text-gold font-serif text-2xl my-2">Rp {amount.toLocaleString('id-ID')}</h2>
+          <span class="text-[10px] text-muted font-mono block">Order ID: {orderId}</span>
+        </div>
+
+        <div class="invoice-details mb-6">
+          <div class="invoice-row flex justify-between py-2 border-b border-white/5">
+            <span class="lbl text-sm text-muted">Metode Pembayaran</span>
+            <span class="val text-sm font-semibold text-white">BCA Virtual Account (Simulasi)</span>
+          </div>
+          <div class="invoice-row flex justify-between py-2 border-b border-white/5">
+            <span class="lbl text-sm text-muted">Nomor Virtual Account</span>
+            <span class="val text-sm font-mono font-bold text-gold">118-0855-9008-2026</span>
+          </div>
+          <div class="invoice-row flex justify-between py-2">
+            <span class="lbl text-sm text-muted">Atas Nama Rekening</span>
+            <span class="val text-sm font-semibold text-white">Yayasan Surya Institute</span>
+          </div>
+        </div>
+
+        <div class="checkout-actions">
+          <button class="btn btn-primary w-full text-center py-3 font-bold" id="simulate-success-btn">
+            🟢 Simulasikan Pembayaran Sukses (D1)
+          </button>
+          
+          <a href="/donasi" class="btn btn-secondary w-full text-center mt-3 py-2 text-xs">
+            Batalkan Pembayaran
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</Layout>
+
+<script define:vars={{ orderId, amount }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const successBtn = document.getElementById('simulate-success-btn');
+
+    if (!successBtn) return;
+
+    successBtn.addEventListener('click', async () => {
+      successBtn.disabled = true;
+      successBtn.textContent = "Mengirim Konfirmasi Webhook...";
+
+      try {
+        // Send simulated success event to our local D1 webhook endpoint
+        const response = await fetch('/api/webhook', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId: orderId,
+            status: 'settlement'
+          })
+        });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || "Gagal mengupdate database.");
+        }
+
+        // Redirect to success landing page
+        window.location.href = `/donasi/sukses?orderId=${orderId}&amount=${amount}`;
+
+      } catch (err) {
+        alert(`Gagal simulasi: ${err.message}`);
+        successBtn.disabled = false;
+        successBtn.textContent = "Simulasikan Pembayaran Sukses (D1)";
+      }
+    });
+  });
+</script>
+
+<style>
+  .max-w-md {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .checkout-header h2 {
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(245, 158, 11, 0.05);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: 100px;
+    color: var(--color-text-gold);
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .invoice-card {
+    border-radius: var(--border-radius-lg);
+  }
+
+  .invoice-summary {
+    border-bottom: 2px dashed rgba(255, 255, 255, 0.08);
+    padding-bottom: 20px;
+  }
+
+  .invoice-details {
+    padding: 8px 0;
+  }
+
+  .w-full {
+    width: 100%;
+  }
+
+  /* Pulsing animation on simulate success button */
+  #simulate-success-btn {
+    animation: pulseGlow 2s infinite ease-in-out;
+  }
+
+  @keyframes pulseGlow {
+    0% { box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
+    50% { box-shadow: 0 0 25px rgba(16, 185, 129, 0.6); }
+    100% { box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
+  }
+</style>

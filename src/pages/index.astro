@@ -1,0 +1,306 @@
+---
+import Layout from '../layouts/Layout.astro';
+import InteractiveMap from '../components/InteractiveMap.astro';
+import { emotionalStories, boardMembers, metrics } from '../data/stories';
+---
+
+<Layout title="Beranda" description="Website resmi penggalangan dana Beasiswa S2 & S3 untuk para Trainer GASING Indonesia. Membantu melahirkan pemimpin baru numerasi di 514 Kabupaten.">
+  <!-- Hero Section -->
+  <section class="hero-section text-center relative overflow-hidden">
+    <div class="hero-glow absolute inset-0 z-0"></div>
+    <div class="container relative z-10 hero-content">
+      <span class="hero-badge">🎓 PROGRAM BEASISWA NUSANTARA</span>
+      <h1 class="hero-title">Membuka Pintu Pendidikan Lanjut<br/><span class="text-gold">S2 & S3 Trainer GASING</span></h1>
+      <p class="hero-subtitle">Merekalah ujung tombak yang melatih ribuan guru dan murid di pelosok negeri. Mari bantu mereka menempuh jenjang S2 & S3 agar dapat kembali memimpin penyelamatan numerasi di 387 Kabupaten tersisa.</p>
+      
+      <div class="hero-actions">
+        <a href="/donasi" class="btn btn-primary">Donasi Beasiswa</a>
+        <a href="/trainers" class="btn btn-secondary">Lihat Kandidat</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Statistics Panel -->
+  <section class="container relative z-10">
+    <div class="grid-cols-4 statistics-grid">
+      {metrics.map(metric => (
+        <div class="glass-panel stat-card text-center">
+          <h2 class="stat-value text-gold">{metric.value}</h2>
+          <h4 class="stat-label">{metric.label}</h4>
+          <p class="stat-desc text-xs mt-1">{metric.description}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Interactive Map Section -->
+  <section class="section-padding">
+    <div class="container">
+      <InteractiveMap />
+    </div>
+  </section>
+
+  <!-- Emotional Stories Section -->
+  <section class="section-padding stories-section relative">
+    <div class="container">
+      <div class="section-header text-center">
+        <h2>Kisah Haru dari Garis Depan Nusantara</h2>
+        <p>Mengapa beasiswa ini begitu penting? Inilah potret perjuangan nyata para trainer di lapangan yang kami ambil dari Buku GASING Volume 4.</p>
+      </div>
+
+      <div class="grid-cols-2 stories-grid">
+        {emotionalStories.map(story => (
+          <div class="glass-panel story-card overflow-hidden">
+            <div class="story-image-wrapper">
+              <img src={story.image} alt={story.title} class="story-image" />
+              <span class="story-location-badge">{story.location}</span>
+            </div>
+            <div class="story-info">
+              <h3>{story.title}</h3>
+              <p class="story-text">{story.fullStory}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Board of Directors Section -->
+  <section class="section-padding board-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <h2>Dewan Direksi & Pembina</h2>
+        <p>Dipimpin langsung oleh pencipta metode GASING serta diawasi oleh komite independen untuk menjamin penyaluran dana 100% transparan.</p>
+      </div>
+
+      <div class="grid-cols-3 board-grid">
+        {boardMembers.map(member => (
+          <div class="glass-panel board-card text-center">
+            <div class="member-avatar-wrapper">
+              <img src={member.image} alt={member.name} class="member-avatar" />
+            </div>
+            <h3>{member.name}</h3>
+            <span class="member-role text-gold">{member.role}</span>
+            <p class="member-desc text-xs mt-3">{member.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* Hero Styling */
+  .hero-section {
+    padding: 100px 0 60px 0;
+  }
+
+  .hero-glow {
+    background: radial-gradient(circle at center, rgba(245, 158, 11, 0.08) 0%, transparent 60%);
+  }
+
+  .hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(245, 158, 11, 0.05);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: 100px;
+    color: var(--color-text-gold);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+  }
+
+  .hero-title {
+    font-size: 2.8rem;
+    line-height: 1.15;
+    margin-bottom: 20px;
+  }
+
+  .hero-subtitle {
+    font-size: 1.05rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin-bottom: 36px;
+  }
+
+  .hero-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2rem;
+    }
+    .hero-subtitle {
+      font-size: 0.95rem;
+    }
+    .hero-actions {
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .hero-actions a {
+      width: 100%;
+      max-width: 280px;
+    }
+  }
+
+  /* Statistics Grid */
+  .statistics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+    margin-top: 20px;
+  }
+
+  .stat-card {
+    padding: 24px;
+    border-radius: var(--border-radius-md);
+  }
+
+  .stat-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  .stat-desc {
+    color: var(--color-text-muted);
+  }
+
+  /* Section Header */
+  .section-header {
+    max-width: 650px;
+    margin: 0 auto 48px auto;
+  }
+
+  .section-header h2 {
+    font-size: 2rem;
+    margin-bottom: 12px;
+  }
+
+  .section-header p {
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+  }
+
+  /* Stories Section */
+  .stories-section {
+    background: radial-gradient(circle at bottom, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+  }
+
+  .grid-cols-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 32px;
+  }
+
+  @media (max-width: 768px) {
+    .grid-cols-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .story-card {
+    border-radius: var(--border-radius-lg);
+  }
+
+  .story-image-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1.8;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .story-image {
+    width: 100%;
+    height: 100%;
+    object-cover: cover;
+    transition: var(--transition-smooth);
+  }
+
+  .story-card:hover .story-image {
+    transform: scale(1.03);
+  }
+
+  .story-location-badge {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    padding: 6px 12px;
+    background: rgba(7, 12, 25, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(4px);
+    border-radius: var(--border-radius-sm);
+    color: var(--color-text-primary);
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .story-info {
+    padding: 24px;
+  }
+
+  .story-info h3 {
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+  }
+
+  .story-text {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    text-align: justify;
+  }
+
+  /* Board Section */
+  .board-card {
+    padding: 32px 24px;
+    border-radius: var(--border-radius-lg);
+  }
+
+  .member-avatar-wrapper {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 20px auto;
+    border: 2px solid var(--color-accent-gold);
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.2);
+  }
+
+  .member-avatar {
+    width: 100%;
+    height: 100%;
+    object-cover: cover;
+  }
+
+  .member-role {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .member-desc {
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+  }
+</style>

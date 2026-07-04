@@ -1,0 +1,227 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+// Force SSR for request-time database queries
+export const prerender = false;
+
+interface Trainer {
+  id: number;
+  name: string;
+  photo_url: string;
+  major: string;
+  university: string;
+  bio: string;
+  story_emotional: string;
+  home_regency: string;
+  home_province: string;
+  target_funding: number;
+  current_funding: number;
+  is_funded: number;
+}
+
+let trainers: Trainer[] = [];
+let dbError = "";
+
+import { env } from 'cloudflare:workers';
+
+try {
+  if (env && env.DB) {
+    const { results } = await env.DB.prepare("SELECT * FROM trainers ORDER BY is_funded ASC, id ASC").all();
+    trainers = results as unknown as Trainer[];
+  } else {
+    dbError = "Database D1 tidak terdeteksi. Pastikan server dijalankan dengan Cloudflare Locals.";
+  }
+} catch (err: any) {
+  console.error("Database query error:", err);
+  dbError = `Gagal memuat data dari database: ${err.message}`;
+}
+---
+
+<Layout title="Kandidat Penerima Beasiswa" description="Daftar lengkap para trainer GASING daerah pelosok yang sedang menempuh atau dicalonkan menerima Beasiswa S2 & S3.">
+  <section class="section-padding">
+    <div class="container">
+      <div class="trainers-header text-center">
+        <span class="badge">👨‍🏫 CALON PENERIMA BEASISWA</span>
+        <h2>Wajah-Wajah Ujung Tombak Pendidikan</h2>
+        <p>Mereka telah mendedikasikan hidupnya melatih ribuan anak di pedalaman. Sekarang, saatnya kita berinvestasi untuk masa depan studi mereka.</p>
+      </div>
+
+      {dbError && (
+        <div class="error-banner glass-panel">
+          <p>⚠️ {dbError}</p>
+          <p class="text-xs mt-2 text-muted">Menampilkan data simulasi lokal...</p>
+        </div>
+      )}
+
+      <!-- Trainers Grid -->
+      <div class="grid-cols-3 trainers-grid">
+        {trainers.length > 0 ? (
+          trainers.map((trainer) => {
+            const percent = Math.min(100, Math.round((trainer.current_funding / trainer.target_funding) * 100));
+            return (
+              <div class="glass-panel trainer-card overflow-hidden flex flex-col justify-between">
+                <div>
+                  <div class="trainer-avatar-box">
+                    <img src={trainer.photo_url} alt={trainer.name} class="trainer-avatar" />
+                    {trainer.is_funded === 1 && (
+                      <span class="funded-badge">🎉 Didanai Penuh</span>
+                    )}
+                  </div>
+                  <div class="trainer-body">
+                    <span class="trainer-loc">{trainer.home_regency}, {trainer.home_province}</span>
+                    <h3>{trainer.name}</h3>
+                    <p class="trainer-major text-gold">{trainer.major}</p>
+                    <p class="trainer-univ text-xs text-muted mb-4">{trainer.university}</p>
+                    <p class="trainer-bio text-sm leading-relaxed">{trainer.bio}</p>
+                  </div>
+                </div>
+
+                <div class="trainer-footer">
+                  <!-- Progress Bar -->
+                  <div class="funding-progress">
+                    <div class="progress-lbl text-xs flex justify-between mb-1">
+                      <span>Terkumpul: <strong>Rp {trainer.current_funding.toLocaleString('id-ID')}</strong></span>
+                      <span>{percent}%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                      <div class="progress-bar-fill" style={`width: ${percent}%;`}></div>
+                    </div>
+                    <div class="progress-target text-[10px] text-muted text-right mt-1">
+                      Target: Rp {trainer.target_funding.toLocaleString('id-ID')}
+                    </div>
+                  </div>
+
+                  <a href={`/trainers/${trainer.id}`} class="btn btn-secondary w-full text-center mt-4">
+                    Lihat Profil Lengkap
+                  </a>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          !dbError && <p class="text-center text-muted">Belum ada data trainer terdaftar.</p>
+        )}
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .trainers-header {
+    max-width: 700px;
+    margin: 0 auto 48px auto;
+  }
+
+  .trainers-header h2 {
+    font-size: 2.2rem;
+    margin-bottom: 12px;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(245, 158, 11, 0.05);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: 100px;
+    color: var(--color-text-gold);
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .error-banner {
+    padding: 20px;
+    border-color: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.05);
+    color: var(--color-danger);
+    margin-bottom: 32px;
+    text-align: center;
+    border-radius: var(--border-radius-md);
+  }
+
+  .trainer-card {
+    border-radius: var(--border-radius-lg);
+    padding: 0;
+    min-height: 520px;
+  }
+
+  .trainer-avatar-box {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1.1;
+    overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .trainer-avatar {
+    width: 100%;
+    height: 100%;
+    object-cover: cover;
+  }
+
+  .funded-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    padding: 6px 12px;
+    background: rgba(16, 185, 129, 0.9);
+    backdrop-filter: blur(4px);
+    border-radius: var(--border-radius-sm);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .trainer-body {
+    padding: 24px;
+  }
+
+  .trainer-loc {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .trainer-body h3 {
+    font-size: 1.3rem;
+    margin-bottom: 4px;
+  }
+
+  .trainer-major {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .trainer-bio {
+    color: var(--color-text-secondary);
+  }
+
+  .trainer-footer {
+    padding: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.15);
+  }
+
+  /* Progress Bar styling */
+  .progress-bar-bg {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-accent-gold) 0%, #f59e0b 100%);
+    border-radius: 100px;
+  }
+
+  .w-full {
+    width: 100%;
+  }
+</style>
