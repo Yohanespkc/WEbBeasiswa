@@ -110,7 +110,7 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
 
   <!-- Detail & Video Modal -->
   <div class="video-modal pointer-events-none opacity-0 fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-950/85 backdrop-blur-md transition-all duration-300" id="video-modal">
-    <div class="modal-card glass-panel p-6 max-w-6xl w-full relative">
+    <div class="modal-card glass-panel p-6 max-w-7xl w-full relative">
       <button class="modal-close-btn" id="modal-close-btn">✖</button>
       <h3 class="modal-title font-serif text-xl text-center text-gold mb-4">Pelatihan GASING di Kabupaten</h3>
       
@@ -121,7 +121,6 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
           <div class="video-wrapper">
             <iframe
               id="modal-iframe"
-              class="w-full aspect-video rounded-xl border border-white/10"
               src=""
               title="Video Pelatihan GASING"
               frameborder="0"
@@ -874,14 +873,30 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
     transform: rotate(90deg);
   }
 
+  /* Responsive Video Iframe Wrapper (Stretches to 100% width and height cleanly) */
   .video-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  /* Split Pane Layout Grid (Fractions updated: Left video pane is larger 1.4fr to 1fr) */
+  .video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  /* Split Pane Layout Grid (Fractions updated: Left video pane is larger 2.3fr to 1fr) */
   .modal-grid {
     display: grid;
-    grid-template-columns: 1.4fr 1fr;
+    grid-template-columns: 2.3fr 1fr;
     gap: 28px;
     align-items: flex-start;
     margin-top: 16px;
@@ -901,14 +916,6 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
     align-items: center;
     justify-content: flex-start;
     text-align: center;
-  }
-
-  :global(.video-wrapper) {
-    width: 100%;
-    max-width: 100%; /* stretched to fit column completely */
-    margin: 0 auto;
-    border-radius: var(--border-radius-lg);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   }
 
   /* Putar Video Lainnya dynamic gold button */
