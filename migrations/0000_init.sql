@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS trainers (
     home_province TEXT NOT NULL,
     target_funding REAL NOT NULL,
     current_funding REAL NOT NULL DEFAULT 0.0,
-    is_funded INTEGER NOT NULL DEFAULT 0
+    is_funded INTEGER NOT NULL DEFAULT 0,
+    password TEXT
 );
 
 -- Table: donations

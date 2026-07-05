@@ -57,27 +57,95 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
 
       {trainer && (
         <div class="trainer-details-grid">
-          <!-- Left Column: Media & Story -->
-          <div class="details-left">
+          <!-- Left Column: Media & Story (Details View Container) -->
+          <div class="details-left" id="details-view-container">
             <div class="glass-panel profile-hero-card">
               <div class="profile-image-container">
-                <img src={trainer.photo_url} alt={trainer.name} class="profile-image" />
+                <img src={trainer.photo_url} alt={trainer.name} class="profile-image" id="view-profile-image" />
                 {trainer.is_funded === 1 && (
                   <span class="funded-badge">🎉 Didanai Penuh</span>
                 )}
               </div>
               <div class="profile-meta p-6">
-                <span class="loc-text">{trainer.home_regency}, {trainer.home_province}</span>
-                <h2>{trainer.name}</h2>
-                <h4 class="major-text text-gold">{trainer.major}</h4>
-                <p class="univ-text text-sm text-muted">{trainer.university}</p>
+                <span class="loc-text" id="view-loc-text">{trainer.home_regency}, {trainer.home_province}</span>
+                <h2 id="view-name-text">{trainer.name}</h2>
+                <h4 class="major-text text-gold" id="view-major-text">{trainer.major}</h4>
+                <p class="univ-text text-sm text-muted mb-4" id="view-univ-text">{trainer.university}</p>
+                
+                <!-- Open Edit Mode Button -->
+                <button class="btn btn-secondary text-xs" id="open-edit-mode-btn">✏️ Edit Profil</button>
               </div>
             </div>
 
-            <!-- Emotional Story Card -->
+            <!-- Emotional Story Card with scrollbar support -->
             <div class="glass-panel story-card mt-6 p-6">
               <h3 class="section-title text-gold font-serif">📖 Kisah Perjuangan di Pelosok</h3>
-              <p class="story-content leading-relaxed text-justify mt-3">{trainer.story_emotional}</p>
+              <div class="story-scroll-box mt-3">
+                <p class="story-content leading-relaxed text-justify" id="view-story-text">{trainer.story_emotional}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Left Column: Profile Editor Form (Hidden by Default) -->
+          <div class="details-left hidden" id="details-edit-container">
+            <div class="glass-panel p-6">
+              <h3 class="font-serif text-gold mb-6">✏️ Edit Profil Penerima Beasiswa</h3>
+              
+              <form id="edit-trainer-form">
+                <div class="form-group mb-4">
+                  <label class="form-label text-xs uppercase text-muted block mb-1">Nama Lengkap</label>
+                  <input type="text" id="edit-name" class="form-control" value={trainer.name} required />
+                </div>
+                
+                <div class="form-group mb-4">
+                  <label class="form-label text-xs uppercase text-muted block mb-1">Foto Profil</label>
+                  <div class="flex gap-4 items-center flex-wrap md:flex-nowrap">
+                    <img src={trainer.photo_url} alt="Pratinjau" class="w-16 h-16 object-cover rounded border border-white/10" id="edit-photo-preview" />
+                    <div class="flex-1">
+                      <input type="file" id="edit-photo-file" accept="image/*" class="form-control text-xs" />
+                      <p class="text-[10px] text-muted mt-1">Atau gunakan URL gambar langsung:</p>
+                      <input type="text" id="edit-photo-url" class="form-control text-xs mt-1" value={trainer.photo_url} />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="gap-4 mb-4 grid-half">
+                  <div class="form-group">
+                    <label class="form-label text-xs uppercase text-muted block mb-1">Program Studi</label>
+                    <input type="text" id="edit-major" class="form-control" value={trainer.major} required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label text-xs uppercase text-muted block mb-1">Universitas</label>
+                    <input type="text" id="edit-university" class="form-control" value={trainer.university} required />
+                  </div>
+                </div>
+
+                <div class="gap-4 mb-4 grid-half">
+                  <div class="form-group">
+                    <label class="form-label text-xs uppercase text-muted block mb-1">Kabupaten Asal</label>
+                    <input type="text" id="edit-regency" class="form-control" value={trainer.home_regency} required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label text-xs uppercase text-muted block mb-1">Provinsi Asal</label>
+                    <input type="text" id="edit-province" class="form-control" value={trainer.home_province} required />
+                  </div>
+                </div>
+
+                <div class="form-group mb-4">
+                  <label class="form-label text-xs uppercase text-muted block mb-1">Bio Singkat (Max 200 karakter)</label>
+                  <textarea id="edit-bio" class="form-control text-sm" rows="3" required>{trainer.bio}</textarea>
+                </div>
+
+                <div class="form-group mb-6">
+                  <label class="form-label text-xs uppercase text-muted block mb-1">Kisah Perjuangan (Lengkap)</label>
+                  <textarea id="edit-story" class="form-control text-sm" rows="8" required>{trainer.story_emotional}</textarea>
+                </div>
+
+                <div class="flex gap-4">
+                  <button type="button" class="btn btn-secondary flex-1" id="cancel-edit-btn">Batal</button>
+                  <button type="submit" class="btn btn-primary flex-1">Simpan Perubahan</button>
+                </div>
+              </form>
             </div>
           </div>
 
@@ -153,48 +221,237 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
       )}
     </div>
   </section>
+
+  <!-- Password Prompt Modal -->
+  <div class="modal-overlay hidden" id="password-modal">
+    <div class="modal-content glass-panel p-6 max-w-sm w-full relative">
+      <h3 class="font-serif text-center mb-2">Autentikasi Profil</h3>
+      <p class="text-xs text-muted text-center mb-6">Masukkan PIN 4-digit Anda (atau Sandi Master Admin) untuk mengedit profil ini.</p>
+      
+      <div class="form-group mb-6">
+        <input 
+          type="password" 
+          id="auth-pin-input" 
+          placeholder="Masukkan PIN / Sandi..." 
+          class="form-control text-center text-lg tracking-widest font-mono" 
+          maxlength="8" 
+          required 
+        />
+        <p class="text-danger text-xs text-center mt-2 hidden" id="auth-error-msg">PIN salah. Silakan coba lagi.</p>
+      </div>
+
+      <div class="flex gap-4">
+        <button class="btn btn-secondary flex-1" id="close-password-btn">Batal</button>
+        <button class="btn btn-primary flex-1" id="confirm-password-btn">Konfirmasi</button>
+      </div>
+    </div>
+  </div>
 </Layout>
 
 <script define:vars={{ trainerId: id, trainerName: trainer?.name || "" }}>
   document.addEventListener('DOMContentLoaded', () => {
+    // --- Funding slider logic ---
     const slider = document.getElementById('impact-slider');
     const displayAmount = document.getElementById('simulated-amount');
     const displayImpact = document.getElementById('simulated-impact');
     const donateBtn = document.getElementById('donate-now-btn');
 
-    if (!slider || !displayAmount || !displayImpact || !donateBtn) return;
+    if (slider && displayAmount && displayImpact && donateBtn) {
+      const updateImpact = (val) => {
+        const amount = Number(val);
+        displayAmount.textContent = `Rp ${amount.toLocaleString('id-ID')}`;
 
-    // Define impact tiers
-    const updateImpact = (val) => {
-      const amount = Number(val);
-      displayAmount.textContent = `Rp ${amount.toLocaleString('id-ID')}`;
+        if (amount < 250000) {
+          displayImpact.textContent = `Membantu menanggung paket modul buku pegangan matematika GASING dan alat peraga manipulatif konkret untuk studi ${trainerName}.`;
+        } else if (amount >= 250000 && amount < 1000000) {
+          displayImpact.textContent = `Membantu menutupi biaya internet kuota data kuliah daring dan buku referensi wajib untuk mendukung tesis ${trainerName}.`;
+        } else if (amount >= 1000000 && amount < 4000000) {
+          displayImpact.textContent = `Membantu membiayai transport tiket pesawat riset/pengabdian numerasi ${trainerName} ke sekolah-sekolah di pelosok daerah asal.`;
+        } else if (amount >= 4000000 && amount < 8000000) {
+          displayImpact.textContent = `Membantu membiayai sewa tempat tinggal (kos) dan tunjangan hidup bulanan ${trainerName} di sekitar kampus selama 1 Semester perkuliahan.`;
+        } else {
+          displayImpact.textContent = `Luar Biasa! Kontribusi Anda akan langsung memotong/melunasi biaya Sumbangan Pembinaan Pendidikan (SPP) Kuliah Semester ${trainerName} secara signifikan.`;
+        }
+      };
 
-      if (amount < 250000) {
-        displayImpact.textContent = `Membantu menanggung paket modul buku pegangan matematika GASING dan alat peraga manipulatif konkret untuk studi ${trainerName}.`;
-      } else if (amount >= 250000 && amount < 1000000) {
-        displayImpact.textContent = `Membantu menutupi biaya internet kuota data kuliah daring dan buku referensi wajib untuk mendukung tesis ${trainerName}.`;
-      } else if (amount >= 1000000 && amount < 4000000) {
-        displayImpact.textContent = `Membantu membiayai transport tiket pesawat riset/pengabdian numerasi ${trainerName} ke sekolah-sekolah di pelosok daerah asal.`;
-      } else if (amount >= 4000000 && amount < 8000000) {
-        displayImpact.textContent = `Membantu membiayai sewa tempat tinggal (kos) dan tunjangan hidup bulanan ${trainerName} di sekitar kampus selama 1 Semester perkuliahan.`;
-      } else {
-        displayImpact.textContent = `Luar Biasa! Kontribusi Anda akan langsung memotong/melunasi biaya Sumbangan Pembinaan Pendidikan (SPP) Kuliah Semester ${trainerName} secara signifikan.`;
+      slider.addEventListener('input', (e) => {
+        updateImpact(e.target.value);
+      });
+
+      donateBtn.addEventListener('click', () => {
+        const finalAmount = slider.value;
+        window.location.href = `/donasi?trainerId=${trainerId}&amount=${finalAmount}`;
+      });
+
+      updateImpact(slider.value);
+    }
+
+    // --- Profile Editing logic ---
+    const openEditBtn = document.getElementById('open-edit-mode-btn');
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+    const modalOverlay = document.getElementById('password-modal');
+    const closePasswordBtn = document.getElementById('close-password-btn');
+    const confirmPasswordBtn = document.getElementById('confirm-password-btn');
+    const pinInput = document.getElementById('auth-pin-input');
+    const errorMsg = document.getElementById('auth-error-msg');
+    
+    const viewContainer = document.getElementById('details-view-container');
+    const editContainer = document.getElementById('details-edit-container');
+    const editForm = document.getElementById('edit-trainer-form');
+
+    const photoFileInput = document.getElementById('edit-photo-file');
+    const photoUrlInput = document.getElementById('edit-photo-url');
+    const photoPreviewImg = document.getElementById('edit-photo-preview');
+
+    let verifiedPassword = '';
+
+    // URL Auth parameter auto-bypass
+    const urlParams = new URLSearchParams(window.location.search);
+    const authParam = urlParams.get('auth');
+    const editParam = urlParams.get('edit');
+
+    if (editParam === 'true' && authParam) {
+      pinInput.value = authParam;
+      handlePinVerification(authParam);
+    }
+
+    if (openEditBtn) {
+      openEditBtn.addEventListener('click', () => {
+        errorMsg.classList.add('hidden');
+        pinInput.value = '';
+        modalOverlay.classList.remove('hidden');
+        setTimeout(() => modalOverlay.classList.add('show'), 10);
+        pinInput.focus();
+      });
+    }
+
+    if (closePasswordBtn) {
+      closePasswordBtn.addEventListener('click', () => {
+        modalOverlay.classList.remove('show');
+        setTimeout(() => modalOverlay.classList.add('hidden'), 300);
+      });
+    }
+
+    if (confirmPasswordBtn) {
+      confirmPasswordBtn.addEventListener('click', () => {
+        handlePinVerification(pinInput.value);
+      });
+    }
+
+    if (pinInput) {
+      pinInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          handlePinVerification(pinInput.value);
+        }
+      });
+    }
+
+    if (cancelEditBtn) {
+      cancelEditBtn.addEventListener('click', () => {
+        editContainer.classList.add('hidden');
+        viewContainer.classList.remove('hidden');
+        // Clean URL params if they were preset
+        if (window.location.search) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      });
+    }
+
+    // Photo File to Base64 FileReader binding
+    if (photoFileInput && photoPreviewImg && photoUrlInput) {
+      photoFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            photoPreviewImg.src = event.target.result;
+            photoUrlInput.value = event.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      photoUrlInput.addEventListener('input', (e) => {
+        photoPreviewImg.src = e.target.value;
+      });
+    }
+
+    async function handlePinVerification(pin) {
+      if (!pin) return;
+      try {
+        errorMsg.classList.add('hidden');
+        const res = await fetch('/api/update-trainer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: Number(trainerId),
+            password: pin,
+            name: trainerName // dummy verification run
+          })
+        });
+
+        if (res.ok) {
+          verifiedPassword = pin;
+          modalOverlay.classList.remove('show');
+          setTimeout(() => modalOverlay.classList.add('hidden'), 300);
+          
+          viewContainer.classList.add('hidden');
+          editContainer.classList.remove('hidden');
+        } else {
+          const data = await res.json();
+          errorMsg.textContent = data.error || 'PIN yang Anda masukkan salah.';
+          errorMsg.classList.remove('hidden');
+        }
+      } catch (err) {
+        console.error(err);
+        errorMsg.textContent = 'Koneksi error. Silakan coba lagi.';
+        errorMsg.classList.remove('hidden');
       }
-    };
+    }
 
-    // Listen slider movements
-    slider.addEventListener('input', (e) => {
-      updateImpact(e.target.value);
-    });
+    // Form submission
+    if (editForm) {
+      editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    // Handle donation button click
-    donateBtn.addEventListener('click', () => {
-      const finalAmount = slider.value;
-      window.location.href = `/donasi?trainerId=${trainerId}&amount=${finalAmount}`;
-    });
+        const payload = {
+          id: Number(trainerId),
+          password: verifiedPassword,
+          name: document.getElementById('edit-name').value,
+          photo_url: photoUrlInput.value,
+          major: document.getElementById('edit-major').value,
+          university: document.getElementById('edit-university').value,
+          bio: document.getElementById('edit-bio').value,
+          story_emotional: document.getElementById('edit-story').value,
+          home_regency: document.getElementById('edit-regency').value,
+          home_province: document.getElementById('edit-province').value,
+        };
 
-    // Run initial trigger
-    updateImpact(slider.value);
+        try {
+          const btnSubmit = editForm.querySelector('button[type="submit"]');
+          const oldText = btnSubmit.textContent;
+          btnSubmit.textContent = 'Menyimpan...';
+          btnSubmit.disabled = true;
+
+          const res = await fetch('/api/update-trainer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (res.ok) {
+            window.location.href = `/trainers/${trainerId}`;
+          } else {
+            const data = await res.json();
+            alert(`Gagal menyimpan perubahan: ${data.error}`);
+            btnSubmit.textContent = oldText;
+            btnSubmit.disabled = false;
+          }
+        } catch (err) {
+          alert(`Terjadi kesalahan: ${err.message}`);
+        }
+      });
+    }
   });
 </script>
 
@@ -228,7 +485,7 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
   .profile-image {
     width: 100%;
     height: 100%;
-    object-cover: cover;
+    object-fit: cover;
   }
 
   .funded-badge {
@@ -266,6 +523,33 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
 
   .story-content {
     color: var(--color-text-secondary);
+  }
+
+  /* Scroll down layout support for long stories */
+  .story-scroll-box {
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: 8px;
+  }
+
+  /* Custom scrollbar for premium aesthetics */
+  .story-scroll-box::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .story-scroll-box::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 100px;
+  }
+
+  .story-scroll-box::-webkit-scrollbar-thumb {
+    background: rgba(251, 191, 36, 0.2);
+    border-radius: 100px;
+    transition: background 0.2s ease;
+  }
+
+  .story-scroll-box::-webkit-scrollbar-thumb:hover {
+    background: rgba(251, 191, 36, 0.4);
   }
 
   /* Right column / Funding & Calculator */
@@ -344,5 +628,91 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
     border-radius: var(--border-radius-md);
     margin-bottom: 24px;
     text-align: center;
+  }
+
+  /* Modal overlay styles */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .modal-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal-content {
+    background: rgba(17, 18, 23, 0.95);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+  }
+
+  .modal-overlay.show .modal-content {
+    transform: scale(1);
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  /* Form edit layout styles */
+  .form-group {
+    text-align: left;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 10px 16px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius-md);
+    color: #ffffff;
+    transition: var(--transition-smooth);
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: var(--color-accent-gold);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+  }
+
+  .text-danger {
+    color: var(--color-danger);
+  }
+
+  .grid-half {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 576px) {
+    .grid-half {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .w-16 {
+    width: 4rem;
+  }
+
+  .h-16 {
+    height: 4rem;
+  }
+
+  .flex-wrap {
+    flex-wrap: wrap;
   }
 </style>

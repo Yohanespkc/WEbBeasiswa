@@ -1,0 +1,213 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { env } from 'cloudflare:workers';
+
+export const prerender = false;
+
+interface TrainerAdmin {
+  id: number;
+  name: string;
+  home_regency: string;
+  home_province: string;
+  password?: string;
+}
+
+let trainers: TrainerAdmin[] = [];
+let dbError = "";
+let isAuthenticated = false;
+let authError = "";
+
+const ADMIN_PASSWORD = '9999';
+
+// Handle login / password check
+const method = Astro.request.method;
+let enteredPassword = "";
+
+if (method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+    enteredPassword = formData.get("adminPassword")?.toString() || "";
+    
+    if (enteredPassword === ADMIN_PASSWORD) {
+      isAuthenticated = true;
+      
+      // Fetch trainers with passwords from D1 Database
+      if (env && env.DB) {
+        const { results } = await env.DB.prepare("SELECT id, name, home_regency, home_province, password FROM trainers ORDER BY id ASC").all();
+        trainers = results as unknown as TrainerAdmin[];
+      } else {
+        dbError = "Database D1 tidak terdeteksi.";
+      }
+    } else {
+      authError = "Password Admin salah. Silakan coba lagi.";
+    }
+  } catch (err: any) {
+    console.error("Auth / Query error:", err);
+    dbError = `Terjadi kesalahan: ${err.message}`;
+  }
+}
+---
+
+<Layout title="Admin Panel - Beasiswa GASING" description="Halaman khusus admin untuk memantau password PIN trainer dan melakukan manajemen profil.">
+  <section class="section-padding">
+    <div class="container max-w-4xl">
+      <div class="admin-header text-center mb-8">
+        <span class="badge">🔒 SECURE ADMIN PANEL</span>
+        <h2>Manajemen Profil & PIN Trainer</h2>
+        <p class="text-muted">Gunakan halaman ini untuk memantau PIN edit masing-masing trainer dan mengedit profil studi mereka.</p>
+      </div>
+
+      {dbError && (
+        <div class="error-banner glass-panel mb-6">
+          <p>⚠️ {dbError}</p>
+        </div>
+      )}
+
+      {!isAuthenticated ? (
+        <div class="glass-panel login-card max-w-md mx-auto p-8 text-center">
+          <h3 class="font-serif mb-4">Autentikasi Admin</h3>
+          <p class="text-xs text-muted mb-6">Masukkan Master Password Admin untuk melihat daftar PIN trainer dan mengedit data.</p>
+          
+          <form method="POST">
+            <div class="form-group mb-6">
+              <input 
+                type="password" 
+                name="adminPassword" 
+                placeholder="Masukkan Sandi Admin..." 
+                class="form-control text-center" 
+                required 
+                autofocus
+              />
+              {authError && <p class="text-danger text-xs mt-2">{authError}</p>}
+            </div>
+            <button type="submit" class="btn btn-primary w-full">Masuk</button>
+          </form>
+        </div>
+      ) : (
+        <div class="glass-panel admin-dashboard p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="font-serif">Daftar PIN Trainer Beasiswa</h3>
+            <a href="/admin" class="btn btn-secondary text-xs py-1 px-3">Keluar</a>
+          </div>
+
+          <div class="table-container">
+            <table class="admin-table w-full">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama Trainer</th>
+                  <th>Wilayah Tugas</th>
+                  <th>PIN Edit (4 Digit)</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {trainers.map((t, idx) => (
+                  <tr>
+                    <td class="text-center font-mono">{idx + 1}</td>
+                    <td class="font-bold">{t.name}</td>
+                    <td class="text-sm text-muted">{t.home_regency}, {t.home_province}</td>
+                    <td class="text-center"><span class="pin-badge font-mono">{t.password}</span></td>
+                    <td class="text-center">
+                      <a href={`/trainers/${t.id}?edit=true&auth=${ADMIN_PASSWORD}`} class="btn btn-secondary text-xs py-1 px-3">
+                        ✏️ Edit Profil
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .admin-header h2 {
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(245, 158, 11, 0.05);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: 100px;
+    color: var(--color-text-gold);
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .login-card {
+    background: rgba(17, 18, 23, 0.7);
+    border: var(--glass-border);
+    border-radius: var(--border-radius-lg);
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 10px 16px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius-md);
+    color: #ffffff;
+    font-size: 1rem;
+    transition: var(--transition-smooth);
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: var(--color-accent-gold);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+  }
+
+  .text-danger {
+    color: var(--color-danger);
+  }
+
+  .pin-badge {
+    display: inline-block;
+    background: rgba(251, 191, 36, 0.15);
+    border: 1px dashed rgba(251, 191, 36, 0.5);
+    color: var(--color-text-gold);
+    padding: 4px 10px;
+    border-radius: var(--border-radius-sm);
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+  }
+
+  .table-container {
+    overflow-x: auto;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .admin-table {
+    border-collapse: collapse;
+    text-align: left;
+  }
+
+  .admin-table th, .admin-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .admin-table th {
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    letter-spacing: 0.5px;
+  }
+
+  .admin-table tr:hover {
+    background: rgba(255, 255, 255, 0.01);
+  }
+</style>

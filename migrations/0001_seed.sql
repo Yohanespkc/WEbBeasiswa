@@ -1,7 +1,7 @@
 -- Migration: 0001_seed.sql
 -- Description: Seed initial mock data for trainers.
 
-INSERT INTO trainers (name, photo_url, major, university, bio, story_emotional, home_regency, home_province, target_funding, current_funding, is_funded)
+INSERT INTO trainers (name, photo_url, major, university, bio, story_emotional, home_regency, home_province, target_funding, current_funding, is_funded, password)
 VALUES 
 (
     'Andi Tabuni',
@@ -14,7 +14,8 @@ VALUES
     'Papua Pegunungan',
     80000000.0,
     25000000.0,
-    0
+    0,
+    '1409'
 ),
 (
     'Maria Wenda',
@@ -27,7 +28,8 @@ VALUES
     'Papua Barat',
     95000000.0,
     60000000.0,
-    0
+    0,
+    '2508'
 ),
 (
     'Joko Susilo',
@@ -40,5 +42,6 @@ VALUES
     'D.I. Yogyakarta',
     150000000.0,
     150000000.0,
-    1
+    1,
+    '3607'
 );
