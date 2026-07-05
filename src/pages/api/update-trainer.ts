@@ -11,6 +11,7 @@ export const POST: APIRoute = async ({ request }) => {
     const { 
       id, 
       password, 
+      new_password,
       name, 
       photo_url, 
       major, 
@@ -67,7 +68,7 @@ export const POST: APIRoute = async ({ request }) => {
     // Execute the database update
     await db.prepare(
       `UPDATE trainers 
-       SET name = ?, photo_url = ?, major = ?, university = ?, bio = ?, story_emotional = ?, home_regency = ?, home_province = ?
+       SET name = ?, photo_url = ?, major = ?, university = ?, bio = ?, story_emotional = ?, home_regency = ?, home_province = ?, password = ?
        WHERE id = ?`
     ).bind(
       name, 
@@ -78,6 +79,7 @@ export const POST: APIRoute = async ({ request }) => {
       story_emotional, 
       home_regency, 
       home_province, 
+      new_password || correctPassword,
       Number(id)
     ).run();
 

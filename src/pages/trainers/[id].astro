@@ -17,6 +17,7 @@ interface Trainer {
   target_funding: number;
   current_funding: number;
   is_funded: number;
+  password?: string;
 }
 
 const { id } = Astro.params;
@@ -139,6 +140,12 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
                 <div class="form-group mb-6">
                   <label class="form-label text-xs uppercase text-muted block mb-1">Kisah Perjuangan (Lengkap)</label>
                   <textarea id="edit-story" class="form-control text-sm" rows="8" required>{trainer.story_emotional}</textarea>
+                </div>
+
+                <div class="form-group mb-6">
+                  <label class="form-label text-xs uppercase text-muted block mb-1">PIN / Sandi Edit Baru (4-digit)</label>
+                  <input type="text" id="edit-password" class="form-control font-mono tracking-widest text-center mb-1" value={(trainer as any).password} maxlength="8" required />
+                  <p class="text-[10px] text-muted italic">* PIN awal Anda adalah "1234". Demi keamanan, silakan ubah PIN Anda menjadi 4-digit sandi lainnya. Admin tetap dapat mengakses profil Anda jika diperlukan.</p>
                 </div>
 
                 <div class="flex gap-4">
@@ -417,6 +424,7 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
         const payload = {
           id: Number(trainerId),
           password: verifiedPassword,
+          new_password: document.getElementById('edit-password').value,
           name: document.getElementById('edit-name').value,
           photo_url: photoUrlInput.value,
           major: document.getElementById('edit-major').value,
