@@ -303,8 +303,8 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
 
         g.appendChild(dot);
 
-        // Hover events
-        g.addEventListener('mouseenter', (e) => this.showTooltip(e, reg.name, province, increase));
+        // Hover events (passing reg context as fifth parameter)
+        g.addEventListener('mouseenter', (e) => this.showTooltip(e, reg.name, province, increase, reg));
         g.addEventListener('mouseleave', () => this.hideTooltip());
         g.addEventListener('mousemove', (e) => this.moveTooltip(e));
 
@@ -315,7 +315,7 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
       });
     }
 
-    showTooltip(e, name, province, defaultIncrease) {
+    showTooltip(e, name, province, defaultIncrease, reg) {
       if (!this.tooltip) return;
       
       const { gEntry, sEntry } = this.findStats(name);
@@ -355,6 +355,29 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
         }
       }
       
+      // Draw temporary white hover label directly above the hovered dot
+      if (this.markersContainer && reg) {
+        let hoverLabel = document.getElementById('hover-map-label');
+        if (!hoverLabel) {
+          hoverLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          hoverLabel.setAttribute('id', 'hover-map-label');
+          hoverLabel.setAttribute('fill', '#ffffff');
+          hoverLabel.setAttribute('font-size', '8');
+          hoverLabel.setAttribute('font-weight', '700');
+          hoverLabel.setAttribute('text-anchor', 'middle');
+          hoverLabel.setAttribute('font-family', 'Inter, sans-serif');
+          hoverLabel.setAttribute('stroke', '#000000');
+          hoverLabel.setAttribute('stroke-width', '1.2');
+          hoverLabel.setAttribute('paint-order', 'stroke fill');
+          hoverLabel.style.pointerEvents = 'none';
+          this.markersContainer.appendChild(hoverLabel);
+        }
+        hoverLabel.setAttribute('x', reg.x.toString());
+        hoverLabel.setAttribute('y', (reg.y - 8).toString());
+        hoverLabel.textContent = name;
+        hoverLabel.style.display = 'block';
+      }
+      
       this.tooltip.classList.remove('opacity-0', 'pointer-events-none');
       this.tooltip.classList.add('opacity-100');
     }
@@ -375,6 +398,12 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
       if (!this.tooltip) return;
       this.tooltip.classList.remove('opacity-100');
       this.tooltip.classList.add('opacity-0', 'pointer-events-none');
+
+      // Hide the temporary white hover label
+      const hoverLabel = document.getElementById('hover-map-label');
+      if (hoverLabel) {
+        hoverLabel.style.display = 'none';
+      }
     }
 
     playVideo(videoId, name) {
@@ -425,7 +454,7 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
         }
       }
 
-      // Render name label dynamically directly above the clicked SVG dot
+      // Render name label dynamically directly above the clicked SVG dot (gold color)
       if (this.markersContainer && reg) {
         const oldLabel = document.getElementById('active-map-label');
         if (oldLabel) oldLabel.remove();
