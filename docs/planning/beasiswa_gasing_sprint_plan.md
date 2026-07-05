@@ -38,7 +38,7 @@ Hingga saat ini, **23.633 siswa dan guru** di **127 kabupaten/kota** dari **33 p
 
 ## 💎 Transparansi Mutlak & Struktur Board
 Untuk membangun kepercayaan publik, website akan menekankan komitmen berikut:
-1. **Pernyataan Transparansi 100%:** 100% dari dana yang didonasikan oleh masyarakat disalurkan **khusus untuk kebutuhan beasiswa** (biaya kuliah/tuition fee, biaya hidup penerima beasiswa, buku, dan biaya riset). Biaya operasional platform, gaji staf yayasan, dsb. **0%** menggunakan dana ini (sepenuhnya ditanggung secara terpisah oleh Surya Institute Foundation).
+1. **Pernyataan Transparansi 100%:** 100% dari dana yang didonasikan oleh masyarakat disalurkan **khusus untuk kebutuhan beasiswa** (biaya kuliah/tuition fee, biaya hidup penerima beasiswa, buku, dan biaya riset). Biaya operasional platform, gaji staf yayasan, dsb. **0%** menggunakan dana ini (sepenuhnya ditanggung secara terpisah oleh Yayasan 1000PhD Guru).
 2. **Dewan Direksi (Board of Directors):** Menampilkan tokoh-tokoh besar bereputasi nasional dan akademis tinggi:
     *   **Prof. Yohanes Surya, Ph.D.** (Pendiri & Ketua Dewan Pembina)
     *   Tokoh-tokoh akademisi, perwakilan filantropi nasional, dan perwakilan tokoh masyarakat dari Indonesia Timur untuk mempertegas keterwakilan daerah sasaran.
