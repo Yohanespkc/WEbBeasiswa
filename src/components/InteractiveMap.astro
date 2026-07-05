@@ -4,16 +4,25 @@ import { KABUPATEN_DATA, SISWA_DATA } from '../data/statistikRegistry';
 import { LAGU_REGISTRY } from '../data/laguRegistry';
 import { MENCONGAK_REGISTRY } from '../data/mencongakRegistry';
 
-const regionsJson = JSON.stringify(BUDAYA_REGISTRY);
-const kabupatenDataJson = JSON.stringify(KABUPATEN_DATA);
-const siswaDataJson = JSON.stringify(SISWA_DATA);
-
 // Helper function to normalize names for mapping
 function normalizeName(name: string): string {
   return name.toLowerCase().replace(/^(kab|kabupaten|kota)\.?\s+/g, '').trim();
 }
 
-// Build a unified video map grouped by normalized kabupaten name
+// Define programmatic ignore list for non-kabupaten entries
+const ignoredNames = ['kemenag', 'tni', 'akmil', 'upi', 'uncen', 'universitas'];
+
+// Filter the main regions list for map pins rendering
+const filteredBudaya = BUDAYA_REGISTRY.filter(r => {
+  const norm = r.name.toLowerCase().trim();
+  return !ignoredNames.some(ignored => norm.includes(ignored));
+});
+
+const regionsJson = JSON.stringify(filteredBudaya);
+const kabupatenDataJson = JSON.stringify(KABUPATEN_DATA);
+const siswaDataJson = JSON.stringify(SISWA_DATA);
+
+// Build a unified video map grouped by normalized kabupaten name, ignoring non-kabupatens
 const kabupatenVideosMap: Record<string, { id: string, label: string }[]> = {};
 
 function addVideo(kabName: string, id: string, label: string) {
@@ -29,6 +38,9 @@ function addVideo(kabName: string, id: string, label: string) {
 
 // 1. Process BUDAYA_REGISTRY
 BUDAYA_REGISTRY.forEach(reg => {
+  const normName = reg.name.toLowerCase().trim();
+  if (ignoredNames.some(ignored => normName.includes(ignored))) return;
+
   addVideo(reg.name, reg.id, 'Video Pelatihan Daerah');
   if (reg.videos) {
     reg.videos.forEach(v => {
@@ -40,6 +52,9 @@ BUDAYA_REGISTRY.forEach(reg => {
 // 2. Process LAGU_REGISTRY
 Object.keys(LAGU_REGISTRY).forEach(category => {
   LAGU_REGISTRY[category].forEach(reg => {
+    const normName = reg.name.toLowerCase().trim();
+    if (ignoredNames.some(ignored => normName.includes(ignored))) return;
+
     addVideo(reg.name, reg.id, `Lagu GASING: ${category}`);
     if (reg.videos) {
       reg.videos.forEach(v => {
@@ -52,6 +67,9 @@ Object.keys(LAGU_REGISTRY).forEach(category => {
 // 3. Process MENCONGAK_REGISTRY
 Object.keys(MENCONGAK_REGISTRY).forEach(category => {
   MENCONGAK_REGISTRY[category].forEach(reg => {
+    const normName = reg.name.toLowerCase().trim();
+    if (ignoredNames.some(ignored => normName.includes(ignored))) return;
+
     if (reg.id) {
       addVideo(reg.name, reg.id, `Video Pelatihan: ${category}`);
     }
@@ -407,6 +425,28 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
         }
       }
 
+      // Render name label dynamically directly above the clicked SVG dot
+      if (this.markersContainer && reg) {
+        const oldLabel = document.getElementById('active-map-label');
+        if (oldLabel) oldLabel.remove();
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('id', 'active-map-label');
+        label.setAttribute('x', reg.x.toString());
+        label.setAttribute('y', (reg.y - 8).toString());
+        label.setAttribute('fill', '#fbbf24');
+        label.setAttribute('font-size', '8');
+        label.setAttribute('font-weight', '900');
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('font-family', 'Inter, sans-serif');
+        label.setAttribute('stroke', '#000000');
+        label.setAttribute('stroke-width', '1.5');
+        label.setAttribute('paint-order', 'stroke fill');
+        label.textContent = name;
+
+        this.markersContainer.appendChild(label);
+      }
+
       this.modal.classList.remove('pointer-events-none', 'opacity-0');
       this.modal.classList.add('opacity-100');
     }
@@ -690,6 +730,10 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
       this.modal.classList.add('pointer-events-none', 'opacity-0');
       this.modal.classList.remove('opacity-100');
       this.iframe.src = ''; // Stop video playback
+
+      // Remove the active map label
+      const oldLabel = document.getElementById('active-map-label');
+      if (oldLabel) oldLabel.remove();
     }
   }
 
