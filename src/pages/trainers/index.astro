@@ -93,8 +93,7 @@ try {
                   <!-- Progress Bar -->
                   <div class="funding-progress">
                     <div class="progress-lbl text-xs flex justify-between mb-1">
-                      <span>Terkumpul: <strong>Rp {trainer.current_funding.toLocaleString('id-ID')}</strong></span>
-                      <span>{percent}%</span>
+                      <span>Terkumpul: <strong>Rp {Math.round(trainer.current_funding).toLocaleString('id-ID')}</strong></span>
                     </div>
                     <div class="progress-bar-bg">
                       <div class="progress-bar-fill" style={`width: ${percent}%;`}></div>

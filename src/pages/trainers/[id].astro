@@ -179,7 +179,7 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
               <div class="funding-stats flex justify-between text-center mb-6">
                 <div>
                   <span class="lbl block text-[10px] uppercase text-muted tracking-wider">Terkumpul</span>
-                  <span class="val text-lg font-bold text-success">Rp {trainer.current_funding.toLocaleString('id-ID')}</span>
+                  <span class="val text-lg font-bold text-success">Rp {Math.round(trainer.current_funding).toLocaleString('id-ID')}</span>
                 </div>
                 <div class="border-divider"></div>
                 <div>
