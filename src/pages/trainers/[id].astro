@@ -174,7 +174,7 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
           <div class="details-right">
             <!-- Funding Summary Card -->
             <div class="glass-panel funding-card p-6">
-              <h3 class="font-serif mb-4 text-center">Status Pendanaan Studi</h3>
+              <h3 class="font-serif mb-4 text-center">Dukungan Studi Berkelanjutan</h3>
               
               <div class="funding-stats flex justify-between text-center mb-6">
                 <div>
@@ -190,7 +190,7 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
 
               <div class="progress-container mb-6">
                 <div class="flex justify-between text-xs mb-1">
-                  <span>Progres Beasiswa</span>
+                  <span>Progres Dukungan</span>
                   <span>{percent}%</span>
                 </div>
                 <div class="bar-bg">
@@ -198,13 +198,13 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
                 </div>
               </div>
 
-              <p class="text-xs text-muted leading-relaxed text-center italic">*Seluruh dana akan langsung ditransfer ke rekening rektorat universitas penerima untuk melunasi tagihan biaya kuliah.</p>
+              <p class="text-xs text-muted leading-relaxed text-center italic">*Seluruh alokasi dukungan disalurkan langsung ke rekening rektorat universitas untuk menjamin kelancaran perkuliahan dan riset para trainer.</p>
             </div>
 
             <!-- Interactive Impact Calculator -->
             <div class="glass-panel calculator-card mt-6 p-6" id="impact-calculator">
-              <h3 class="font-serif text-gold text-center mb-4">🧮 Kalkulator Dampak Donasi</h3>
-              <p class="text-xs text-muted text-center mb-6">Geser slider untuk mensimulasikan dampak bantuan Anda terhadap kelancaran studi para asisten trainer.</p>
+              <h3 class="font-serif text-gold text-center mb-4">🧮 Simulasi Kontribusi Perubahan</h3>
+              <p class="text-xs text-muted text-center mb-6">Geser slider untuk melihat bagaimana kontribusi Anda mempercepat penyelesaian studi S2/S3 dan memperluas dampak pengabdian para trainer.</p>
               
               <!-- Slider Input -->
               <div class="slider-wrapper">
@@ -226,7 +226,7 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
 
               <!-- Animated Impact Result Box -->
               <div class="impact-result-box glass-panel p-4 mt-6 text-center">
-                <span class="lbl text-[10px] text-gold uppercase tracking-wider block">Nilai Donasi Simulasi</span>
+                <span class="lbl text-[10px] text-gold uppercase tracking-wider block">Simulasi Nilai Kontribusi</span>
                 <span class="simulated-val text-xl font-bold block my-1" id="simulated-amount">Rp 1.000.000</span>
                 <p class="impact-text text-sm leading-relaxed text-white mt-3" id="simulated-impact">
                   Membantu membiayai transport riset pengabdian numerasi {trainer.name} ke daerah 3T selama 1 Semester.
@@ -234,9 +234,9 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
               </div>
 
               <button class="btn btn-primary w-full text-center mt-6" id="donate-now-btn">
-                Salurkan ke Dana Bersama
+                Bergabung dalam Gotong Royong
               </button>
-              <p class="text-[10px] text-muted text-center mt-2 italic">* Seluruh sumbangan akan dimasukkan ke Dana Bersama dan disalurkan secara merata kepada 80 AT S2 di UPI & 2 AT S2 di Columbia Univ.</p>
+              <p class="text-[10px] text-muted text-center mt-2 italic">* Seluruh kontribusi dikelola melalui Dana Bersama dan disalurkan secara adil guna mendukung studi 80 trainer S2 di UPI & 2 trainer S2 di Columbia.</p>
             </div>
           </div>
         </div>
