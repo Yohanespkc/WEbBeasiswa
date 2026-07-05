@@ -19,7 +19,8 @@ export const POST: APIRoute = async ({ request }) => {
       bio, 
       story_emotional, 
       home_regency, 
-      home_province 
+      home_province,
+      gasing_testimony
     } = body;
 
     if (!id || !password) {
@@ -57,7 +58,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Check if it is a verification-only request (e.g. pre-auth check from modal)
-    const isVerificationOnly = !bio && !story_emotional;
+    const isVerificationOnly = !bio && !story_emotional && !gasing_testimony;
     if (isVerificationOnly) {
       return new Response(JSON.stringify({ success: true, verified: true }), {
         status: 200,
@@ -68,7 +69,7 @@ export const POST: APIRoute = async ({ request }) => {
     // Execute the database update
     await db.prepare(
       `UPDATE trainers 
-       SET name = ?, photo_url = ?, major = ?, university = ?, bio = ?, story_emotional = ?, home_regency = ?, home_province = ?, password = ?
+       SET name = ?, photo_url = ?, major = ?, university = ?, bio = ?, story_emotional = ?, home_regency = ?, home_province = ?, password = ?, gasing_testimony = ?
        WHERE id = ?`
     ).bind(
       name, 
@@ -80,6 +81,7 @@ export const POST: APIRoute = async ({ request }) => {
       home_regency, 
       home_province, 
       new_password || correctPassword,
+      gasing_testimony,
       Number(id)
     ).run();
 

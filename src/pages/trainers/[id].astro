@@ -18,6 +18,7 @@ interface Trainer {
   current_funding: number;
   is_funded: number;
   password?: string;
+  gasing_testimony?: string;
 }
 
 const { id } = Astro.params;
@@ -85,6 +86,14 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
                 <p class="story-content leading-relaxed text-justify" id="view-story-text">{trainer.story_emotional}</p>
               </div>
             </div>
+
+            <!-- Testimony Card with scrollbar support -->
+            <div class="glass-panel testimony-card mt-6 p-6">
+              <h3 class="section-title text-emerald-400 font-serif">✨ Testimoni: GASING Mengubahku</h3>
+              <div class="story-scroll-box mt-3">
+                <p class="story-content leading-relaxed text-justify italic" id="view-testimony-text">{trainer.gasing_testimony || "Testimoni belum diisi."}</p>
+              </div>
+            </div>
           </div>
 
           <!-- Left Column: Profile Editor Form (Hidden by Default) -->
@@ -140,6 +149,11 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
                 <div class="form-group mb-6">
                   <label class="form-label text-xs uppercase text-muted block mb-1">Kisah Perjuangan (Lengkap)</label>
                   <textarea id="edit-story" class="form-control text-sm" rows="8" required>{trainer.story_emotional}</textarea>
+                </div>
+
+                <div class="form-group mb-6">
+                  <label class="form-label text-xs uppercase text-muted block mb-1">Testimoni: GASING Mengubahku</label>
+                  <textarea id="edit-testimony" class="form-control text-sm" rows="6" required>{trainer.gasing_testimony || ""}</textarea>
                 </div>
 
                 <div class="form-group mb-6">
@@ -432,6 +446,7 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
           university: document.getElementById('edit-university').value,
           bio: document.getElementById('edit-bio').value,
           story_emotional: document.getElementById('edit-story').value,
+          gasing_testimony: document.getElementById('edit-testimony').value,
           home_regency: document.getElementById('edit-regency').value,
           home_province: document.getElementById('edit-province').value,
         };
@@ -526,7 +541,7 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
     margin-top: 2px;
   }
 
-  .story-card {
+  .story-card, .testimony-card {
     border-radius: var(--border-radius-lg);
   }
 
