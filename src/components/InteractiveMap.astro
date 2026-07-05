@@ -92,37 +92,28 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
     <p>Sentuh atau klik titik pada peta untuk melihat bukti nyata perubahan numerasi anak-anak bangsa di daerah tersebut.</p>
   </div>
 
-  <div class="map-layout-grid">
-    <!-- Left Pane: Map and Legend -->
-    <div class="map-left-pane">
-      <div class="map-canvas-container relative">
-        <div class="map-loading">
-          <div class="spinner"></div>
-          <p>Memuat Peta Nusantara...</p>
-        </div>
-        <!-- SVG Indonesia Map will be injected dynamically here -->
-      </div>
+  <!-- Centered Search Autocomplete Container -->
+  <div class="map-search-container max-w-md mx-auto mb-6 relative">
+    <input type="text" id="map-search-input" placeholder="🔍 Cari Kabupaten atau Provinsi..." class="map-search-input" autocomplete="off" />
+    <div id="map-search-results" class="map-search-results hidden"></div>
+  </div>
 
-      <div class="map-legend">
-        <div class="legend-item">
-          <span class="legend-dot active-dot"></span>
-          <span>127+ Wilayah Sukses Terintervensi</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-dot waiting-dot"></span>
-          <span>387 Wilayah Menunggu Dukungan Anda</span>
-        </div>
-      </div>
+  <div class="map-canvas-container relative">
+    <div class="map-loading">
+      <div class="spinner"></div>
+      <p>Memuat Peta Nusantara...</p>
     </div>
+    <!-- SVG Indonesia Map will be injected dynamically here -->
+  </div>
 
-    <!-- Right Pane: Scrollable List of Provinces/Kabupatens with Search Filter -->
-    <div class="map-right-pane glass-panel">
-      <div class="list-search-box">
-        <input type="text" id="map-search-input" placeholder="🔍 Cari Kabupaten atau Provinsi..." class="map-search-input" />
-      </div>
-      <div class="map-regions-list" id="map-regions-list">
-        <!-- List items will be injected dynamically -->
-      </div>
+  <div class="map-legend">
+    <div class="legend-item">
+      <span class="legend-dot active-dot"></span>
+      <span>127+ Wilayah Sukses Terintervensi</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot waiting-dot"></span>
+      <span>387 Wilayah Menunggu Dukungan Anda</span>
     </div>
   </div>
 
@@ -152,23 +143,6 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
     <div class="dashboard-chart-container" id="dashboard-chart-canvas">
       <!-- Dynamic SVG injected here -->
     </div>
-  </div>
-
-  <!-- Custom Tooltip -->
-  <div class="map-tooltip opacity-0 pointer-events-none absolute z-[80] glass-panel p-4" id="map-tooltip">
-    <h4 class="tooltip-title text-gold font-serif">Kabupaten</h4>
-    <p class="tooltip-region text-muted text-xs uppercase tracking-wider mb-2">Papua</p>
-    <div class="tooltip-stats">
-      <div class="tooltip-stat">
-        <span class="stat-lbl">Peningkatan:</span>
-        <span class="stat-val text-success">10.04x Lipat</span>
-      </div>
-      <div class="tooltip-stat">
-        <span class="stat-lbl">Metode:</span>
-        <span class="stat-val text-white">GASING Hore</span>
-      </div>
-    </div>
-    <p class="tooltip-helper text-muted text-[10px] mt-2 italic">*Klik untuk melihat statistik & memutar video</p>
   </div>
 
   <!-- Detail & Video Modal -->
@@ -212,7 +186,6 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
       this.container = container;
       this.canvasContainer = container.querySelector('.map-canvas-container');
       this.loadingEl = container.querySelector('.map-loading');
-      this.tooltip = document.getElementById('map-tooltip');
       this.modal = document.getElementById('video-modal');
       this.modalClose = document.getElementById('modal-close-btn');
       this.iframe = document.getElementById('modal-iframe');
@@ -233,7 +206,6 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
       this.setupModalEvents();
       this.setupDashboardEvents();
       this.setupSearchEvents();
-      this.renderRegionsList();
       this.renderDashboardStats();
     }
 
@@ -280,17 +252,6 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
         g.setAttribute('class', 'map-pin cursor-pointer');
         g.setAttribute('data-name', reg.name);
         g.setAttribute('data-id', reg.id);
-        
-        let increase = '3.5x Lipat';
-        let province = 'Indonesia';
-        if (reg.y > 200 && reg.x > 800) { increase = '10.04x Lipat'; province = 'Papua'; } 
-        else if (reg.x < 200) { increase = '4.8x Lipat'; province = 'Sumatera'; }
-        else if (reg.x > 250 && reg.x < 420 && reg.y > 280) { increase = '5.6x Lipat'; province = 'Jawa'; }
-        else if (reg.x > 500 && reg.x < 680 && reg.y > 100 && reg.y < 260) { increase = '6.2x Lipat'; province = 'Sulawesi'; }
-        else if (reg.x > 500 && reg.x < 650 && reg.y > 320) { increase = '7.5x Lipat'; province = 'Nusa Tenggara'; }
-
-        g.setAttribute('data-increase', increase);
-        g.setAttribute('data-province', province);
 
         const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         dot.setAttribute('cx', reg.x.toString());
@@ -302,10 +263,11 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
 
         g.appendChild(dot);
 
-        g.addEventListener('mouseenter', (e) => this.showTooltip(e, reg.name, province, increase, reg));
-        g.addEventListener('mouseleave', () => this.hideTooltip());
-        g.addEventListener('mousemove', (e) => this.moveTooltip(e));
+        // Simple text hover name label display
+        g.addEventListener('mouseenter', () => this.showHoverLabel(reg.name, reg));
+        g.addEventListener('mouseleave', () => this.hideHoverLabel());
 
+        // Click events
         g.addEventListener('click', () => {
           this.playVideo(reg.id, reg.name);
           this.highlightMapPin(reg.name);
@@ -315,22 +277,7 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
       });
     }
 
-    showTooltip(e, name, province, defaultIncrease, reg) {
-      if (!this.tooltip) return;
-      const { gEntry, sEntry } = this.findStats(name);
-      this.tooltip.querySelector('.tooltip-title').textContent = `Kab. ${name}`;
-      this.tooltip.querySelector('.tooltip-region').textContent = province;
-      let increaseHtml = '';
-      if (gEntry || sEntry) {
-        if (gEntry) { const pre = gEntry.bakalkubagiPre; const post = gEntry.bakalkubagiPost; const pct = pre > 0 ? ((post - pre) / pre * 100) : 0; increaseHtml += `<div>👨‍🏫 Guru: ${pre.toFixed(1)} ➔ ${post.toFixed(1)} (+${pct.toFixed(0)}%)</div>`; }
-        if (sEntry) { const pre = sEntry.bakalkubagiPre; const post = sEntry.bakalkubagiPost; const pct = pre > 0 ? ((post - pre) / pre * 100) : 0; increaseHtml += `<div style="margin-top: 4px;">👨‍🎓 Siswa: ${pre.toFixed(1)} ➔ ${post.toFixed(1)} (+${pct.toFixed(0)}%)</div>`; }
-      } else { increaseHtml = `<div>Peningkatan: ${defaultIncrease}</div>`; }
-      this.tooltip.querySelector('.stat-val').innerHTML = increaseHtml;
-      const methodValEl = this.tooltip.querySelectorAll('.stat-val')[1];
-      if (methodValEl) {
-        if (gEntry || sEntry) { const totalPeserta = (gEntry?.peserta || 0) + (sEntry?.peserta || 0); methodValEl.textContent = `${totalPeserta} Peserta Pelatihan`; }
-        else { methodValEl.textContent = 'GASING Hore'; }
-      }
+    showHoverLabel(name, reg) {
       if (this.markersContainer && reg) {
         let hoverLabel = document.getElementById('hover-map-label');
         if (!hoverLabel) {
@@ -352,25 +299,13 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
         hoverLabel.textContent = name;
         hoverLabel.style.display = 'block';
       }
-      this.tooltip.classList.remove('opacity-0', 'pointer-events-none');
-      this.tooltip.classList.add('opacity-100');
     }
 
-    moveTooltip(e) {
-      if (!this.tooltip) return;
-      const rect = this.canvasContainer.getBoundingClientRect();
-      const x = e.clientX - rect.left + 15;
-      const y = e.clientY - rect.top + 15;
-      this.tooltip.style.left = `${x}px`;
-      this.tooltip.style.top = `${y}px`;
-    }
-
-    hideTooltip() {
-      if (!this.tooltip) return;
-      this.tooltip.classList.remove('opacity-100');
-      this.tooltip.classList.add('opacity-0', 'pointer-events-none');
+    hideHoverLabel() {
       const hoverLabel = document.getElementById('hover-map-label');
-      if (hoverLabel) { hoverLabel.style.display = 'none'; }
+      if (hoverLabel) {
+        hoverLabel.style.display = 'none';
+      }
     }
 
     highlightMapPin(name) {
@@ -479,46 +414,103 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
           this.renderDashboardStats();
           const oldLabel = document.getElementById('active-map-label');
           if (oldLabel) oldLabel.remove();
+          
+          // Clear search input on reset
+          const searchInput = document.getElementById('map-search-input');
+          if (searchInput) searchInput.value = '';
         });
       }
     }
 
     setupSearchEvents() {
       const searchInput = document.getElementById('map-search-input');
-      if (searchInput) { searchInput.addEventListener('input', () => { this.renderRegionsList(); }); }
+      const searchResults = document.getElementById('map-search-results');
+      
+      if (searchInput && searchResults) {
+        searchInput.addEventListener('input', () => {
+          this.renderSearchResults();
+        });
+
+        searchInput.addEventListener('focus', () => {
+          this.renderSearchResults();
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.classList.add('hidden');
+          }
+        });
+      }
     }
 
-    renderRegionsList() {
-      const listContainer = document.getElementById('map-regions-list');
-      if (!listContainer) return;
+    renderSearchResults() {
       const searchInput = document.getElementById('map-search-input');
-      const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+      const searchResults = document.getElementById('map-search-results');
+      if (!searchInput || !searchResults) return;
+
+      const query = searchInput.value.toLowerCase().trim();
       const sortedRegions = [...regions].sort((a, b) => a.name.localeCompare(b.name));
+      
+      const filtered = sortedRegions.filter(reg => {
+        const province = reg.y > 200 && reg.x > 800 ? 'Papua' : 
+                         reg.x < 200 ? 'Sumatera' : 
+                         reg.x > 250 && reg.x < 420 && reg.y > 280 ? 'Jawa' : 
+                         reg.x > 500 && reg.x < 680 && reg.y < 260 ? 'Sulawesi' : 
+                         reg.x > 500 && reg.x < 650 && reg.y > 320 ? 'Nusa Tenggara' : 'Indonesia';
+        return reg.name.toLowerCase().includes(query) || province.toLowerCase().includes(query);
+      });
+
+      const topMatches = filtered.slice(0, 6);
+
+      if (topMatches.length === 0) {
+        searchResults.innerHTML = '<div class="search-no-results">Wilayah tidak ditemukan</div>';
+        searchResults.classList.remove('hidden');
+        return;
+      }
+
       let html = '';
-      sortedRegions.forEach(reg => {
-        const province = reg.y > 200 && reg.x > 800 ? 'Papua' : reg.x < 200 ? 'Sumatera' : reg.x > 250 && reg.x < 420 && reg.y > 280 ? 'Jawa' : reg.x > 500 && reg.x < 680 && reg.y < 260 ? 'Sulawesi' : reg.x > 500 && reg.x < 650 && reg.y > 320 ? 'Nusa Tenggara' : 'Indonesia';
-        if (query && !reg.name.toLowerCase().includes(query) && !province.toLowerCase().includes(query)) return;
+      topMatches.forEach(reg => {
+        const province = reg.y > 200 && reg.x > 800 ? 'Papua' : 
+                         reg.x < 200 ? 'Sumatera' : 
+                         reg.x > 250 && reg.x < 420 && reg.y > 280 ? 'Jawa' : 
+                         reg.x > 500 && reg.x < 680 && reg.y < 260 ? 'Sulawesi' : 
+                         reg.x > 500 && reg.x < 650 && reg.y > 320 ? 'Nusa Tenggara' : 'Indonesia';
+        
         const { gEntry, sEntry } = this.findStats(reg.name);
-        let statsInfo = '';
-        if (gEntry) { const pre = gEntry.bakalkubagiPre; const post = gEntry.bakalkubagiPost; const pct = pre > 0 ? ((post - pre) / pre * 100) : 0; statsInfo += `Guru: ${pre.toFixed(0)}➔${post.toFixed(0)} (+${pct.toFixed(0)}%)`; }
-        if (sEntry) { const pre = sEntry.bakalkubagiPre; const post = sEntry.bakalkubagiPost; const pct = pre > 0 ? ((post - pre) / pre * 100) : 0; if (statsInfo) statsInfo += ' | '; statsInfo += `Siswa: ${pre.toFixed(0)}➔${post.toFixed(0)} (+${pct.toFixed(0)}%)`; }
-        if (!statsInfo) statsInfo = `Peningkatan: 4.8x Lipat`;
+        let pctInfo = '';
+        if (gEntry) {
+          const pre = gEntry.bakalkubagiPre;
+          const post = gEntry.bakalkubagiPost;
+          const pct = pre > 0 ? ((post - pre) / pre * 100) : 0;
+          pctInfo = `(+${pct.toFixed(0)}% Guru)`;
+        } else if (sEntry) {
+          const pre = sEntry.bakalkubagiPre;
+          const post = sEntry.bakalkubagiPost;
+          const pct = pre > 0 ? ((post - pre) / pre * 100) : 0;
+          pctInfo = `(+${pct.toFixed(0)}% Siswa)`;
+        } else {
+          pctInfo = '(+340% Peningkatan)';
+        }
+
         html += `
-          <div class="region-list-item" data-id="${reg.id}" data-name="${reg.name}">
-            <div class="region-item-header">
-              <span class="region-item-name">📍 ${reg.name}</span>
-              <span class="region-item-province">${province}</span>
-            </div>
-            <div class="region-item-stats">${statsInfo}</div>
+          <div class="search-result-item" data-id="${reg.id}" data-name="${reg.name}">
+            <span class="search-result-name">📍 ${reg.name}</span>
+            <span class="search-result-detail">${province} ${pctInfo}</span>
           </div>
         `;
       });
-      if (!html) html = `<div class="region-no-results">Wilayah tidak ditemukan</div>`;
-      listContainer.innerHTML = html;
-      listContainer.querySelectorAll('.region-list-item').forEach(item => {
+
+      searchResults.innerHTML = html;
+      searchResults.classList.remove('hidden');
+
+      searchResults.querySelectorAll('.search-result-item').forEach(item => {
         item.addEventListener('click', () => {
           const id = item.getAttribute('data-id');
           const name = item.getAttribute('data-name');
+          
+          searchInput.value = name;
+          searchResults.classList.add('hidden');
+
           this.playVideo(id, name);
           this.highlightMapPin(name);
         });
@@ -528,9 +520,12 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
     renderDashboardStats() {
       const chartCanvas = document.getElementById('dashboard-chart-canvas');
       if (!chartCanvas) return;
+      
       const resetBtn = document.getElementById('btn-dash-reset');
       const titleEl = document.getElementById('dashboard-title');
       const subtitleEl = document.getElementById('dashboard-subtitle');
+
+      // Update reset button visibility and titles
       if (this.currentDashboardState === 'kabupaten') {
         if (resetBtn) resetBtn.classList.remove('hidden');
         if (titleEl) titleEl.textContent = `📊 Hasil Pelatihan GASING - Kab. ${this.currentKabName}`;
@@ -545,26 +540,52 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
         if (titleEl) titleEl.textContent = `📈 Rata-Rata Hasil Pretest & Posttest Nasional`;
         if (subtitleEl) subtitleEl.textContent = `Peningkatan kompetensi numerasi di 127 Kabupaten/Kota yang telah sukses terintervensi metode GASING.`;
       }
+      
+      // Update tab buttons style
       const tabGuru = document.getElementById('btn-dash-guru');
       const tabSiswa = document.getElementById('btn-dash-siswa');
       if (tabGuru && tabSiswa) {
         tabGuru.classList.toggle('active', this.currentDashboardTab === 'guru');
         tabSiswa.classList.toggle('active', this.currentDashboardTab === 'siswa');
       }
+
       let metrics = [];
       let entry = null;
+
       if (this.currentDashboardState === 'kabupaten') {
         const { gEntry, sEntry } = this.findStats(this.currentKabName);
         entry = this.currentDashboardTab === 'guru' ? gEntry : sEntry;
-        if (!entry) { chartCanvas.innerHTML = '<div style="text-align: center; color: rgba(255, 255, 255, 0.2); font-size: 0.85rem; padding: 60px 0; font-family: Inter, sans-serif;">Data statistik tidak tersedia untuk wilayah ini</div>'; return; }
-        metrics = [{ label: 'Penjumlahan', code: '➕ Tambah', pre: entry.penjumlahanPre, post: entry.penjumlahanPost }, { label: 'Perkalian', code: '✖️ Kali', pre: entry.perkalianPre, post: entry.perkalianPost }, { label: 'Pengurangan', code: '➖ Kurang', pre: entry.penguranganPre, post: entry.penguranganPost }, { label: 'Pembagian', code: '➗ Bagi', pre: entry.pembagianPre, post: entry.pembagianPost }, { label: 'BakalKubagi', code: '🎯 BAKALKUBAGI', pre: entry.bakalkubagiPre, post: entry.bakalkubagiPost }];
+        
+        if (!entry) {
+          chartCanvas.innerHTML = '<div style="text-align: center; color: rgba(255, 255, 255, 0.2); font-size: 0.85rem; padding: 60px 0; font-family: Inter, sans-serif;">Data statistik tidak tersedia untuk wilayah ini</div>';
+          return;
+        }
+
+        metrics = [
+          { label: 'Penjumlahan', code: '➕ Tambah', pre: entry.penjumlahanPre, post: entry.penjumlahanPost },
+          { label: 'Perkalian', code: '✖️ Kali', pre: entry.perkalianPre, post: entry.perkalianPost },
+          { label: 'Pengurangan', code: '➖ Kurang', pre: entry.penguranganPre, post: entry.penguranganPost },
+          { label: 'Pembagian', code: '➗ Bagi', pre: entry.pembagianPre, post: entry.pembagianPost },
+          { label: 'BakalKubagi', code: '🎯 BAKALKUBAGI', pre: entry.bakalkubagiPre, post: entry.bakalkubagiPost }
+        ];
       } else {
+        // Nasional
         entry = this.currentDashboardTab === 'guru' ? nasionalAggregate : siswaNasionalAggregate;
-        metrics = [{ label: 'Penjumlahan', code: '➕ Tambah', pre: entry.penjumlahan.pre, post: entry.penjumlahan.post }, { label: 'Perkalian', code: '✖️ Kali', pre: entry.perkalian.pre, post: entry.perkalian.post }, { label: 'Pengurangan', code: '➖ Kurang', pre: entry.pengurangan.pre, post: entry.pengurangan.post }, { label: 'Pembagian', code: '➗ Bagi', pre: entry.pembagian.pre, post: entry.pembagian.post }, { label: 'BakalKubagi', code: '🎯 BAKALKUBAGI', pre: entry.bakalkubagi.pre, post: entry.bakalkubagi.post }];
+        metrics = [
+          { label: 'Penjumlahan', code: '➕ Tambah', pre: entry.penjumlahan.pre, post: entry.penjumlahan.post },
+          { label: 'Perkalian', code: '✖️ Kali', pre: entry.perkalian.pre, post: entry.perkalian.post },
+          { label: 'Pengurangan', code: '➖ Kurang', pre: entry.pengurangan.pre, post: entry.pengurangan.post },
+          { label: 'Pembagian', code: '➗ Bagi', pre: entry.pembagian.pre, post: entry.pembagian.post },
+          { label: 'BakalKubagi', code: '🎯 BAKALKUBAGI', pre: entry.bakalkubagi.pre, post: entry.bakalkubagi.post }
+        ];
       }
-      const valToY = (val) => 180 - (val * 1.4);
+
+      // Draw SVG Grafana Graph
+      const valToY = (val) => 180 - (val * 1.4); // Maps 0-100 to Y coordinates 180 to 40
+      
       let svgHtml = `
         <svg viewBox="0 0 500 220" class="w-full h-auto" style="overflow: visible;">
+          <!-- SVG Legend -->
           <g transform="translate(60, 12)">
             <rect x="0" y="0" width="8" height="8" fill="#ff780a" rx="1.5" />
             <text x="12" y="8" fill="#9fa7ad" font-size="8.5" font-family="Inter, sans-serif">Pre-test</text>
@@ -573,6 +594,7 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
           </g>
           <line x1="45" y1="180" x2="480" y2="180" stroke="#4f5d65" stroke-width="1.5" />
       `;
+
       metrics.forEach((m, idx) => {
         const x = 85 + idx * 86;
         const preY = valToY(m.pre);
@@ -599,6 +621,7 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
     }
   }
 
+  // Initialize on page load
   document.addEventListener('DOMContentLoaded', () => {
     const mapCard = document.querySelector('.map-card');
     if (mapCard) {
@@ -698,51 +721,6 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
     box-shadow: 0 0 6px var(--color-danger);
   }
 
-  /* Custom Tooltip Styling */
-  .map-tooltip {
-    border-radius: var(--border-radius-sm);
-    border-color: rgba(245, 158, 11, 0.3);
-    min-width: 260px;
-    box-shadow: var(--glass-shadow);
-    transition: opacity 0.2s ease;
-  }
-
-  .tooltip-title {
-    font-size: 1rem;
-    margin-bottom: 2px;
-  }
-
-  .tooltip-stats {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 0.8rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    padding-top: 8px;
-  }
-
-  .tooltip-stat {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .stat-lbl {
-    color: var(--color-text-secondary);
-    font-size: 0.75rem;
-  }
-
-  .stat-val {
-    font-weight: 600;
-    font-size: 0.75rem;
-  }
-
-  .text-gold {
-    color: var(--color-text-gold);
-  }
-
-  .text-success {
-    color: var(--color-success);
-  }
 
   /* Video & Stats Modal Styles */
   .video-modal {
@@ -894,130 +872,94 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
     border-color: rgba(255, 255, 255, 0.2);
   }
 
-  /* Grid Layout Map + Scrollable List */
-  .map-layout-grid {
-    display: grid;
-    grid-template-columns: 2.8fr 1.2fr;
-    gap: 24px;
-    margin-top: 16px;
-    align-items: stretch;
-  }
-
-  @media (max-width: 992px) {
-    .map-layout-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .map-left-pane {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  .map-right-pane {
-    display: flex;
-    flex-direction: column;
-    background: rgba(10, 15, 30, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: var(--border-radius-md);
-    height: 100%;
-    min-height: 380px;
-    max-height: 480px;
-    overflow: hidden;
-    padding: 16px;
-    box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.2);
+  /* Centered Search Autocomplete Container */
+  .map-search-container {
+    width: 100%;
+    margin-bottom: 24px;
+    position: relative;
   }
 
   .map-search-input {
     width: 100%;
-    background: #111217;
-    border: 1px solid #2c3235;
-    color: #c7d2d6;
-    padding: 10px 14px;
-    border-radius: var(--border-radius-sm);
-    font-size: 0.8rem;
+    background: rgba(10, 15, 30, 0.6);
+    border: var(--glass-border);
+    color: var(--color-text-primary);
+    padding: 12px 16px;
+    border-radius: var(--border-radius-md);
+    font-size: 0.9rem;
     outline: none;
     transition: var(--transition-smooth);
-    margin-bottom: 12px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
   }
 
   .map-search-input:focus {
     border-color: var(--color-accent-gold);
-    box-shadow: 0 0 6px rgba(251, 191, 36, 0.2);
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.25);
   }
 
-  .map-regions-list {
-    flex: 1;
+  .map-search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 6px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    border-radius: var(--border-radius-md);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+    z-index: 90;
+    max-height: 250px;
     overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding-right: 4px;
+    backdrop-filter: blur(12px);
   }
 
-  .map-regions-list::-webkit-scrollbar {
+  .map-search-results::-webkit-scrollbar {
     width: 4px;
   }
 
-  .map-regions-list::-webkit-scrollbar-track {
+  .map-search-results::-webkit-scrollbar-track {
     background: transparent;
   }
 
-  .map-regions-list::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+  .map-search-results::-webkit-scrollbar-thumb {
+    background: rgba(251, 191, 36, 0.3);
     border-radius: 4px;
   }
 
-  .region-list-item {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: var(--border-radius-sm);
-    padding: 10px 12px;
-    cursor: pointer;
-    transition: var(--transition-smooth);
-  }
-
-  .region-list-item:hover {
-    background: rgba(251, 191, 36, 0.08);
-    border-color: rgba(251, 191, 36, 0.3);
-    transform: translateX(2px);
-  }
-
-  .region-item-header {
+  .search-result-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 4px;
+    padding: 10px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: var(--transition-smooth);
   }
 
-  .region-item-name {
+  .search-result-item:last-child {
+    border-bottom: none;
+  }
+
+  .search-result-item:hover {
+    background: rgba(251, 191, 36, 0.1);
+  }
+
+  .search-result-name {
     font-size: 0.85rem;
     font-weight: 700;
     color: #ffffff;
   }
 
-  .region-item-province {
-    font-size: 0.65rem;
-    color: var(--color-text-secondary);
-    background: rgba(255, 255, 255, 0.06);
-    padding: 2px 8px;
-    border-radius: 100px;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-
-  .region-item-stats {
+  .search-result-detail {
     font-size: 0.72rem;
     color: var(--color-success);
     font-family: monospace;
-    opacity: 0.9;
   }
 
-  .region-no-results {
+  .search-no-results {
+    padding: 16px;
     text-align: center;
     color: var(--color-text-secondary);
-    font-size: 0.8rem;
-    padding: 40px 0;
+    font-size: 0.85rem;
   }
 </style>
