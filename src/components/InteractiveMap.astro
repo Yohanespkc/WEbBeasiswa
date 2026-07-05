@@ -154,6 +154,12 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
       <!-- Video Player Column (Now centered and full width) -->
       <div class="modal-col-video">
         <div class="video-wrapper">
+          <img
+            id="modal-default-img"
+            src="/assets/images/default_kabupaten.png"
+            alt="Dokumentasi Pelatihan GASING"
+            class="w-full h-full object-cover"
+          />
           <iframe
             id="modal-iframe"
             src=""
@@ -161,6 +167,7 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
             frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen
+            class="hidden"
           ></iframe>
         </div>
         <p class="text-xs text-muted text-center mt-3 video-description">Mendengar keceriaan anak-anak belajar numerasi lewat melodi lagu daerah.</p>
@@ -189,6 +196,7 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
       this.modal = document.getElementById('video-modal');
       this.modalClose = document.getElementById('modal-close-btn');
       this.iframe = document.getElementById('modal-iframe');
+      this.defaultImg = document.getElementById('modal-default-img');
 
       this.currentKabName = '';
       this.currentDashboardTab = 'guru'; // default dashboard tab
@@ -341,6 +349,9 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
       this.modal.querySelector('.modal-title').textContent = `Pelatihan GASING di Kab. ${name}`;
       this.iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
       
+      if (this.defaultImg) this.defaultImg.classList.add('hidden');
+      this.iframe.classList.remove('hidden');
+      
       const descEl = this.container.querySelector('.video-description');
       if (descEl) {
         const clean = (s) => s.toLowerCase().replace(/^(kab|kabupaten|kota)\.?\s+/g, '').trim();
@@ -388,6 +399,9 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
       const randomVideo = otherVideos[Math.floor(Math.random() * otherVideos.length)];
       this.currentVideoId = randomVideo.id;
       this.iframe.src = `https://www.youtube.com/embed/${randomVideo.id}?autoplay=1`;
+      
+      if (this.defaultImg) this.defaultImg.classList.add('hidden');
+      this.iframe.classList.remove('hidden');
       
       const descEl = this.container.querySelector('.video-description');
       if (descEl) { descEl.textContent = `Menampilkan: ${randomVideo.label}`; }
@@ -616,6 +630,22 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
       this.modal.classList.add('pointer-events-none', 'opacity-0');
       this.modal.classList.remove('opacity-100');
       this.iframe.src = '';
+      
+      this.iframe.classList.add('hidden');
+      if (this.defaultImg) this.defaultImg.classList.remove('hidden');
+      
+      this.modal.querySelector('.modal-title').textContent = 'Pelatihan GASING di Kabupaten';
+      
+      const descEl = this.container.querySelector('.video-description');
+      if (descEl) {
+        descEl.textContent = 'Mendengar keceriaan anak-anak belajar numerasi lewat melodi lagu daerah.';
+      }
+
+      const btnOther = document.getElementById('btn-other-video');
+      if (btnOther) {
+        btnOther.style.display = 'none';
+      }
+
       const oldLabel = document.getElementById('active-map-label');
       if (oldLabel) oldLabel.remove();
     }
@@ -765,6 +795,16 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .video-wrapper img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: none;
   }
 
   .video-wrapper iframe {
