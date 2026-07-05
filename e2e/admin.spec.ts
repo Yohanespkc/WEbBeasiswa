@@ -20,13 +20,13 @@ test.describe('Alur Autentikasi Admin dan Edit Profil Trainer', () => {
     await expect(page.locator('.admin-dashboard')).toBeVisible();
     await expect(page.locator('.admin-table tbody tr')).toHaveCount(82);
     
-    // Andi Tabuni has password '1409'
+    // Livi Sihombing has password '1234'
     const pinCell = page.locator('.pin-badge').first();
-    await expect(pinCell).toContainText('1409');
+    await expect(pinCell).toContainText('1234');
   });
 
   test('2. Edit Profil via Trainer PIN dan Simpan Perubahan', async ({ page }) => {
-    // Go directly to Andi Tabuni detail page
+    // Go directly to Livi Sihombing detail page
     await page.goto('/trainers/1');
     
     // Click edit profile to open modal prompt
@@ -38,29 +38,29 @@ test.describe('Alur Autentikasi Admin dan Edit Profil Trainer', () => {
     await page.click('#confirm-password-btn');
     await expect(page.locator('#auth-error-msg')).toBeVisible();
 
-    // Fill correct PIN '1409'
-    await page.fill('#auth-pin-input', '1409');
+    // Fill correct PIN '1234'
+    await page.fill('#auth-pin-input', '1234');
     await page.click('#confirm-password-btn');
     
     // Verify edit form is unlocked and visible
     await expect(page.locator('#details-edit-container')).toBeVisible();
-    await expect(page.locator('#edit-name')).toHaveValue('Andi Tabuni');
+    await expect(page.locator('#edit-name')).toHaveValue('Livi Sihombing');
 
     // Modify name and save
-    await page.fill('#edit-name', 'Andi Tabuni Edited');
+    await page.fill('#edit-name', 'Livi Sihombing Edited');
     await page.click('button[type="submit"]');
 
     // Verify redirect and updated details visible on view mode
     await expect(page).toHaveURL(/.*\/trainers\/1/);
-    await expect(page.locator('#view-name-text')).toContainText('Andi Tabuni Edited');
+    await expect(page.locator('#view-name-text')).toContainText('Livi Sihombing Edited');
 
     // Clean up: Reset name back to original to keep seed clean
     await page.click('#open-edit-mode-btn');
-    await page.fill('#auth-pin-input', '1409');
+    await page.fill('#auth-pin-input', '1234');
     await page.click('#confirm-password-btn');
-    await page.fill('#edit-name', 'Andi Tabuni');
+    await page.fill('#edit-name', 'Livi Sihombing');
     await page.click('button[type="submit"]');
     
-    await expect(page.locator('#view-name-text')).toContainText('Andi Tabuni');
+    await expect(page.locator('#view-name-text')).toContainText('Livi Sihombing');
   });
 });

@@ -4,32 +4,32 @@
 INSERT INTO trainers (name, photo_url, major, university, bio, story_emotional, home_regency, home_province, target_funding, current_funding, is_funded, password)
 VALUES 
 (
-    'Andi Tabuni',
-    '/assets/images/trainers/andi.png',
-    'S3 Kurikulum dan Pengajaran',
+    'Livi Sihombing',
+    '/assets/images/trainers/default.png',
+    'S2 Kurikulum dan Pengajaran',
     'Columbia University',
-    'Andi adalah trainer GASING unggul yang sedang menempuh studi S3 Kurikulum dan Pengajaran di Columbia University demi memformulasikan standar kurikulum numerasi daerah 3T di tingkat nasional.',
-    'Setelah sukses membimbing anak-anak pedalaman Tolikara mencongak cepat, Andi bermimpi membawa standardisasi pengajaran matematika Indonesia ke panggung dunia. Kini di Columbia University, ia meneliti metode kognitif matematika untuk anak-anak pelosok daerah agar memiliki akses pendidikan yang setara.',
+    'Livi Sihombing adalah trainer GASING unggul yang sedang menempuh studi S2 Kurikulum dan Pengajaran di Columbia University demi memformulasikan standar kurikulum numerasi daerah 3T.',
+    'Setelah sukses membimbing anak-anak di pelosok mencongak cepat, Livi bermimpi membawa pengajaran matematika Indonesia ke standar global. Di Columbia University, ia mempelajari perancangan kurikulum inklusif agar anak-anak pelosok mendapatkan mutu pendidikan matematika yang setara.',
     'Tolikara',
     'Papua Pegunungan',
     150000000.0,
     0.0,
     0,
-    '1409'
+    '1234'
 ),
 (
-    'Maria Wenda',
-    '/assets/images/trainers/maria.png',
-    'S3 Kepemimpinan Pendidikan',
+    'Witnny Warouw',
+    '/assets/images/trainers/default.png',
+    'S2 Kepemimpinan Pendidikan',
     'Columbia University',
-    'Maria mendalami S3 Manajemen & Kepemimpinan Pendidikan di Columbia University untuk mempersiapkan tata kelola sekolah adat dan pusat pelatihan numerasi terpadu di Papua.',
-    'Terinspirasi oleh pelukannya dengan anak-anak didik di Manokwari, Maria bertekad menguasai riset kebijakan pendidikan global di Columbia University untuk mendirikan ekosistem sekolah gratis berbasis metode GASING di wilayah pelosok Nusantara.',
+    'Witnny mendalami program S2 Kepemimpinan Pendidikan di Columbia University untuk mempersiapkan tata kelola sekolah adat dan pusat pelatihan numerasi terpadu.',
+    'Dengan tekad memajukan mutu sekolah di pelosok Nusantara, Witnny berjuang menguasai perancangan sistem sekolah modern di Columbia University untuk kembali dan mendirikan pusat pengajaran numerasi modern gratis bagi anak-anak daerah terpencil.',
     'Manokwari',
     'Papua Barat',
     150000000.0,
     0.0,
     0,
-    '2508'
+    '1234'
 );
 
 
