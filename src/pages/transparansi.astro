@@ -22,13 +22,13 @@ try {
   if (env && env.DB) {
     // 1. Get total funds raised
     const totalResult = await env.DB.prepare(
-      "SELECT SUM(amount) as total FROM donations WHERE payment_status = 'settlement'"
+      "SELECT SUM(amount) as total FROM donations WHERE payment_status = 'settlement' AND donor_name NOT LIKE '%Test Donor%'"
     ).first() as any;
     totalRaised = totalResult?.total || 0;
 
     // 2. Get donor count
     const countResult = await env.DB.prepare(
-      "SELECT COUNT(*) as count FROM donations WHERE payment_status = 'settlement'"
+      "SELECT COUNT(*) as count FROM donations WHERE payment_status = 'settlement' AND donor_name NOT LIKE '%Test Donor%'"
     ).first() as any;
     donorCount = countResult?.count || 0;
 
@@ -36,7 +36,7 @@ try {
     const { results } = await env.DB.prepare(
       `SELECT donor_name, amount, message, created_at 
        FROM donations 
-       WHERE payment_status = 'settlement' 
+       WHERE payment_status = 'settlement' AND donor_name NOT LIKE '%Test Donor%'
        ORDER BY created_at DESC 
        LIMIT 40`
     ).all();
