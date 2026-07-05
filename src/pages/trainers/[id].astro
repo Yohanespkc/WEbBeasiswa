@@ -19,6 +19,7 @@ interface Trainer {
   is_funded: number;
   password?: string;
   gasing_testimony?: string;
+  gpa: number;
 }
 
 const { id } = Astro.params;
@@ -70,7 +71,7 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
               </div>
               <div class="profile-meta p-6">
                 <span class="loc-text" id="view-loc-text">{trainer.home_regency}, {trainer.home_province}</span>
-                <h2 id="view-name-text">{trainer.name}</h2>
+                <h2 id="view-name-text">{trainer.name} <span class="text-xs text-gold/80 font-normal ml-1" id="view-gpa-text">(IPK {trainer.gpa ? trainer.gpa.toFixed(2).replace('.', ',') : '0,00'})</span></h2>
                 <h4 class="major-text text-gold" id="view-major-text">{trainer.major}</h4>
                 <p class="univ-text text-sm text-muted mb-4" id="view-univ-text">{trainer.university}</p>
                 

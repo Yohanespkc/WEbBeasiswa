@@ -17,6 +17,7 @@ interface Trainer {
   target_funding: number;
   current_funding: number;
   is_funded: number;
+  gpa: number;
 }
 
 let trainers: Trainer[] = [];
@@ -82,7 +83,7 @@ try {
                   </div>
                   <div class="trainer-body">
                     <span class="trainer-loc">{trainer.home_regency}, {trainer.home_province}</span>
-                    <h3>{trainer.name}</h3>
+                    <h3>{trainer.name} <span class="text-xs text-gold/80 font-normal ml-1">(IPK {trainer.gpa ? trainer.gpa.toFixed(2).replace('.', ',') : '0,00'})</span></h3>
                     <p class="trainer-major text-gold">{trainer.major}</p>
                     <p class="trainer-univ text-xs text-muted mb-4">{trainer.university}</p>
                     <p class="trainer-bio text-sm leading-relaxed">{trainer.bio}</p>

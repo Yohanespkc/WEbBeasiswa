@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS trainers (
     current_funding REAL NOT NULL DEFAULT 0.0,
     is_funded INTEGER NOT NULL DEFAULT 0,
     password TEXT,
-    gasing_testimony TEXT
+    gasing_testimony TEXT,
+    gpa REAL
 );
 
 -- Table: donations
