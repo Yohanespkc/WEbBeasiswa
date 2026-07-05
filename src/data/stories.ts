@@ -70,18 +70,18 @@ export const boardMembers: BoardMember[] = [
     name: 'Prof. Yohanes Surya, Ph.D.',
     role: 'Pendiri & Ketua Dewan Pembina',
     description: 'Fisikawan terkemuka Indonesia, pendiri Tim Olimpiade Fisika Indonesia (TOFI), dan pencipta metode pembelajaran GASING (Gampang, Asyik, Menyenangkan). Dedikasinya selama puluhan tahun adalah memberantas buta numerasi di daerah tertinggal.',
-    image: '/assets/images/trainers/joko.png' // temporary placeholder using joko
+    image: '/assets/images/trainers/yohanes_surya.png'
   },
   {
-    name: 'Dr. Ir. Wahyu Wibowo',
+    name: 'Prof. Dr. Zuzy Anna, M.Si.',
     role: 'Direktur Eksekutif',
-    description: 'Praktisi dan akademisi manajemen pendidikan nasional. Berfokus pada tata kelola program beasiswa dan standarisasi kurikulum trainer GASING agar siap diterjunkan ke 387 kabupaten yang belum terjangkau.',
-    image: '/assets/images/trainers/andi.png' // temporary placeholder using andi
+    description: 'Guru Besar Universitas Padjadjaran, Direktur SDGs Center UNPAD, serta Presiden ISCN (Indonesia SDGs Center Network). Beliau berdedikasi memimpin operasional, tata kelola program akademik beasiswa S2/S3, serta membangun kemitraan strategis nasional untuk akselerasi perubahan pendidikan.',
+    image: '/assets/images/trainers/zuzy_anna.jpg'
   },
   {
-    name: 'Ibu Lestari Siahaan, M.Si.',
+    name: 'Prof. Rofikoh Rokhim, S.E., S.I.P., DEA., Ph.D.',
     role: 'Direktur Keuangan & Kepatuhan',
-    description: 'Akuntan senior bersertifikasi yang berkomitmen menjaga kepatuhan dan integritas pengeluaran yayasan. Menjamin 100% donasi publik disalurkan khusus untuk biaya studi penerima beasiswa tanpa potongan operasional.',
-    image: '/assets/images/trainers/maria.png' // temporary placeholder using maria
+    description: 'Guru Besar Keuangan FEB Universitas Indonesia dan Kepala Program MM-MBA UI. Mantan Wakil Komisaris Utama PT Bank Rakyat Indonesia (BRI) Tbk dan Tenaga Ahli Program Ultra Mikro (UMi) PNM. Beliau berkomitmen mengawal transparansi, akuntabilitas, serta kepatuhan penuh dalam penyaluran dana beasiswa secara berkeadilan.',
+    image: '/assets/images/trainers/rofikoh.jpg'
   }
 ];
