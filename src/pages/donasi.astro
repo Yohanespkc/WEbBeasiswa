@@ -73,6 +73,26 @@ try {
             />
           </div>
 
+          <!-- Payment Method Field -->
+          <div class="input-group">
+            <label for="payment-method">Metode Pembayaran</label>
+            <select id="payment-method" required>
+              <option value="" disabled selected>-- Pilih Metode Pembayaran --</option>
+              <optgroup label="Bank Virtual Account">
+                <option value="bca">BCA Virtual Account</option>
+                <option value="bni">BNI Virtual Account</option>
+                <option value="bri">BRI Virtual Account</option>
+              </optgroup>
+              <optgroup label="E-Wallet">
+                <option value="dana">DANA</option>
+                <option value="ovo">OVO</option>
+              </optgroup>
+              <optgroup label="Internasional (Luar Negeri)">
+                <option value="intl">Transfer Bank Internasional (SWIFT / Wise)</option>
+              </optgroup>
+            </select>
+          </div>
+
           <!-- Notice explaining pool distribution -->
           <div class="info-alert glass-panel mb-6 p-4 text-xs text-left border border-amber-500/30 bg-amber-500/5 rounded">
             <p class="font-bold text-amber-400 mb-2 flex items-center gap-1">
@@ -156,6 +176,7 @@ try {
       const trainerId = (document.getElementById('target-trainer') as HTMLSelectElement).value;
       const amount = amountInput.value;
       const message = (document.getElementById('donor-message') as HTMLTextAreaElement).value;
+      const method = (document.getElementById('payment-method') as HTMLSelectElement).value;
 
       submitBtn.disabled = true;
       submitBtn.textContent = "Menginisialisasi Pembayaran...";
@@ -164,7 +185,7 @@ try {
         const response = await fetch('/api/payment', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, amount, message, trainerId })
+          body: JSON.stringify({ name, email, amount, message, trainerId, method })
         });
 
         const data = await response.json();

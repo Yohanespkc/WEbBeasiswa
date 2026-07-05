@@ -7,7 +7,7 @@ export const prerender = false;
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const body = await request.json();
-    const { name, email, amount, message, trainerId } = body;
+    const { name, email, amount, message, trainerId, method } = body;
 
     if (!name || !email || !amount) {
       return new Response(JSON.stringify({ error: "Nama, email, dan nominal donasi wajib diisi." }), {
@@ -81,7 +81,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Mock Fallback Sandbox for seamless demonstration
     return new Response(JSON.stringify({
       token: `MOCK-SNAP-TOKEN-${orderId}`,
-      redirect_url: `/donasi/mock-checkout?orderId=${orderId}&amount=${parsedAmount}&name=${encodeURIComponent(name)}`,
+      redirect_url: `/donasi/mock-checkout?orderId=${orderId}&amount=${parsedAmount}&name=${encodeURIComponent(name)}&method=${method || ''}`,
       orderId,
       mock: true
     }), {

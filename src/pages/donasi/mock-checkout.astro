@@ -8,6 +8,64 @@ const url = new URL(Astro.request.url);
 const orderId = url.searchParams.get('orderId') || "";
 const amount = Number(url.searchParams.get('amount') || "0");
 const name = url.searchParams.get('name') || "Donatur";
+const method = url.searchParams.get('method') || "bca";
+
+let paymentMethodName = "";
+let instructionDetails: { label: string; val: string; isMono?: boolean }[] = [];
+let noteText = "";
+
+if (method === 'bca') {
+  paymentMethodName = "BCA Virtual Account";
+  instructionDetails = [
+    { label: "Metode Pembayaran", val: "BCA Virtual Account (Simulasi)" },
+    { label: "Nomor Virtual Account", val: "118-0855-9008-2026", isMono: true },
+    { label: "Nama Rekening Penerima", val: "Yayasan 1000PhD Guru" }
+  ];
+  noteText = "* Petunjuk Pembayaran: Masuk ke m-BCA > Transfer > BCA Virtual Account. Masukkan nomor VA di atas dan konfirmasi nominal pembayaran.";
+} else if (method === 'bni') {
+  paymentMethodName = "BNI Virtual Account";
+  instructionDetails = [
+    { label: "Metode Pembayaran", val: "BNI Virtual Account (Simulasi)" },
+    { label: "Nomor Virtual Account", val: "827-0855-9008-2026", isMono: true },
+    { label: "Nama Rekening Penerima", val: "Yayasan 1000PhD Guru" }
+  ];
+  noteText = "* Petunjuk Pembayaran: Masuk ke BNI Mobile Banking > Transfer > Virtual Account Billing. Masukkan nomor VA di atas dan bayar.";
+} else if (method === 'bri') {
+  paymentMethodName = "BRI Virtual Account (BRIVA)";
+  instructionDetails = [
+    { label: "Metode Pembayaran", val: "BRI Virtual Account (Simulasi)" },
+    { label: "Nomor Virtual Account (BRIVA)", val: "779-0855-9008-2026", isMono: true },
+    { label: "Nama Rekening Penerima", val: "Yayasan 1000PhD Guru" }
+  ];
+  noteText = "* Petunjuk Pembayaran: Masuk ke BRImo > Pembayaran > BRIVA. Masukkan nomor BRIVA di atas dan bayar.";
+} else if (method === 'dana') {
+  paymentMethodName = "DANA E-Wallet";
+  instructionDetails = [
+    { label: "Metode Pembayaran", val: "DANA E-Wallet (Simulasi)" },
+    { label: "Nomor HP DANA", val: "0855-9008-2026", isMono: true },
+    { label: "Nama Akun Penerima", val: "Yayasan 1000PhD Guru" }
+  ];
+  noteText = "* Petunjuk Pembayaran: Buka aplikasi DANA > Kirim > Kirim ke Teman / Nomor HP. Masukkan nomor HP penerima di atas dan konfirmasi.";
+} else if (method === 'ovo') {
+  paymentMethodName = "OVO E-Wallet";
+  instructionDetails = [
+    { label: "Metode Pembayaran", val: "OVO E-Wallet (Simulasi)" },
+    { label: "Nomor HP OVO", val: "0855-9008-2026", isMono: true },
+    { label: "Nama Akun Penerima", val: "Yayasan 1000PhD Guru" }
+  ];
+  noteText = "* Petunjuk Pembayaran: Buka aplikasi OVO > Transfer > Ke Sesama OVO. Masukkan nomor HP penerima di atas dan konfirmasi.";
+} else if (method === 'intl') {
+  paymentMethodName = "International SWIFT Bank Transfer";
+  instructionDetails = [
+    { label: "Metode Pembayaran", val: "International SWIFT Transfer (Simulasi)" },
+    { label: "Nama Bank Penerima", val: "Bank Central Asia (BCA)" },
+    { label: "SWIFT Code / BIC", val: "CENAIJAXXX", isMono: true },
+    { label: "Nomor Rekening (Account Number)", val: "118-3012-9008", isMono: true },
+    { label: "Nama Penerima (Beneficiary)", val: "Yayasan 1000PhD Guru" },
+    { label: "Alamat Bank & Penerima", val: "Jakarta, Indonesia" }
+  ];
+  noteText = "* Petunjuk Internasional: Untuk transfer dari luar negeri, gunakan kode SWIFT dan nomor rekening di atas. Anda juga dapat menggunakan platform seperti Wise (transferwise.com) atau PayPal untuk mentransfer secara langsung ke rekening di atas dengan biaya lebih rendah dan konversi otomatis ke IDR.";
+}
 ---
 
 <Layout title="Simulasi Pembayaran Donasi" description="Halaman sandbox pembayaran donasi untuk simulasi transfer beasiswa.">
@@ -29,19 +87,19 @@ const name = url.searchParams.get('name') || "Donatur";
         </div>
 
         <div class="invoice-details mb-6">
-          <div class="invoice-row flex justify-between py-2 border-b border-white/5">
-            <span class="lbl text-sm text-muted">Metode Pembayaran</span>
-            <span class="val text-sm font-semibold text-white">BCA Virtual Account (Simulasi)</span>
-          </div>
-          <div class="invoice-row flex justify-between py-2 border-b border-white/5">
-            <span class="lbl text-sm text-muted">Nomor Virtual Account</span>
-            <span class="val text-sm font-mono font-bold text-gold">118-0855-9008-2026</span>
-          </div>
-          <div class="invoice-row flex justify-between py-2">
-            <span class="lbl text-sm text-muted">Atas Nama Rekening</span>
-            <span class="val text-sm font-semibold text-white">Yayasan 1000PhD Guru</span>
-          </div>
+          {instructionDetails.map(item => (
+            <div class="invoice-row flex justify-between py-2 border-b border-white/5">
+              <span class="lbl text-sm text-muted">{item.label}</span>
+              <span class={`val text-sm ${item.isMono ? 'font-mono font-bold text-gold' : 'font-semibold text-white'}`}>{item.val}</span>
+            </div>
+          ))}
         </div>
+
+        {noteText && (
+          <div class="note-box glass-panel p-4 mb-6 text-xs text-muted leading-relaxed text-left border border-white/5 bg-white/2 rounded">
+            {noteText}
+          </div>
+        )}
 
         <div class="checkout-actions">
           <button class="btn btn-primary w-full text-center py-3 font-bold" id="simulate-success-btn">

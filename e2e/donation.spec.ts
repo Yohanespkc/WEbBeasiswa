@@ -57,6 +57,9 @@ test.describe('Alur Penggalangan Dana & Donasi Beasiswa GASING', () => {
     await page.fill('#donor-email', 'tester@suryainstitute.org');
     await page.fill('#donor-message', 'Semangat belajar memajukan bangsa!');
 
+    // Select payment method
+    await page.selectOption('#payment-method', 'bca');
+
     // Select preset amount button (e.g. 1jt preset)
     const presetOneMil = page.locator('.preset-btn[data-val="1000000"]');
     await presetOneMil.click();
