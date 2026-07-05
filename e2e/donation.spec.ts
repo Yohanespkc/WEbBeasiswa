@@ -24,7 +24,7 @@ test.describe('Alur Penggalangan Dana & Donasi Beasiswa GASING', () => {
 
   test('2. Navigasi ke Daftar Trainer dan Profil Detail', async ({ page }) => {
     await page.goto('/trainers');
-    await expect(page.locator('.trainer-card')).toHaveCount(83);
+    await expect(page.locator('.trainer-card')).toHaveCount(82);
 
     // Click on the first trainer card's complete profile button
     const firstTrainerLink = page.locator('.trainer-card a').first();

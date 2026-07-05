@@ -18,7 +18,7 @@ test.describe('Alur Autentikasi Admin dan Edit Profil Trainer', () => {
 
     // Verify Admin Dashboard lists trainers and their PINs
     await expect(page.locator('.admin-dashboard')).toBeVisible();
-    await expect(page.locator('.admin-table tbody tr')).toHaveCount(83);
+    await expect(page.locator('.admin-table tbody tr')).toHaveCount(82);
     
     // Andi Tabuni has password '1409'
     const pinCell = page.locator('.pin-badge').first();

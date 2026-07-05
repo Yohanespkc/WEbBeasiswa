@@ -190,7 +190,7 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
             <!-- Interactive Impact Calculator -->
             <div class="glass-panel calculator-card mt-6 p-6" id="impact-calculator">
               <h3 class="font-serif text-gold text-center mb-4">🧮 Kalkulator Dampak Donasi</h3>
-              <p class="text-xs text-muted text-center mb-6">Geser slider untuk mensimulasikan dampak nyata bantuan Anda terhadap kelancaran studi {trainer.name}.</p>
+              <p class="text-xs text-muted text-center mb-6">Geser slider untuk mensimulasikan dampak bantuan Anda terhadap kelancaran studi para asisten trainer.</p>
               
               <!-- Slider Input -->
               <div class="slider-wrapper">
@@ -220,8 +220,9 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
               </div>
 
               <button class="btn btn-primary w-full text-center mt-6" id="donate-now-btn">
-                Donasikan Jumlah Ini Sekarang
+                Salurkan ke Dana Bersama
               </button>
+              <p class="text-[10px] text-muted text-center mt-2 italic">* Seluruh sumbangan akan dimasukkan ke Dana Bersama dan disalurkan secara merata kepada 80 AT di UPI & 2 AT di Columbia Univ.</p>
             </div>
           </div>
         </div>
@@ -269,15 +270,15 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
         displayAmount.textContent = `Rp ${amount.toLocaleString('id-ID')}`;
 
         if (amount < 250000) {
-          displayImpact.textContent = `Membantu menanggung paket modul buku pegangan matematika GASING dan alat peraga manipulatif konkret untuk studi ${trainerName}.`;
+          displayImpact.textContent = `Membantu menanggung paket modul buku pegangan matematika GASING dan alat peraga manipulatif konkret untuk studi para asisten trainer.`;
         } else if (amount >= 250000 && amount < 1000000) {
-          displayImpact.textContent = `Membantu menutupi biaya internet kuota data kuliah daring dan buku referensi wajib untuk mendukung tesis ${trainerName}.`;
+          displayImpact.textContent = `Membantu menutupi biaya internet kuota data kuliah daring dan buku referensi wajib untuk mendukung tesis para asisten trainer.`;
         } else if (amount >= 1000000 && amount < 4000000) {
-          displayImpact.textContent = `Membantu membiayai transport tiket pesawat riset/pengabdian numerasi ${trainerName} ke sekolah-sekolah di pelosok daerah asal.`;
+          displayImpact.textContent = `Membantu membiayai transport tiket pesawat riset/pengabdian numerasi para asisten trainer ke sekolah-sekolah di pelosok daerah asal.`;
         } else if (amount >= 4000000 && amount < 8000000) {
-          displayImpact.textContent = `Membantu membiayai sewa tempat tinggal (kos) dan tunjangan hidup bulanan ${trainerName} di sekitar kampus selama 1 Semester perkuliahan.`;
+          displayImpact.textContent = `Membantu membiayai sewa tempat tinggal (kos) dan tunjangan hidup bulanan para asisten trainer di sekitar kampus selama 1 Semester perkuliahan.`;
         } else {
-          displayImpact.textContent = `Luar Biasa! Kontribusi Anda akan langsung memotong/melunasi biaya Sumbangan Pembinaan Pendidikan (SPP) Kuliah Semester ${trainerName} secara signifikan.`;
+          displayImpact.textContent = `Luar Biasa! Kontribusi Anda akan langsung memotong/melunasi biaya Sumbangan Pembinaan Pendidikan (SPP) Kuliah Semester para asisten trainer secara signifikan.`;
         }
       };
 

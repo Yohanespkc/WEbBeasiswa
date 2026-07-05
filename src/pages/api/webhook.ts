@@ -49,17 +49,19 @@ export const POST: APIRoute = async ({ request, locals }) => {
         db.prepare("UPDATE donations SET payment_status = 'settlement' WHERE id = ?").bind(orderId)
       );
 
-      // If linked to a trainer, update trainer funding status
-      if (donation.trainer_id) {
-        statements.push(
-          db.prepare(
-            `UPDATE trainers 
-             SET current_funding = current_funding + ?,
-                 is_funded = CASE WHEN (current_funding + ?) >= target_funding THEN 1 ELSE 0 END
-             WHERE id = ?`
-          ).bind(donation.amount, donation.amount, donation.trainer_id)
-        );
-      }
+      // Query total active trainers dynamically
+      const countRow = await db.prepare("SELECT COUNT(*) as total FROM trainers").first();
+      const totalTrainers = (countRow as any)?.total || 82;
+      const shareAmount = donation.amount / totalTrainers;
+
+      // Update all trainers funding status equally
+      statements.push(
+        db.prepare(
+          `UPDATE trainers 
+           SET current_funding = current_funding + ?,
+               is_funded = CASE WHEN (current_funding + ?) >= target_funding THEN 1 ELSE 0 END`
+        ).bind(shareAmount, shareAmount)
+      );
 
       // Execute all statements safely in a single batch
       await db.batch(statements);
