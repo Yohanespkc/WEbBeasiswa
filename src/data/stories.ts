@@ -6,6 +6,8 @@ export interface Story {
   fullStory: string;
   image: string;
   category: 'impact' | 'culture';
+  pdfUrl?: string;
+  isTestimoniBook?: boolean;
 }
 
 export interface BoardMember {
@@ -39,6 +41,50 @@ export const emotionalStories: Story[] = [
     fullStory: 'Akhir dari pelatihan metode GASING di Manokwari, Papua Barat, ditutup dengan air mata haru. Saat para pelatih/trainer bersiap untuk kembali ke Jakarta, seorang anak Papua kurus berusia 9 tahun mendekati pelatihnya. Dengan mata berkaca-kaca, ia melepaskan sebuah kalung manik-manik tradisional dari lehernya—satu-satunya harta berharga yang ia miliki hari itu. Sambil menyerahkannya, ia berbisik lirih: "Bapak, ini yang saya bisa berikan... Jangan lupakan kami." Kalimat sederhana itu membakar tekad para trainer. Di balik keterbatasan akses, anak-anak pelosok merindukan ilmu pengetahuan dan kasih sayang dari para pengajar yang tulus.',
     image: '/assets/images/gasing_training_2.png',
     category: 'culture'
+  },
+  {
+    id: 'gasing-di-hatiku',
+    title: 'Buku: GASING di Hatiku',
+    location: 'Nasional',
+    excerpt: 'Koleksi tulisan reflektif dan kisah nyata dari para trainer GASING dalam perjalanan mengabdikan diri di pelosok Nusantara.',
+    fullStory: 'Buku "GASING di Hatiku" berisi catatan kisah perjuangan, tawa, air mata, serta transformasi emosional para guru dan murid di berbagai daerah pengimbasan. Melalui tulisan-tulisan jujur dari para trainer, buku ini menggambarkan kekuatan dari dedikasi mendampingi anak-anak pelosok menemukan kepercayaan diri mereka.',
+    image: '/assets/images/gasing_di_hatiku_cover.jpg',
+    category: 'impact',
+    pdfUrl: '/Buku/Buku_Gasing_diHatiku.pdf',
+    isTestimoniBook: true
+  },
+  {
+    id: 'gasing-mengubah-indonesia',
+    title: 'Buku: GASING Mengubah Indonesia',
+    location: 'Nasional',
+    excerpt: 'Dokumentasi visi besar dan dampak nyata metode GASING dalam merevolusi numerasi dan pendidikan dasar di Indonesia.',
+    fullStory: 'Buku "GASING Mengubah Indonesia" menyajikan rangkuman perjalanan metode GASING dalam membawa dampak signifikan pada tingkat nasional. Buku ini mendokumentasikan bagaimana pendekatan pembelajaran yang gampang, asyik, dan menyenangkan mampu meningkatkan keterampilan berpikir tingkat tinggi (HOTS) anak-anak Indonesia.',
+    image: '/assets/images/gasing_mengubah_indonesia_cover.jpg',
+    category: 'impact',
+    pdfUrl: '/Buku/Buku_Gasing_Mengubah_Indonesia_Final.pdf',
+    isTestimoniBook: true
+  },
+  {
+    id: 'kesan-peserta-nuansa-3',
+    title: 'Buku: Kesan Para Peserta Nuansa 3',
+    location: 'Nasional',
+    excerpt: 'Kumpulan testimoni jujur dan mendalam dari para guru, dosen, dan asisten trainer peserta program Nuansa 3 GASING.',
+    fullStory: 'Buku "Kesan Para Peserta Nuansa 3" memuat beragam refleksi, ungkapan terima kasih, serta cerita perubahan paradigma mengajar dari para peserta pelatihan Nuansa 3. Testimoni di dalamnya menceritakan bagaimana metode GASING telah menghidupkan kembali gairah mengajar para pendidik.',
+    image: '/assets/images/kesan_nuansa3_cover.png',
+    category: 'culture',
+    pdfUrl: '/Buku/Kesan_Para_Peserta_Nuansa_3_Gasing.pdf',
+    isTestimoniBook: true
+  },
+  {
+    id: 'jejak-gasing-pasundan',
+    title: 'Buku: Jejak GASING di Tanah Pasundan',
+    location: 'Jawa Barat',
+    excerpt: 'Dokumentasi inspiratif dan catatan kisah keberhasilan implementasi metode GASING di wilayah Jawa Barat.',
+    fullStory: 'Buku "Jejak GASING di Tanah Pasundan" memaparkan kisah sukses, tantangan, dan testimoni luar biasa selama penerapan metode pembelajaran GASING di wilayah Jawa Barat (Tanah Pasundan). Buku ini merekam bagaimana sinergi antara para trainer, guru, dan pemerintah daerah melahirkan anak-anak yang cerdas dan percaya diri.',
+    image: '/assets/images/jejak_pasundan_cover.png',
+    category: 'impact',
+    pdfUrl: '/Buku/Buku_Jejak_Gasing_Di_Tanah_Pasundan.pdf',
+    isTestimoniBook: true
   }
 ];
 

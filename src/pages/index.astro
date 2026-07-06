@@ -68,11 +68,20 @@ import { emotionalStories, boardMembers, metrics } from '../data/stories';
           <div class="glass-panel story-card overflow-hidden">
             <div class="story-image-wrapper">
               <img src={story.image} alt={story.title} class="story-image" />
-              <span class="story-location-badge">{story.location}</span>
+              <span class="story-location-badge">
+                {story.isTestimoniBook ? '📚 Buku Testimoni' : story.location}
+              </span>
             </div>
             <div class="story-info">
               <h3>{story.title}</h3>
               <p class="story-text">{story.fullStory}</p>
+              {story.pdfUrl && (
+                <div class="mt-4">
+                  <a href={story.pdfUrl} target="_blank" class="download-book-btn">
+                    <span>📖 Baca / Unduh Buku (PDF)</span>
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -283,6 +292,29 @@ import { emotionalStories, boardMembers, metrics } from '../data/stories';
     line-height: 1.6;
     color: var(--color-text-secondary);
     text-align: justify;
+  }
+
+  .download-book-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: var(--color-text-gold);
+    border-radius: var(--border-radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+    margin-top: 12px;
+  }
+
+  .download-book-btn:hover {
+    background: var(--color-accent-gold);
+    color: #070c19;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
   }
 
   /* Board Section */
