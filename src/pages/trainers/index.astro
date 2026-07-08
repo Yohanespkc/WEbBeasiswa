@@ -97,7 +97,7 @@ try {
                       <span>Terkumpul: <strong>Rp {Math.round(trainer.current_funding).toLocaleString('id-ID')}</strong></span>
                     </div>
                     <div class="progress-bar-bg">
-                      <div class="progress-bar-fill" style={`width: ${percent}%;`}></div>
+                      <div class="progress-bar-fill shimmer-bar" style={`width: ${percent}%;`}></div>
                     </div>
                     <div class="progress-target text-[10px] text-muted text-right mt-1">
                       Target: Rp {trainer.target_funding.toLocaleString('id-ID')}
@@ -230,7 +230,6 @@ try {
 
   .progress-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--color-accent-gold) 0%, #f59e0b 100%);
     border-radius: 100px;
   }
 

@@ -173,3 +173,27 @@ a:hover {
 .hidden {
   display: none !important;
 }
+
+/* Progress Bar Shimmer & Pulse Animation */
+@keyframes progress-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-bar {
+  background: linear-gradient(
+    90deg,
+    #fbbf24 0%,
+    #f59e0b 25%,
+    #fffbeb 50%,
+    #f59e0b 75%,
+    #fbbf24 100%
+  );
+  background-size: 200% 100%;
+  animation: progress-shimmer 2.5s infinite linear;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+}

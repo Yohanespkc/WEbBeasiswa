@@ -60,6 +60,42 @@ import { emotionalStories, boardMembers, metrics } from '../data/stories';
     </div>
   </section>
 
+  <!-- Roadmap Timeline Section -->
+  <section class="section-padding roadmap-section relative z-10">
+    <div class="container">
+      <div class="section-header text-center mb-12">
+        <h2 class="text-gold text-2xl md:text-3xl font-serif">Alur Perjalanan Visi 1.000 Doktor Guru</h2>
+        <p class="max-w-2xl mx-auto mt-2 text-sm text-secondary">Bagaimana gotong royong kita mendampingi mutiara terpendam dari pelosok kampung hingga meraih puncak ilmu pengetahuan demi daerah asal mereka.</p>
+      </div>
+
+      <div class="roadmap-grid">
+        <div class="glass-panel roadmap-card">
+          <div class="roadmap-icon bg-amber-500/10 text-amber-400">1</div>
+          <h4 class="font-serif font-bold text-white mt-4 mb-2">Penjaringan Pelosok</h4>
+          <p class="text-xs text-muted leading-relaxed">Menemukan guru-guru tangguh bertalenta (mutiara terpendam) langsung dari kampung dan daerah 3T.</p>
+        </div>
+
+        <div class="glass-panel roadmap-card border-amber-500/20">
+          <div class="roadmap-icon bg-blue-500/10 text-blue-400">2</div>
+          <h4 class="font-serif font-bold text-white mt-4 mb-2">Studi Magister (S2)</h4>
+          <p class="text-xs text-muted leading-relaxed">Membiayai studi lanjut S2 secara gotong royong (UPI & Columbia University) yang sedang berjalan saat ini.</p>
+        </div>
+
+        <div class="glass-panel roadmap-card">
+          <div class="roadmap-icon bg-purple-500/10 text-purple-400">3</div>
+          <h4 class="font-serif font-bold text-white mt-4 mb-2">Studi Doktoral (S3)</h4>
+          <p class="text-xs text-muted leading-relaxed">Membantu pendanaan riset dan beasiswa S3 untuk meraih gelar Ph.D. di universitas terbaik dunia.</p>
+        </div>
+
+        <div class="glass-panel roadmap-card">
+          <div class="roadmap-icon bg-success/10 text-success">4</div>
+          <h4 class="font-serif font-bold text-white mt-4 mb-2">Membangun Daerah</h4>
+          <p class="text-xs text-muted leading-relaxed">Para Doktor kembali ke kampung halaman untuk memimpin reformasi numerasi dan kualitas pendidikan lokal.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Emotional Stories Section -->
   <section class="section-padding stories-section relative">
     <div class="container">
@@ -354,5 +390,42 @@ import { emotionalStories, boardMembers, metrics } from '../data/stories';
   .member-desc {
     color: var(--color-text-secondary);
     line-height: 1.5;
+  }
+
+  /* Roadmap Section Styling */
+  .roadmap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+    margin-top: 40px;
+  }
+
+  .roadmap-card {
+    border-radius: var(--border-radius-lg);
+    padding: 32px 24px !important;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition-smooth);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .roadmap-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(245, 158, 11, 0.25);
+    box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.1);
+  }
+
+  .roadmap-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 auto;
+    font-family: var(--font-serif);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 </style>

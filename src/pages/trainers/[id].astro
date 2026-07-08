@@ -46,6 +46,14 @@ if (!trainer && !dbError) {
 }
 
 const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / trainer.target_funding) * 100)) : 0;
+
+import { KABUPATEN_DATA } from '../../data/statistikRegistry';
+let regencyStats: any = null;
+if (trainer) {
+  const cleanRegencyName = (name: string) => name.toLowerCase().replace(/kabupaten\s+|kab\.\s+|kota\s+/g, "").trim();
+  const regencyName = cleanRegencyName(trainer.home_regency);
+  regencyStats = KABUPATEN_DATA.find(d => cleanRegencyName(d.kabupaten) === regencyName);
+}
 ---
 
 <Layout title={trainer ? `Profil ${trainer.name}` : "Profil Trainer"} description={trainer ? trainer.bio : "Detail profil calon penerima beasiswa."}>
@@ -95,6 +103,67 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
                 <p class="story-content leading-relaxed text-justify italic" id="view-testimony-text">{trainer.gasing_testimony || "Testimoni belum diisi."}</p>
               </div>
             </div>
+
+            {regencyStats && (
+              <div class="glass-panel stats-card mt-6 p-6">
+                <h3 class="section-title text-gold font-serif flex items-center gap-2">
+                  📊 Dampak Pelatihan GASING di {trainer.home_regency}
+                </h3>
+                <p class="text-xs text-muted mt-1 mb-6">
+                  Data statistik peningkatan kemampuan guru sebelum (Pre) dan sesudah (Post) dilatih menggunakan metode GASING:
+                </p>
+
+                <div class="metrics-comparison flex flex-col gap-4">
+                  <div>
+                    <div class="flex justify-between text-xs mb-1 font-semibold text-white">
+                      <span>Penjumlahan (Addition)</span>
+                      <span>Pre: {regencyStats.penjumlahanPre}% → Post: {regencyStats.penjumlahanPost}%</span>
+                    </div>
+                    <div class="stat-bar-wrapper flex gap-1 h-3 rounded overflow-hidden bg-white/5">
+                      <div class="bg-amber-600/60" style={`width: ${regencyStats.penjumlahanPre}%;`} title="Pre-Test"></div>
+                      <div class="bg-emerald-500 shimmer-bar" style={`width: ${regencyStats.penjumlahanPost - regencyStats.penjumlahanPre}%;`} title="Peningkatan"></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div class="flex justify-between text-xs mb-1 font-semibold text-white">
+                      <span>Pengurangan (Subtraction)</span>
+                      <span>Pre: {regencyStats.penguranganPre}% → Post: {regencyStats.penguranganPost}%</span>
+                    </div>
+                    <div class="stat-bar-wrapper flex gap-1 h-3 rounded overflow-hidden bg-white/5">
+                      <div class="bg-amber-600/60" style={`width: ${regencyStats.penguranganPre}%;`} title="Pre-Test"></div>
+                      <div class="bg-emerald-500 shimmer-bar" style={`width: ${regencyStats.penguranganPost - regencyStats.penguranganPre}%;`} title="Peningkatan"></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div class="flex justify-between text-xs mb-1 font-semibold text-white">
+                      <span>Perkalian (Multiplication)</span>
+                      <span>Pre: {regencyStats.perkalianPre}% → Post: {regencyStats.perkalianPost}%</span>
+                    </div>
+                    <div class="stat-bar-wrapper flex gap-1 h-3 rounded overflow-hidden bg-white/5">
+                      <div class="bg-amber-600/60" style={`width: ${regencyStats.perkalianPre}%;`} title="Pre-Test"></div>
+                      <div class="bg-emerald-500 shimmer-bar" style={`width: ${regencyStats.perkalianPost - regencyStats.perkalianPre}%;`} title="Peningkatan"></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div class="flex justify-between text-xs mb-1 font-semibold text-white">
+                      <span>Pembagian (Division)</span>
+                      <span>Pre: {regencyStats.pembagianPre}% → Post: {regencyStats.pembagianPost}%</span>
+                    </div>
+                    <div class="stat-bar-wrapper flex gap-1 h-3 rounded overflow-hidden bg-white/5">
+                      <div class="bg-amber-600/60" style={`width: ${regencyStats.pembagianPre}%;`} title="Pre-Test"></div>
+                      <div class="bg-emerald-500 shimmer-bar" style={`width: ${regencyStats.pembagianPost - regencyStats.pembagianPre}%;`} title="Peningkatan"></div>
+                    </div>
+                  </div>
+                </div>
+                
+                <p class="text-[10px] text-muted mt-4 italic text-center">
+                  *Rasio rata-rata peningkatan kemampuan numerasi: <strong>{regencyStats.rasio.toFixed(2)}x lebih cepat</strong>
+                </p>
+              </div>
+            )}
           </div>
 
           <!-- Left Column: Profile Editor Form (Hidden by Default) -->
@@ -195,7 +264,7 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
                   <span>{percent}%</span>
                 </div>
                 <div class="bar-bg">
-                  <div class="bar-fill" style={`width: ${percent}%;`}></div>
+                  <div class="bar-fill shimmer-bar" style={`width: ${percent}%;`}></div>
                 </div>
               </div>
 
@@ -595,7 +664,6 @@ const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / tr
 
   .bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--color-accent-gold) 0%, #f59e0b 100%);
     border-radius: 100px;
   }
 
