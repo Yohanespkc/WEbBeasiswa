@@ -92,7 +92,7 @@ export const metrics: Metric[] = [
   {
     value: '23.633',
     label: 'Guru & Murid Terlatih',
-    description: 'Telah menjangkau 7.983 guru dan 15.650 siswa sekolah dasar di seluruh penjuru tanah air.'
+    description: 'Telah menjangkau 7.983 guru dan 15.650 siswa SD/SMP secara langsung di seluruh penjuru tanah air. Pengimbasan sudah menjangkau puluhan ribu guru dan jutaan siswa seluruh Indonesia.'
   },
   {
     value: '127',
