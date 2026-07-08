@@ -1,6 +1,6 @@
 ---
 import { BUDAYA_REGISTRY } from '../data/budayaRegistry';
-import { KABUPATEN_DATA, SISWA_DATA, NASIONAL_AGGREGATE, SISWA_NASIONAL_AGGREGATE } from '../data/statistikRegistry';
+import { KABUPATEN_DATA, SISWA_DATA, NASIONAL_AGGREGATE, SISWA_NASIONAL_AGGREGATE, PROVINSI_LIST, PROVINSI_AGGREGATES, SISWA_PROVINSI_AGGREGATES } from '../data/statistikRegistry';
 import { LAGU_REGISTRY } from '../data/laguRegistry';
 import { MENCONGAK_REGISTRY } from '../data/mencongakRegistry';
 
@@ -23,6 +23,9 @@ const kabupatenDataJson = JSON.stringify(KABUPATEN_DATA);
 const siswaDataJson = JSON.stringify(SISWA_DATA);
 const nasionalAggregateJson = JSON.stringify(NASIONAL_AGGREGATE);
 const siswaNasionalAggregateJson = JSON.stringify(SISWA_NASIONAL_AGGREGATE);
+const provinsiListJson = JSON.stringify(PROVINSI_LIST);
+const provinsiAggregatesJson = JSON.stringify(PROVINSI_AGGREGATES);
+const siswaProvinsiAggregatesJson = JSON.stringify(SISWA_PROVINSI_AGGREGATES);
 
 // Build a unified video map grouped by normalized kabupaten name, ignoring non-kabupatens
 const kabupatenVideosMap: Record<string, { id: string, label: string }[]> = {};
@@ -94,7 +97,8 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
 
   <!-- Centered Search Autocomplete Container -->
   <div class="map-search-container max-w-md mx-auto mb-6 relative">
-    <input type="text" id="map-search-input" placeholder="🔍 Cari Kabupaten atau Provinsi..." class="map-search-input" autocomplete="off" />
+    <input type="text" id="map-search-input" placeholder="🔍 Cari Kabupaten atau Provinsi..." class="map-search-input" autocomplete="off" style="padding-right: 40px;" />
+    <button id="map-search-clear-btn" class="map-search-clear-btn hidden" type="button">✕</button>
     <div id="map-search-results" class="map-search-results hidden"></div>
   </div>
 
@@ -179,7 +183,7 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
   </div>
 </div>
 
-<script define:vars={{ regionsJson, kabupatenDataJson, siswaDataJson, kabVideosMapJson, nasionalAggregateJson, siswaNasionalAggregateJson }}>
+<script define:vars={{ regionsJson, kabupatenDataJson, siswaDataJson, kabVideosMapJson, nasionalAggregateJson, siswaNasionalAggregateJson, provinsiListJson, provinsiAggregatesJson, siswaProvinsiAggregatesJson }}>
   // Parse regions and stats data passed from Astro
   const regions = JSON.parse(regionsJson);
   const kabupatenData = JSON.parse(kabupatenDataJson);
@@ -187,6 +191,9 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
   const kabVideosMap = JSON.parse(kabVideosMapJson);
   const nasionalAggregate = JSON.parse(nasionalAggregateJson);
   const siswaNasionalAggregate = JSON.parse(siswaNasionalAggregateJson);
+  const provinsiList = JSON.parse(provinsiListJson);
+  const provinsiAggregates = JSON.parse(provinsiAggregatesJson);
+  const siswaProvinsiAggregates = JSON.parse(siswaProvinsiAggregatesJson);
 
   class InteractiveMap {
     constructor(container) {
@@ -199,6 +206,7 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
       this.defaultImg = document.getElementById('modal-default-img');
 
       this.currentKabName = '';
+      this.currentProvName = '';
       this.currentDashboardTab = 'guru'; // default dashboard tab
       this.currentDashboardState = 'nasional'; // default dashboard state
       
@@ -215,6 +223,16 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
       this.setupDashboardEvents();
       this.setupSearchEvents();
       this.renderDashboardStats();
+
+      // Close search results dropdown when clicking anywhere on the map canvas
+      if (this.canvasContainer) {
+        this.canvasContainer.addEventListener('click', () => {
+          const searchResults = document.getElementById('map-search-results');
+          if (searchResults) {
+            searchResults.classList.add('hidden');
+          }
+        });
+      }
     }
 
     async loadMap() {
@@ -251,6 +269,63 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
       const gEntry = kabupatenData.find(d => clean(d.kabupaten) === cleanName);
       const sEntry = siswaData.find(d => clean(d.kabupaten) === cleanName);
       return { gEntry, sEntry };
+    }
+
+    getProvinceForKabupaten(kabName, fallbackProv) {
+      const { gEntry, sEntry } = this.findStats(kabName);
+      const entry = gEntry || sEntry;
+      if (entry) return entry.provinsi;
+      
+      const kabLower = kabName.toLowerCase();
+      if (kabLower.includes('aceh')) return 'Aceh';
+      if (kabLower.includes('humbahas') || kabLower.includes('humbang')) return 'Sumatera Utara';
+      if (kabLower.includes('dairi')) return 'Sumatera Utara';
+      if (kabLower.includes('pakpak')) return 'Sumatera Utara';
+      if (kabLower.includes('toba')) return 'Sumatera Utara';
+      if (kabLower.includes('samosir')) return 'Sumatera Utara';
+      if (kabLower.includes('manggarai')) return 'Nusa Tenggara Timur';
+      if (kabLower.includes('belu')) return 'Nusa Tenggara Timur';
+      if (kabLower.includes('ambon')) return 'Maluku';
+      if (kabLower.includes('seram')) return 'Maluku';
+      if (kabLower.includes('sarmi')) return 'Papua Induk';
+      if (kabLower.includes('jayapura')) return 'Papua Induk';
+      if (kabLower.includes('biak')) return 'Papua Induk';
+      if (kabLower.includes('yapen')) return 'Papua Induk';
+      if (kabLower.includes('waropen')) return 'Papua Induk';
+      if (kabLower.includes('supiori')) return 'Papua Induk';
+      if (kabLower.includes('keerom')) return 'Papua Induk';
+      if (kabLower.includes('kobagma')) return 'Papua Pegunungan';
+      if (kabLower.includes('ilugwa')) return 'Papua Pegunungan';
+      if (kabLower.includes('tolikara')) return 'Papua Pegunungan';
+      if (kabLower.includes('lanny')) return 'Papua Pegunungan';
+      if (kabLower.includes('nduga')) return 'Papua Pegunungan';
+      if (kabLower.includes('jayawijaya')) return 'Papua Pegunungan';
+      if (kabLower.includes('mamberamo')) return 'Papua Pegunungan';
+      if (kabLower.includes('maybrat')) return 'Papua Barat Daya';
+      if (kabLower.includes('sorong')) return 'Papua Barat Daya';
+      if (kabLower.includes('manokwari')) return 'Papua Barat';
+      if (kabLower.includes('pegunungan arfak')) return 'Papua Barat';
+      if (kabLower.includes('bintuni')) return 'Papua Barat';
+      if (kabLower.includes('wondama')) return 'Papua Barat';
+      if (kabLower.includes('puncak jaya')) return 'Papua Tengah';
+      if (kabLower.includes('puncak')) return 'Papua Tengah';
+      if (kabLower.includes('mimika')) return 'Papua Tengah';
+      if (kabLower.includes('nabire')) return 'Papua Tengah';
+      if (kabLower.includes('paniai')) return 'Papua Tengah';
+      if (kabLower.includes('dogiyai')) return 'Papua Tengah';
+      if (kabLower.includes('deiyai')) return 'Papua Tengah';
+      if (kabLower.includes('intan jaya')) return 'Papua Tengah';
+      if (kabLower.includes('mappi')) return 'Papua Selatan';
+      if (kabLower.includes('bojonegoro')) return 'Jawa Timur';
+      if (kabLower.includes('banyuwangi')) return 'Jawa Timur';
+      if (kabLower.includes('sumedang')) return 'Jawa Barat';
+      if (kabLower.includes('karanganyar')) return 'Jawa Tengah';
+      if (kabLower.includes('magetan')) return 'Jawa Timur';
+      if (kabLower.includes('bangli')) return 'Bali';
+      if (kabLower.includes('bangka')) return 'Kepulauan Bangka Belitung';
+      if (kabLower.includes('kupang')) return 'Nusa Tenggara Timur';
+      
+      return fallbackProv;
     }
 
     renderPins() {
@@ -425,6 +500,7 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
         btnReset.addEventListener('click', () => {
           this.currentDashboardState = 'nasional';
           this.currentKabName = '';
+          this.currentProvName = '';
           this.renderDashboardStats();
           const oldLabel = document.getElementById('active-map-label');
           if (oldLabel) oldLabel.remove();
@@ -439,18 +515,51 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
     setupSearchEvents() {
       const searchInput = document.getElementById('map-search-input');
       const searchResults = document.getElementById('map-search-results');
+      const clearBtn = document.getElementById('map-search-clear-btn');
       
       if (searchInput && searchResults) {
+        const updateClearBtn = () => {
+          if (clearBtn) {
+            if (searchInput.value) {
+              clearBtn.classList.remove('hidden');
+            } else {
+              clearBtn.classList.add('hidden');
+            }
+          }
+        };
+
         searchInput.addEventListener('input', () => {
           this.renderSearchResults();
+          updateClearBtn();
         });
 
         searchInput.addEventListener('focus', () => {
           this.renderSearchResults();
+          updateClearBtn();
         });
 
+        searchInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            const firstItem = searchResults.querySelector('.search-result-item');
+            if (firstItem) {
+              firstItem.click();
+            }
+          }
+        });
+
+        if (clearBtn) {
+          clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            searchResults.innerHTML = '';
+            searchResults.classList.add('hidden');
+            clearBtn.classList.add('hidden');
+            searchInput.focus();
+          });
+        }
+
         document.addEventListener('click', (e) => {
-          if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+          const target = e.target;
+          if (target && !searchInput.contains(target) && !searchResults.contains(target) && (!clearBtn || !clearBtn.contains(target))) {
             searchResults.classList.add('hidden');
           }
         });
@@ -463,55 +572,115 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
       if (!searchInput || !searchResults) return;
 
       const query = searchInput.value.toLowerCase().trim();
-      const sortedRegions = [...regions].sort((a, b) => a.name.localeCompare(b.name));
-      
-      const filtered = sortedRegions.filter(reg => {
-        const province = reg.y > 200 && reg.x > 800 ? 'Papua' : 
-                         reg.x < 200 ? 'Sumatera' : 
-                         reg.x > 250 && reg.x < 420 && reg.y > 280 ? 'Jawa' : 
-                         reg.x > 500 && reg.x < 680 && reg.y < 260 ? 'Sulawesi' : 
-                         reg.x > 500 && reg.x < 650 && reg.y > 320 ? 'Nusa Tenggara' : 'Indonesia';
-        return reg.name.toLowerCase().includes(query) || province.toLowerCase().includes(query);
+      if (!query) {
+        searchResults.innerHTML = '';
+        searchResults.classList.add('hidden');
+        return;
+      }
+
+      const qClean = query.replace(/^provinsi\s+/g, '').trim();
+
+      // 1. Filter provinces matching query
+      const matchedProvinces = provinsiList.filter(prov => {
+        const provLower = prov.toLowerCase();
+        const hasPapuaBarat = qClean.includes('papua barat');
+        const hasDaya = qClean.includes('daya');
+        if (hasPapuaBarat && !hasDaya && provLower.includes('papua barat daya')) {
+          return false;
+        }
+        return provLower.includes(query);
       });
 
-      const topMatches = filtered.slice(0, 6);
+      // 2. Filter kabupaten regions matching query
+      const sortedRegions = [...regions].sort((a, b) => a.name.localeCompare(b.name));
+      const matchedKabupatens = sortedRegions.filter(reg => {
+        const { gEntry, sEntry } = this.findStats(reg.name);
+        const entry = gEntry || sEntry;
+        const province = this.getProvinceForKabupaten(reg.name, 'Indonesia');
+        const provLower = province.toLowerCase();
+        
+        const hasPapuaBarat = qClean.includes('papua barat');
+        const hasDaya = qClean.includes('daya');
+        if (hasPapuaBarat && !hasDaya && provLower.includes('papua barat daya')) {
+          return false;
+        }
+        return reg.name.toLowerCase().includes(query) || provLower.includes(query);
+      });
 
-      if (topMatches.length === 0) {
+      // Combine matches: provinces first, then kabupatens (without limits to allow scrolling)
+      const combinedMatches = [];
+      matchedProvinces.forEach(prov => {
+        combinedMatches.push({ type: 'provinsi', name: prov });
+      });
+      matchedKabupatens.forEach(reg => {
+        combinedMatches.push({ type: 'kabupaten', reg });
+      });
+
+      if (combinedMatches.length === 0) {
         searchResults.innerHTML = '<div class="search-no-results">Wilayah tidak ditemukan</div>';
         searchResults.classList.remove('hidden');
         return;
       }
 
       let html = '';
-      topMatches.forEach(reg => {
-        const province = reg.y > 200 && reg.x > 800 ? 'Papua' : 
-                         reg.x < 200 ? 'Sumatera' : 
-                         reg.x > 250 && reg.x < 420 && reg.y > 280 ? 'Jawa' : 
-                         reg.x > 500 && reg.x < 680 && reg.y < 260 ? 'Sulawesi' : 
-                         reg.x > 500 && reg.x < 650 && reg.y > 320 ? 'Nusa Tenggara' : 'Indonesia';
-        
-        const { gEntry, sEntry } = this.findStats(reg.name);
-        let pctInfo = '';
-        if (gEntry) {
-          const pre = gEntry.bakalkubagiPre;
-          const post = gEntry.bakalkubagiPost;
-          const pct = pre > 0 ? ((post - pre) / pre * 100) : 0;
-          pctInfo = `(+${pct.toFixed(0)}% Guru)`;
-        } else if (sEntry) {
-          const pre = sEntry.bakalkubagiPre;
-          const post = sEntry.bakalkubagiPost;
-          const pct = pre > 0 ? ((post - pre) / pre * 100) : 0;
-          pctInfo = `(+${pct.toFixed(0)}% Siswa)`;
-        } else {
-          pctInfo = '(+340% Peningkatan)';
-        }
+      combinedMatches.forEach(match => {
+        if (match.type === 'provinsi') {
+          const prov = match.name;
+          const gProv = provinsiAggregates[prov];
+          const sProv = siswaProvinsiAggregates[prov];
+          let pctInfo = '';
+          if (gProv) {
+            const pre = gProv.bakalkubagi.pre;
+            const post = gProv.bakalkubagi.post;
+            const pct = pre > 0 ? ((post - pre) / pre * 100) : 0;
+            pctInfo = `(+${pct.toFixed(0)}% Guru)`;
+          } else if (sProv) {
+            const pre = sProv.bakalkubagi.pre;
+            const post = sProv.bakalkubagi.post;
+            const pct = pre > 0 ? ((post - pre) / pre * 100) : 0;
+            pctInfo = `(+${pct.toFixed(0)}% Siswa)`;
+          }
 
-        html += `
-          <div class="search-result-item" data-id="${reg.id}" data-name="${reg.name}">
-            <span class="search-result-name">📍 ${reg.name}</span>
-            <span class="search-result-detail">${province} ${pctInfo}</span>
-          </div>
-        `;
+          const isActive = (this.currentDashboardState === 'provinsi' && prov === this.currentProvName);
+          const activeClass = isActive ? 'active-search-item' : '';
+
+          html += `
+            <div class="search-result-item ${activeClass}" data-type="provinsi" data-name="${prov}">
+              <span class="search-result-name">🌐 Provinsi ${prov}</span>
+              <span class="search-result-detail">Indonesia ${pctInfo}</span>
+            </div>
+          `;
+        } else {
+          const reg = match.reg;
+          const { gEntry, sEntry } = this.findStats(reg.name);
+          const entry = gEntry || sEntry;
+          const province = this.getProvinceForKabupaten(reg.name, 'Indonesia');
+          
+          let pctInfo = '';
+          if (gEntry) {
+            const pre = gEntry.bakalkubagiPre;
+            const post = gEntry.bakalkubagiPost;
+            const pct = pre > 0 ? ((post - pre) / pre * 100) : 0;
+            pctInfo = `(+${pct.toFixed(0)}% Guru)`;
+          } else if (sEntry) {
+            const pre = sEntry.bakalkubagiPre;
+            const post = sEntry.bakalkubagiPost;
+            const pct = pre > 0 ? ((post - pre) / pre * 100) : 0;
+            pctInfo = `(+${pct.toFixed(0)}% Siswa)`;
+          } else {
+            pctInfo = '(+340% Peningkatan)';
+          }
+
+          const isActive = (this.currentDashboardState === 'kabupaten' && reg.name === this.currentKabName);
+          const activeClass = isActive ? 'active-search-item' : '';
+
+          html += `
+            <div class="search-result-item ${activeClass}" data-type="kabupaten" data-id="${reg.id}" data-name="${reg.name}">
+              <span class="search-result-name">📍 ${reg.name}</span>
+              <span class="search-result-detail">${province} ${pctInfo}</span>
+            </div>
+          `;
+        }
       });
 
       searchResults.innerHTML = html;
@@ -519,14 +688,52 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
 
       searchResults.querySelectorAll('.search-result-item').forEach(item => {
         item.addEventListener('click', () => {
-          const id = item.getAttribute('data-id');
+          const type = item.getAttribute('data-type');
           const name = item.getAttribute('data-name');
           
           searchInput.value = name;
           searchResults.classList.add('hidden');
 
-          this.playVideo(id, name);
-          this.highlightMapPin(name);
+          if (type === 'provinsi') {
+            this.currentDashboardState = 'provinsi';
+            this.currentProvName = name;
+            this.currentKabName = '';
+            
+            const oldLabel = document.getElementById('active-map-label');
+            if (oldLabel) oldLabel.remove();
+            
+            // Find all kabupatens in this province
+            const provKabupatens = kabupatenData.filter(k => k.provinsi === name).map(k => k.kabupaten);
+            // Collect all video IDs for these kabupatens
+            const provVideos = [];
+            provKabupatens.forEach(kab => {
+              const clean = (s) => s.toLowerCase().replace(/^(kab|kabupaten|kota)\.?\s+/g, '').trim();
+              const normName = clean(kab);
+              const vids = kabVideosMap[normName] || [];
+              vids.forEach(v => {
+                provVideos.push({ kabName: kab, videoId: v.id, label: v.label });
+              });
+            });
+
+            // If there is at least one video, play it
+            if (provVideos.length > 0) {
+              const selectedVideo = provVideos[0];
+              this.playVideo(selectedVideo.videoId, selectedVideo.kabName);
+            }
+
+            // Restore dashboard state to provinsi and render!
+            this.currentDashboardState = 'provinsi';
+            this.currentProvName = name;
+            this.currentKabName = '';
+            this.renderDashboardStats();
+          } else {
+            const id = item.getAttribute('data-id');
+            this.currentDashboardState = 'kabupaten';
+            this.currentKabName = name;
+            this.currentProvName = '';
+            this.playVideo(id, name);
+            this.highlightMapPin(name);
+          }
         });
       });
     }
@@ -548,6 +755,16 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
           const entry = this.currentDashboardTab === 'guru' ? gEntry : sEntry;
           const countStr = entry ? ` (${entry.peserta.toLocaleString('id-ID')} Peserta Pelatihan)` : '';
           subtitleEl.textContent = `Peningkatan kompetensi numerasi guru dan siswa di Kabupaten ${this.currentKabName}${countStr}.`;
+        }
+      } else if (this.currentDashboardState === 'provinsi') {
+        if (resetBtn) resetBtn.classList.remove('hidden');
+        if (titleEl) titleEl.textContent = `📊 Hasil Pelatihan GASING - Provinsi ${this.currentProvName}`;
+        if (subtitleEl) {
+          const gProv = provinsiAggregates[this.currentProvName];
+          const sProv = siswaProvinsiAggregates[this.currentProvName];
+          const entry = this.currentDashboardTab === 'guru' ? gProv : sProv;
+          const countStr = entry ? ` (${entry.totalPeserta.toLocaleString('id-ID')} Peserta Pelatihan di ${entry.kabupatenCount} Kabupaten/Kota)` : '';
+          subtitleEl.textContent = `Rata-rata peningkatan kompetensi numerasi guru dan siswa di Provinsi ${this.currentProvName}${countStr}.`;
         }
       } else {
         if (resetBtn) resetBtn.classList.add('hidden');
@@ -582,6 +799,23 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
           { label: 'Pembagian', code: '➗ Bagi', pre: entry.pembagianPre, post: entry.pembagianPost },
           { label: 'BakalKubagi', code: '🎯 BAKALKUBAGI', pre: entry.bakalkubagiPre, post: entry.bakalkubagiPost }
         ];
+      } else if (this.currentDashboardState === 'provinsi') {
+        const gProv = provinsiAggregates[this.currentProvName];
+        const sProv = siswaProvinsiAggregates[this.currentProvName];
+        entry = this.currentDashboardTab === 'guru' ? gProv : sProv;
+
+        if (!entry) {
+          chartCanvas.innerHTML = '<div style="text-align: center; color: rgba(255, 255, 255, 0.2); font-size: 0.85rem; padding: 60px 0; font-family: Inter, sans-serif;">Data statistik tidak tersedia untuk provinsi ini</div>';
+          return;
+        }
+
+        metrics = [
+          { label: 'Penjumlahan', code: '➕ Tambah', pre: entry.penjumlahan.pre, post: entry.penjumlahan.post },
+          { label: 'Perkalian', code: '✖️ Kali', pre: entry.perkalian.pre, post: entry.perkalian.post },
+          { label: 'Pengurangan', code: '➖ Kurang', pre: entry.pengurangan.pre, post: entry.pengurangan.post },
+          { label: 'Pembagian', code: '➗ Bagi', pre: entry.pembagian.pre, post: entry.pembagian.post },
+          { label: 'BakalKubagi', code: '🎯 BAKALKUBAGI', pre: entry.bakalkubagi.pre, post: entry.bakalkubagi.post }
+        ];
       } else {
         // Nasional
         entry = this.currentDashboardTab === 'guru' ? nasionalAggregate : siswaNasionalAggregate;
@@ -613,11 +847,14 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
         const x = 85 + idx * 86;
         const preY = valToY(m.pre);
         const postY = valToY(m.post);
-        const delta = m.pre > 0 ? (((m.post - m.pre) / m.pre) * 100) : 0;
-        let deltaColor = '#eca938';
         svgHtml += `
           <rect x="${x - 18}" y="${preY}" width="16" height="${180 - preY}" fill="#ff780a" rx="2" />
           <rect x="${x + 2}" y="${postY}" width="16" height="${180 - postY}" fill="#73bf69" rx="2" />
+          
+          <!-- Score numbers above the bars -->
+          <text x="${x - 10}" y="${preY - 5}" fill="#ff780a" font-size="7.5" font-weight="bold" text-anchor="middle" font-family="Inter, sans-serif">${m.pre.toFixed(0)}</text>
+          <text x="${x + 10}" y="${postY - 5}" fill="#73bf69" font-size="7.5" font-weight="bold" text-anchor="middle" font-family="Inter, sans-serif">${m.post.toFixed(0)}</text>
+
           <text x="${x}" y="200" fill="#c7d2d6" font-size="8.5" font-weight="700" text-anchor="middle" font-family="Inter, sans-serif">${m.code}</text>
         `;
       });
@@ -937,6 +1174,30 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
     box-shadow: 0 0 12px rgba(251, 191, 36, 0.25);
   }
 
+  .map-search-clear-btn {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    padding: 4px;
+    line-height: 1;
+    z-index: 10;
+  }
+
+  .map-search-clear-btn:hover {
+    color: var(--color-accent-gold-hover);
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
   .map-search-results {
     position: absolute;
     top: 100%;
@@ -982,6 +1243,12 @@ const kabVideosMapJson = JSON.stringify(kabupatenVideosMap);
 
   .search-result-item:hover {
     background: rgba(251, 191, 36, 0.1);
+  }
+
+  :global(.search-result-item.active-search-item) {
+    background: rgba(251, 191, 36, 0.25) !important;
+    border-left: 4px solid #f59e0b !important;
+    padding-left: 12px !important;
   }
 
   .search-result-name {

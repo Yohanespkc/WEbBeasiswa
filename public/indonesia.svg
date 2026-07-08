@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400" class="w-full h-auto max-h-[48vh] drop-shadow-[0_10px_25px_rgba(0,0,0,0.7)] select-none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-40 0 1080 400" class="w-full h-auto max-h-[48vh] drop-shadow-[0_10px_25px_rgba(0,0,0,0.7)] select-none">
           <defs>
             <radialGradient id="oceanGlow" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stop-color="#0f172a" />
@@ -15,7 +15,7 @@
             </filter>
           </defs>
 
-          <rect x="0" y="0" width="1000" height="400" rx="30" fill="url(#oceanGlow)" stroke="#78350f" stroke-width="3" opacity="0.9" />
+          <rect x="-40" y="0" width="1080" height="400" rx="30" fill="url(#oceanGlow)" stroke="#78350f" stroke-width="3" opacity="0.9" />
 
           <g id="islands-group" class="opacity-80" stroke="#f59e0b" stroke-width="0.5" stroke-linejoin="round">
             <!-- Indonesia Geographic Map -->

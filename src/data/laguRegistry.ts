@@ -21,7 +21,7 @@ export const LAGU_REGISTRY: Record<string, RegionLagu[]> = {
     { name: "GASING Masters", id: "bHUd3cJGuCs", x: 343.9, y: 310.8 },
     { name: "Karanganyar", id: "Rempgy2wTTc", x: 343.9, y: 310.8, videos: [{ id: "Rempgy2wTTc", label: "Lagu 8C" }, { id: "kS4KBzZ7c18", label: "Lagu Kali Pecahan" }, { id: "3KQJ2sROXf0", label: "Pembuatan Video Lagu 8C" }] },
     { name: "Jayapura", id: "CKNlwaymsTo", x: 993.8, y: 199.7, videos: [{ id: "CKNlwaymsTo", label: "Lagu 8C" }, { id: "iYIShjRdad8", label: "Lagu Anak Panah" }, { id: "q7CnPbCnKQY", label: "Lagu Becak Dijalan" }, { id: "YWABYHR-eFc", label: "Lagu Jumlah Pecahan" }, { id: "rlUkp_lOrYM", label: "Lagu Kali Pecahan" }, { id: "SGT3DyFj9zQ", label: "Lagu Prok Prok Prok" }, { id: "XjCjpgPUWtY", label: "Lagu Satu Dua Tiga" }] },
-    { name: "Humbang Hasundutan", id: "50HP7eLkVGA", x: 74.3, y: 91.9 },
+    { name: "Manokwari Selatan", id: "50HP7eLkVGA", x: 845.0, y: 168.4 },
     { name: "Sarmi", id: "REfPdqIfgOs", x: 949.8, y: 183.6, videos: [{ id: "REfPdqIfgOs", label: "Nilai 8C" }, { id: "mh1jFsmSTBk", label: "Lagu 8C" }, { id: "6y0hjG6zims", label: "Lagu Penjumlahan Pecahan" }] },
   ],
   "Lagu 2: Lagu Perkalian": [
@@ -384,7 +384,8 @@ export const LAGU_REGISTRY: Record<string, RegionLagu[]> = {
     { name: "Kobagma", id: "IVwbbFWgFVs", x: 945.4, y: 231.7 },
   ],
   "Lagu Daerah": [
-    { name: "Bojonegoro", id: "1wE_HC9QbjA", x: 355.2, y: 301.8, videos: [{ id: "1wE_HC9QbjA", label: "Gasing dan Lagu Daerah" }, { id: "4DjOR8QaI8c", label: "GASING Nengdi Awakmu (Bahasa Jawa)" }] },
+    { name: "Manokwari Selatan", id: "50HP7eLkVGA", x: 845.0, y: 168.4, videos: [{ id: "50HP7eLkVGA", label: "Lagu Daerah" }] },
+    { name: "Bojonegoro", id: "1wE_HC9QbjA", x: 355.2, y: 301.8, videos: [{ id: "1wE_HC9QbjA", label: "Gasing dan Lagu Daerah" }, { id: "4DjOR8QaI8c", label: "GASING Nengdi Awakmu (Bahasa Jawa)" }, { id: "UgiOKvvG_1o", label: "Lagu Daerah" }] },
     { name: "Sumedang", id: "GSH802Dub2E", x: 279.1, y: 293.4, videos: [{ id: "GSH802Dub2E", label: "Akulturasi Matematika dan Budaya Sunda" }] },
     { name: "Tolikara", id: "HhHuw7qnfR4", x: 936.7, y: 225.2, videos: [{ id: "HhHuw7qnfR4", label: "Genius Children (Versi Bahasa Inggris)" }] },
     { name: "Seram Bagian Barat", id: "0wQRyhCwJxg", x: 725.0, y: 222.0, videos: [{ id: "0wQRyhCwJxg", label: "Mars GASING (Ciptaan Guru SSB)" }] },
@@ -401,7 +402,7 @@ export const LAGU_REGISTRY: Record<string, RegionLagu[]> = {
     { name: "Manggarai", id: "xPBIUmAaZao", x: 548.6, y: 344.8 },
     { name: "Mempawah", id: "oaPG9eGULu4", x: 300.8, y: 139.2 },
     { name: "Pakpak Bharat", id: "HhMiz4gZR0Q", x: 78.2, y: 86.2, videos: [{ id: "HhMiz4gZR0Q", label: "Micro Teaching Guru dalam Bahasa Daerah" }, { id: "FTSxhyszRV8", label: "Micro Teaching Guru dalam Bahasa Daerah (2)" }] },
-    { name: "Bojonegoro", id: "N0hHWa-yVc4", x: 355.2, y: 301.8, videos: [{ id: "N0hHWa-yVc4", label: "Micro Teaching Guru (Bahasa Jawa) — PEDE" }, { id: "CmWrcMpGX8o", label: "Micro Teaching Pengurangan (Bahasa Jawa)" }, { id: "94p5yIgjVEg", label: "Micro Teaching (Bahasa Jawa)" }, { id: "UgiOKvvG_1o", label: "Lagu Daerah" }, { id: "1wE_HC9QbjA", label: "Gasing dan Lagu Daerah" }, { id: "4DjOR8QaI8c", label: "GASING Nengdi Awakmu (Bahasa Jawa)" }] },
+    { name: "Bojonegoro", id: "N0hHWa-yVc4", x: 355.2, y: 301.8, videos: [{ id: "N0hHWa-yVc4", label: "Micro Teaching Guru (Bahasa Jawa) — PEDE" }, { id: "CmWrcMpGX8o", label: "Micro Teaching Pengurangan (Bahasa Jawa)" }, { id: "94p5yIgjVEg", label: "Micro Teaching (Bahasa Jawa)" }] },
     { name: "Kota Langsa", id: "dNv4HpVxeCs", x: 60.5, y: 46.6, videos: [{ id: "dNv4HpVxeCs", label: "Micro Teaching Guru (Bahasa Daerah)" }, { id: "n2jIIbw3jW0", label: "Micro Teaching Murid (Bahasa Daerah)" }] },
     { name: "Manggarai Barat", id: "knNpi4YMoXg", x: 544.2, y: 349.2 },
     { name: "Paniai", id: "BPZklQov-JA", x: 899.1, y: 226.1 },
