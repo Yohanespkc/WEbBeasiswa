@@ -5,7 +5,7 @@ Platform web interaktif terpadu untuk penggalangan dana pendidikan tingkat lanju
 
 ## 🚀 Teknologi Utama
 *   **Framework:** Astro v7 (Hybrid Rendering)
-*   **Deployment:** Cloudflare Pages (Serverless Functions)
+*   **Deployment:** Cloudflare Workers (Serverless workerd runtime)
 *   **Database:** Cloudflare D1 (Serverless SQLite)
 *   **Pembayaran:** Midtrans Snap API (Sandbox) + Sandbox Simulator
 *   **Pengujian:** Playwright E2E Test Suite
@@ -97,10 +97,10 @@ Jalankan perintah berikut untuk mengeksekusi struktur tabel dan seed data awal s
 npx wrangler d1 migrations apply beasiswa_gasing_db --remote
 ```
 
-### 3. Deploy Aplikasi Web ke Cloudflare Pages
-Kompilasi build produksi dan upload ke Cloudflare Pages:
+### 3. Deploy Aplikasi Web ke Cloudflare Workers
+Kompilasi build produksi dan deploy langsung sebagai Cloudflare Worker:
 ```sh
 npm run build
-npx wrangler pages deploy ./dist
+npx wrangler deploy
 ```
-Atau hubungkan repositori Git Anda langsung ke Cloudflare Dashboard untuk menikmati integrasi **Auto-Deployment CI/CD** setiap kali melakukan git push. Pastikan di Cloudflare Pages Dashboard, Anda menambahkan binding D1 database bernama `DB` ke database D1 `beasiswa_gasing_db` Anda.
+Pastikan di Cloudflare Dashboard untuk Worker Anda, Anda menambahkan binding D1 database bernama `DB` ke database D1 `beasiswa_gasing_db` Anda, serta KV Namespace untuk `SESSION` jika diperlukan.

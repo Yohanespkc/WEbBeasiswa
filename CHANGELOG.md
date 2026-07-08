@@ -2,6 +2,18 @@
 
 All notable changes to the **Beasiswa Trainer GASING** platform will be documented in this file.
 
+## [1.1.0] - 2026-07-09
+
+### Added
+- **10-Year Cumulative Timeline (2026 - 2036)**: Implemented a detailed year-by-year vertical timeline showing cumulative S2/S3/PhD scholarship milestones from current Batch 1 (82 trainers) up to the target of 1,000 Ph.D. holders.
+- **Home Region Impact Statistics**: Added a dynamic Pre-Test vs Post-Test comparison chart on trainer details pages, illustrating the numeracy transformation in their respective home region.
+- **PISA and Math Anxiety Copywriting**: Updated homepage copy to address Indonesia's PISA numeracy scores, the systematic GASING methodology levels (BAKALKUBAGI, PEDE, physics), and the scholarship's altruistic focus on curing math anxiety.
+- **Virtual Books Shelf**: Separated transformation stories from book PDFs on the homepage, grouping publications into a responsive digital bookshelf with interactive covers.
+- **Progress Bar Shimmer**: Replaced static backgrounds on all progress bars with glowing, dynamic shimmer effects.
+
+### Changed
+- **Subtle & Locked Admin Link**: Relocated the Admin panel link to a lock icon (`🔒 Admin`) in the footer bottom, protected by a client-side PIN check prompt and server-side verification passcode (`0611`).
+
 ## [1.0.0] - 2026-07-04
 
 ### Added
