@@ -37,7 +37,6 @@ const { title, description = "Website penggalangan dana Beasiswa S2 & S3 untuk p
           <a href="/">Beranda</a>
           <a href="/trainers">Penerima Beasiswa</a>
           <a href="/transparansi">Transparansi</a>
-          <a href="/admin">Admin</a>
           <a href="/donasi" class="btn btn-primary nav-btn">Donasi Sekarang</a>
         </nav>
       </div>
@@ -60,8 +59,9 @@ const { title, description = "Website penggalangan dana Beasiswa S2 & S3 untuk p
           <p>Seluruh dana publik yang masuk disalurkan 100% khusus untuk membiayai SPP kuliah, biaya hidup studi, buku, dan riset para penerima beasiswa. 0% potongan biaya administrasi platform.</p>
         </div>
       </div>
-      <div class="footer-bottom">
+      <div class="footer-bottom flex justify-between items-center" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
         <p>&copy; {new Date().getFullYear()} Yayasan 1000PhD Guru. All rights reserved. Powered by Cloudflare Edge & D1 SQLite.</p>
+        <a href="#" onclick="const pin = prompt('Masukkan PIN Keamanan Admin:'); if (pin === '0611') { window.location.href = '/admin'; } else { if (pin) alert('PIN salah!'); } return false;" class="text-[11px] text-muted hover:text-white transition" style="opacity: 0.5; text-decoration: none;">🔒 Admin</a>
       </div>
     </footer>
   </body>
