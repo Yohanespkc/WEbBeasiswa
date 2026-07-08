@@ -2,6 +2,9 @@
 import Layout from '../layouts/Layout.astro';
 import InteractiveMap from '../components/InteractiveMap.astro';
 import { emotionalStories, boardMembers, metrics } from '../data/stories';
+
+const realStories = emotionalStories.filter(s => !s.isTestimoniBook);
+const bookStories = emotionalStories.filter(s => s.isTestimoniBook);
 ---
 
 <Layout title="Beranda" description="Membuka kesempatan bagi para trainer hebat GASING untuk melangkah lebih jauh melalui program Beasiswa S2 & S3, demi masa depan numerasi Indonesia yang cemerlang.">
@@ -40,37 +43,37 @@ import { emotionalStories, boardMembers, metrics } from '../data/stories';
         <div class="grid-half items-center mb-8">
           <div>
             <span class="text-gold text-xs uppercase tracking-wider font-semibold block mb-2">📊 KONDISI NYATA PENDIDIKAN KITA</span>
-            <h2 class="text-white text-3xl font-serif mb-6 leading-tight">Menjawab Krisis Numerasi Nasional</h2>
+            <h2 class="text-white text-3xl font-serif mb-6 leading-tight">Menjawab Krisis Numerasi & Mengobati "Math Anxiety"</h2>
             <p class="text-sm text-secondary leading-relaxed mb-4">
-              Hasil penilaian internasional <strong>PISA (Program for International Student Assessment)</strong> secara konsisten menunjukkan bahwa kemampuan numerasi dan sains anak-anak Indonesia masih memerlukan perbaikan yang sangat besar. Rendahnya kompetensi matematika dasar ini menjadi hambatan utama kemajuan sains, teknologi, dan kualitas SDM kita.
+              Hasil penilaian PISA secara konsisten memperlihatkan tantangan besar numerasi nasional kita. Namun di balik angka statistik tersebut, terdapat jutaan anak yang memendam rasa takut, cemas, dan rendah diri setiap kali berhadapan dengan matematika—sebuah kondisi psikologis nyata yang dikenal sebagai <strong>"math anxiety"</strong> (kecemasan matematika).
             </p>
             <p class="text-sm text-secondary leading-relaxed">
-              Di sinilah metode <strong>GASING (Gampang, Asyik, Menyenangkan)</strong> hadir untuk meningkatkan pendidikan dari dasar. Mulai dari konsep dasar mencongak cepat hingga fisika tingkat lanjut, metode ini melatih logika anak secara konseptual.
+              Kita ingin menyembuhkan kecemasan ini, mengubah trauma belajar menjadi kecintaan bereksplorasi, dan membuka pintu masa depan bagi anak-anak di kampung-kampung pelosok Nusantara. Metode pembelajaran yang menyenangkan dari dasar digunakan sepenuhnya sebagai instrumen pengabdian masyarakat demi kemajuan anak bangsa.
             </p>
           </div>
 
           <div class="glass-panel p-6 border border-amber-500/10 bg-amber-500/5 rounded-2xl">
-            <h3 class="font-serif text-gold text-lg mb-4">Metodologi GASING: Dari Dasar Hingga Fisika</h3>
+            <h3 class="font-serif text-gold text-lg mb-4">Metodologi Konseptual: Menghilangkan Ketakutan</h3>
             <ul class="flex flex-col gap-4 text-xs list-none">
               <li class="flex items-start gap-3">
                 <span class="text-gold font-bold">1. BAKALKUBAGI:</span>
                 <div>
-                  <p class="text-secondary font-medium">Pondasi Matematika Dasar</p>
-                  <p class="text-muted mt-0.5">Penjumlahan, Pengurangan, Perkalian, Pembagian secara mencongak cepat dengan konsep konkret, intuitif, dan bebas menghafal.</p>
+                  <p class="text-secondary font-medium">Menghilangkan Ketakutan Awal</p>
+                  <p class="text-muted mt-0.5">Mengubah cara anak memandang Penjumlahan, Pengurangan, Perkalian, dan Pembagian mencongak cepat lewat konsep konkret dan asyik agar matematika tidak lagi menakutkan sejak dini.</p>
                 </div>
               </li>
               <li class="flex items-start gap-3">
                 <span class="text-gold font-bold">2. PEDE:</span>
                 <div>
-                  <p class="text-secondary font-medium">Pola, Estimasi, Desimal</p>
-                  <p class="text-muted mt-0.5">Langkah penalaran analitis mendalam untuk melatih kepekaan logika berpikir kritis anak di sekolah dasar.</p>
+                  <p class="text-secondary font-medium">Membangun Kepercayaan Diri (Pola, Estimasi, Desimal)</p>
+                  <p class="text-muted mt-0.5">Mempertajam penalaran kognitif tingkat lanjut untuk melatih logika kritis anak agar merasa mandiri dan berdaya memecahkan masalah matematika sekolah dasar.</p>
                 </div>
               </li>
               <li class="flex items-start gap-3">
                 <span class="text-gold font-bold">3. Sains & Fisika Lanjut:</span>
                 <div>
-                  <p class="text-secondary font-medium">Matematika SMP, SMA & Fisika Lanjut</p>
-                  <p class="text-muted mt-0.5">Metodologi yang diadaptasi khusus untuk mempermudah rumus fisika dan matematika tersulit agar terasa gampang dan menyenangkan.</p>
+                  <p class="text-secondary font-medium">Meruntuhkan Tembok Rumus</p>
+                  <p class="text-muted mt-0.5">Menyederhanakan konsep matematika SMP, SMA, hingga rumus fisika tersulit agar dirasakan gampang, intuitif, dan melahirkan kecintaan pada sains.</p>
                 </div>
               </li>
             </ul>
@@ -79,15 +82,15 @@ import { emotionalStories, boardMembers, metrics } from '../data/stories';
 
         <div class="pt-8 border-t border-white/10 grid-half">
           <div>
-            <h3 class="font-serif text-white text-lg mb-3">🎓 Riset Akademis: Mengapa GASING Begitu Hebat?</h3>
+            <h3 class="font-serif text-white text-lg mb-3">🎓 Membedah Formula Pedagogis demi Kepentingan Publik</h3>
             <p class="text-xs text-secondary leading-relaxed">
-              Para penerima beasiswa S2 dan S3 ini tidak hanya menempuh kuliah akademis semata. Misi utama mereka adalah <strong>melakukan penelitian ilmiah</strong> untuk menganalisis mengapa metode GASING bisa secara ajaib mengubah kemampuan numerasi anak dalam waktu 2 minggu, serta bagaimana metodenya bisa diskalakan secara merata.
+              Para penerima beasiswa S2 dan S3 ini melakukan penelitian ilmiah mendalam bukan untuk mempromosikan metode secara eksklusif, melainkan untuk membedah mekanisme kognitif di balik akselerasi belajar anak. Hasil riset ini dirumuskan menjadi metodologi terbuka yang dapat diadaptasikan bebas oleh guru, orang tua, dan institusi pendidikan mana pun demi kepentingan orang banyak.
             </p>
           </div>
           <div>
-            <h3 class="font-serif text-white text-lg mb-3">🌍 Karya Nyata untuk Mengatasi Ketakutan Belajar</h3>
+            <h3 class="font-serif text-white text-lg mb-3">🌍 Menyembuhkan Trauma Belajar Matematika & Sains secara Global</h3>
             <p class="text-xs text-secondary leading-relaxed">
-              Program beasiswa ini bertujuan membantu para guru melahirkan karya tulis, modul ajar, dan inovasi kurikulum untuk <strong>mengatasi kesulitan belajar sains dan melenyapkan trauma ketakutan anak terhadap matematika</strong>. Karya nyata ini diproyeksikan bermanfaat secara global bagi pendidik di Indonesia maupun seluruh dunia.
+              Dukungan beasiswa ini berfokus membantu para guru menghasilkan karya ilmiah, modul ajar, dan terapi pedagogis untuk <strong>menyelamatkan anak-anak dari trauma serta rasa takut belajar matematika/sains</strong>. Karya nyata dari para pendidik kampung pelosok ini diproyeksikan menjadi solusi yang bermanfaat bagi pendidik di Indonesia maupun di seluruh dunia.
             </p>
           </div>
         </div>
@@ -167,24 +170,48 @@ import { emotionalStories, boardMembers, metrics } from '../data/stories';
       </div>
 
       <div class="grid-cols-2 stories-grid">
-        {emotionalStories.map(story => (
+        {realStories.map(story => (
           <div class="glass-panel story-card overflow-hidden">
             <div class="story-image-wrapper">
               <img src={story.image} alt={story.title} class="story-image" />
               <span class="story-location-badge">
-                {story.isTestimoniBook ? '📚 Buku Testimoni' : story.location}
+                {story.location}
               </span>
             </div>
             <div class="story-info">
               <h3>{story.title}</h3>
               <p class="story-text">{story.fullStory}</p>
-              {story.pdfUrl && (
-                <div class="mt-4">
-                  <a href={story.pdfUrl} target="_blank" class="download-book-btn">
-                    <span>📖 Baca / Unduh Buku (PDF)</span>
-                  </a>
-                </div>
-              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Books Section -->
+  <section class="section-padding books-section relative z-10 border-t border-white/5 bg-gradient-to-b from-color-bg-dark to-primary/20">
+    <div class="container">
+      <div class="section-header text-center mb-12">
+        <h2 class="text-gold text-2xl md:text-3xl font-serif">Pustaka Dokumentasi & Buku Testimoni</h2>
+        <p class="max-w-2xl mx-auto mt-2 text-sm text-secondary">
+          Unduh dan baca kisah-kisah perjuangan lengkap, dokumentasi pengimbasan, serta testimoni jujur guru dan anak didik dari 4 volume buku resmi GASING.
+        </p>
+      </div>
+
+      <div class="books-grid">
+        {bookStories.map(book => (
+          <div class="glass-panel book-card p-6 flex flex-col justify-between items-center text-center">
+            <div class="book-cover-wrapper mb-4">
+              <img src={book.image} alt={book.title} class="book-cover" />
+            </div>
+            <div class="book-info-block flex-1 flex flex-col justify-between">
+              <div>
+                <h4 class="font-serif font-bold text-white text-sm mb-2">{book.title.replace('Buku: ', '')}</h4>
+                <p class="text-[11px] text-muted leading-relaxed mb-4">{book.excerpt}</p>
+              </div>
+              <a href={book.pdfUrl} target="_blank" class="download-book-btn w-full justify-center">
+                <span>📖 Baca Buku (PDF)</span>
+              </a>
             </div>
           </div>
         ))}
@@ -506,5 +533,47 @@ import { emotionalStories, boardMembers, metrics } from '../data/stories';
   .list-none {
     list-style: none;
     padding-left: 0;
+  }
+
+  /* Books Section Styling */
+  .books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+    margin-top: 40px;
+  }
+
+  .book-card {
+    border-radius: var(--border-radius-lg);
+    transition: var(--transition-smooth);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    height: 100%;
+  }
+
+  .book-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(245, 158, 11, 0.25);
+    box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.1);
+  }
+
+  .book-cover-wrapper {
+    width: 130px;
+    height: 185px;
+    border-radius: var(--border-radius-sm);
+    overflow: hidden;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: var(--transition-smooth);
+  }
+
+  .book-card:hover .book-cover-wrapper {
+    transform: scale(1.03);
+    box-shadow: 0 12px 24px rgba(245, 158, 11, 0.2);
+  }
+
+  .book-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 </style>
