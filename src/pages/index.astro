@@ -33,6 +33,68 @@ import { emotionalStories, boardMembers, metrics } from '../data/stories';
     </div>
   </section>
 
+  <!-- Crisis & Mission Section -->
+  <section class="section-padding crisis-mission-section relative z-10">
+    <div class="container">
+      <div class="glass-panel p-8 md:p-12 border border-white/10 bg-gradient-to-br from-primary-light/40 to-color-bg-dark rounded-3xl">
+        <div class="grid-half items-center mb-8">
+          <div>
+            <span class="text-gold text-xs uppercase tracking-wider font-semibold block mb-2">📊 KONDISI NYATA PENDIDIKAN KITA</span>
+            <h2 class="text-white text-3xl font-serif mb-6 leading-tight">Menjawab Krisis Numerasi Nasional</h2>
+            <p class="text-sm text-secondary leading-relaxed mb-4">
+              Hasil penilaian internasional <strong>PISA (Program for International Student Assessment)</strong> secara konsisten menunjukkan bahwa kemampuan numerasi dan sains anak-anak Indonesia masih memerlukan perbaikan yang sangat besar. Rendahnya kompetensi matematika dasar ini menjadi hambatan utama kemajuan sains, teknologi, dan kualitas SDM kita.
+            </p>
+            <p class="text-sm text-secondary leading-relaxed">
+              Di sinilah metode <strong>GASING (Gampang, Asyik, Menyenangkan)</strong> hadir untuk meningkatkan pendidikan dari dasar. Mulai dari konsep dasar mencongak cepat hingga fisika tingkat lanjut, metode ini melatih logika anak secara konseptual.
+            </p>
+          </div>
+
+          <div class="glass-panel p-6 border border-amber-500/10 bg-amber-500/5 rounded-2xl">
+            <h3 class="font-serif text-gold text-lg mb-4">Metodologi GASING: Dari Dasar Hingga Fisika</h3>
+            <ul class="flex flex-col gap-4 text-xs list-none">
+              <li class="flex items-start gap-3">
+                <span class="text-gold font-bold">1. BAKALKUBAGI:</span>
+                <div>
+                  <p class="text-secondary font-medium">Pondasi Matematika Dasar</p>
+                  <p class="text-muted mt-0.5">Penjumlahan, Pengurangan, Perkalian, Pembagian secara mencongak cepat dengan konsep konkret, intuitif, dan bebas menghafal.</p>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="text-gold font-bold">2. PEDE:</span>
+                <div>
+                  <p class="text-secondary font-medium">Pola, Estimasi, Desimal</p>
+                  <p class="text-muted mt-0.5">Langkah penalaran analitis mendalam untuk melatih kepekaan logika berpikir kritis anak di sekolah dasar.</p>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="text-gold font-bold">3. Sains & Fisika Lanjut:</span>
+                <div>
+                  <p class="text-secondary font-medium">Matematika SMP, SMA & Fisika Lanjut</p>
+                  <p class="text-muted mt-0.5">Metodologi yang diadaptasi khusus untuk mempermudah rumus fisika dan matematika tersulit agar terasa gampang dan menyenangkan.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="pt-8 border-t border-white/10 grid-half">
+          <div>
+            <h3 class="font-serif text-white text-lg mb-3">🎓 Riset Akademis: Mengapa GASING Begitu Hebat?</h3>
+            <p class="text-xs text-secondary leading-relaxed">
+              Para penerima beasiswa S2 dan S3 ini tidak hanya menempuh kuliah akademis semata. Misi utama mereka adalah <strong>melakukan penelitian ilmiah</strong> untuk menganalisis mengapa metode GASING bisa secara ajaib mengubah kemampuan numerasi anak dalam waktu 2 minggu, serta bagaimana metodenya bisa diskalakan secara merata.
+            </p>
+          </div>
+          <div>
+            <h3 class="font-serif text-white text-lg mb-3">🌍 Karya Nyata untuk Mengatasi Ketakutan Belajar</h3>
+            <p class="text-xs text-secondary leading-relaxed">
+              Program beasiswa ini bertujuan membantu para guru melahirkan karya tulis, modul ajar, dan inovasi kurikulum untuk <strong>mengatasi kesulitan belajar sains dan melenyapkan trauma ketakutan anak terhadap matematika</strong>. Karya nyata ini diproyeksikan bermanfaat secara global bagi pendidik di Indonesia maupun seluruh dunia.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Pooled Fund Policy Notice -->
   <section class="container relative z-10 mt-10">
     <div class="glass-panel p-8 border border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-amber-500/10 rounded">
@@ -427,5 +489,22 @@ import { emotionalStories, boardMembers, metrics } from '../data/stories';
     margin: 0 auto;
     font-family: var(--font-serif);
     border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Crisis & Mission Section Styling */
+  .crisis-mission-section {
+    background: radial-gradient(circle at top left, rgba(245, 158, 11, 0.03) 0%, transparent 45%);
+    margin-top: 40px;
+  }
+
+  .grid-half {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 32px;
+  }
+
+  .list-none {
+    list-style: none;
+    padding-left: 0;
   }
 </style>
