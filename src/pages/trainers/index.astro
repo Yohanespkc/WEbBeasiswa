@@ -53,10 +53,10 @@ try {
           🤝 Gotong Royong & Penyaluran Berkeadilan (Pooled Fund)
         </h4>
         <p class="text-xs text-muted leading-relaxed">
-          Setiap partisipasi yang terkumpul dikelola secara gotong royong melalui <strong>Dana Bersama</strong> untuk mendukung pendidikan <strong>80 Asisten Trainer (AT)</strong> yang sedang menempuh program S2 di UPI dan <strong>2 Asisten Trainer (AT)</strong> yang sedang menempuh program S2 di Columbia University (New York, USA).
+          Setiap partisipasi yang terkumpul dikelola secara gotong royong melalui <strong>Dana Bersama</strong> untuk mendukung pendidikan <strong>80 Asisten Trainer (AT)</strong> yang sedang menempuh program S2 di UPI. Sedangkan untuk <strong>2 Asisten Trainer (AT)</strong> yang sedang menempuh program S2 di Columbia University (New York, USA) didanai melalui skema kemitraan khusus.
         </p>
         <p class="text-xs text-muted mt-2 italic text-amber-200/80">
-          Dengan prinsip kebersamaan ini, kita memastikan seluruh tim trainer memperoleh kesempatan berkembang secara adil dan setara. Profil di bawah disajikan agar para donatur dapat mengenal lebih dekat latar belakang, kisah perjuangan, serta potensi akademik masing-masing trainer penerima manfaat.
+          Dengan prinsip kebersamaan ini, kita memastikan seluruh tim trainer UPI memperoleh kesempatan berkembang secara adil dan setara. Profil di bawah disajikan agar para donatur dapat mengenal lebih dekat latar belakang, kisah perjuangan, serta potensi akademik masing-masing trainer penerima manfaat.
         </p>
       </div>
 
@@ -94,13 +94,13 @@ try {
                   <!-- Progress Bar -->
                   <div class="funding-progress">
                     <div class="progress-lbl text-xs flex justify-between mb-1">
-                      <span>Terkumpul: <strong>Rp {Math.round(trainer.current_funding).toLocaleString('id-ID')}</strong></span>
+                      <span>Terkumpul: <strong>{trainer.university === 'Columbia University' ? `$${Math.round(trainer.current_funding).toLocaleString('en-US')} USD` : `Rp ${Math.round(trainer.current_funding).toLocaleString('id-ID')}`}</strong></span>
                     </div>
                     <div class="progress-bar-bg">
                       <div class="progress-bar-fill shimmer-bar" style={`width: ${percent}%;`}></div>
                     </div>
                     <div class="progress-target text-[10px] text-muted text-right mt-1">
-                      Target: Rp {trainer.target_funding.toLocaleString('id-ID')}
+                      Target: {trainer.university === 'Columbia University' ? `$${trainer.target_funding.toLocaleString('en-US')} USD` : `Rp ${trainer.target_funding.toLocaleString('id-ID')}`}
                     </div>
                   </div>
 

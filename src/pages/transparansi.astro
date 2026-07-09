@@ -77,12 +77,12 @@ try {
           
           <div class="mt-6 pt-4 border-t border-white/10 flex justify-around text-xs text-muted">
             <div>
-              <span>Terdistribusi ke 82 AT:</span>
-              <strong class="text-white block mt-1">Rp {(Math.round(totalRaised / 82) * 82).toLocaleString('id-ID')}</strong>
+              <span>Terdistribusi ke 80 AT (UPI):</span>
+              <strong class="text-white block mt-1">Rp {(Math.round(totalRaised / 80) * 80).toLocaleString('id-ID')}</strong>
             </div>
             <div>
               <span>Sisa Pembulatan Kas:</span>
-              <strong class="text-gold block mt-1">Rp {(totalRaised - (Math.round(totalRaised / 82) * 82)).toLocaleString('id-ID')}</strong>
+              <strong class="text-gold block mt-1">Rp {(totalRaised - (Math.round(totalRaised / 80) * 80)).toLocaleString('id-ID')}</strong>
             </div>
           </div>
         </div>
@@ -114,10 +114,88 @@ try {
         </div>
       </div>
 
+      <!-- Detailed Budget breakdown card -->
+      <div class="glass-panel budget-details-card p-8 mb-12 border border-amber-500/20">
+        <h3 class="font-serif mb-6 text-center text-gold text-xl">📋 Perincian Anggaran Beasiswa (Seed Funding & Defisit)</h3>
+        
+        <div class="budget-details-grid text-sm leading-relaxed">
+          <!-- UPI Budget Section -->
+          <div class="upi-budget-column pr-6">
+            <h4 class="font-sans font-bold text-white mb-4 flex items-center gap-2">
+              🎓 Pembiayaan Program Magister by Research (80 Trainer UPI)
+            </h4>
+            <table class="budget-table">
+              <thead>
+                <tr class="text-muted">
+                  <th class="py-2 text-left">Item Anggaran</th>
+                  <th class="py-2 text-right">Nominal (Rupiah)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="py-2 font-semibold">Dana Awal Diterima Yayasan</td>
+                  <td class="py-2 text-right font-semibold text-success">Rp 2.187.290.548</td>
+                </tr>
+                <tr class="text-muted">
+                  <td class="pl-4 py-1">— Dana Dari Grab (30 Jul & 7 Okt 2025)</td>
+                  <td class="py-1 text-right">Rp 1.107.290.548</td>
+                </tr>
+                <tr class="text-muted">
+                  <td class="pl-4 py-1">— Dana Dari Anonim (Des 2025)</td>
+                  <td class="py-1 text-right">Rp 1.080.000.000</td>
+                </tr>
+                
+                <tr>
+                  <td class="py-2 font-semibold">Kebutuhan Beasiswa 80 Mahasiswa UPI</td>
+                  <td class="py-2 text-right font-semibold text-amber-400">Rp 15.952.000.000</td>
+                </tr>
+                <tr class="text-muted">
+                  <td class="pl-4 py-1">— Biaya Kuliah (Tuition Fee)</td>
+                  <td class="py-1 text-right">Rp 7.312.000.000</td>
+                </tr>
+                <tr class="text-muted">
+                  <td class="pl-4 py-1">— Biaya Hidup (Living Allowance)</td>
+                  <td class="py-1 text-right">Rp 8.640.000.000</td>
+                </tr>
+                
+                <tr class="border-t border-white/20">
+                  <td class="py-2 font-bold">Dana yang Masih Dibutuhkan (Defisit)</td>
+                  <td class="py-2 text-right font-bold text-red-400">-Rp 13.764.709.452</td>
+                </tr>
+                <tr class="bg-white/5 font-semibold text-white">
+                  <td class="py-2 pl-2">Kebutuhan Defisit per Orang (UPI)</td>
+                  <td class="py-2 pr-2 text-right text-gold">Rp 172.058.868</td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="text-[10px] text-muted mt-3 italic">
+              * Sisa kebutuhan beasiswa UPI (Rp 13.764.709.452) setelah dikurangi dana Grab & Anonim dibagi rata ke 80 trainer, sehingga target donasi gotong royong per orang adalah Rp 172.058.868.
+            </p>
+          </div>
+
+          <!-- Columbia Budget Section -->
+          <div class="columbia-budget-column flex flex-col gap-4">
+            <h4 class="font-sans font-bold text-white mb-4 flex items-center gap-2">
+              🗽 Program Khusus Columbia University (2 Trainer)
+            </h4>
+            <div class="glass-panel p-4 bg-white/5 border border-white/10 rounded-lg">
+              <span class="block text-xs text-muted uppercase">Target Pembiayaan per Orang</span>
+              <strong class="text-gold text-lg block mt-1 font-mono">$200.000 USD</strong>
+              <span class="block text-[10px] text-muted mt-1">Untuk menunjang biaya kuliah penuh, riset kurikulum, dan biaya hidup di New York City, USA.</span>
+            </div>
+            <div class="glass-panel p-4 bg-white/5 border border-white/10 rounded-lg">
+              <span class="block text-xs text-muted uppercase">Skema Pendanaan</span>
+              <strong class="text-white text-sm block mt-1">Pendanaan Khusus (Special Sourced)</strong>
+              <span class="block text-[10px] text-muted mt-1">Dana untuk 2 trainer Columbia dicari secara khusus melalui kemitraan/filantropi eksternal dan tidak memotong dana gotong royong UPI.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Vision Callout -->
       <div class="glass-panel p-6 mb-12 border border-amber-500/20 bg-amber-500/5 rounded text-center">
         <p class="text-sm text-muted max-w-4xl mx-auto leading-relaxed">
-          <strong>Catatan Distribusi:</strong> Angka pembagian gotong royong saat ini dihitung rata berdasarkan jumlah <strong>82 Asisten Trainer (AT)</strong> yang saat ini sedang aktif menempuh perkuliahan. Program ini merupakan tahap pertama menuju sasaran strategis mencetak <strong>1.000 Guru Doktor (Ph.D.)</strong> yang kelak akan kembali dari kampung halaman mereka masing-masing untuk memajukan pendidikan daerah pelosok Nusantara.
+          <strong>Catatan Distribusi:</strong> Angka pembagian gotong royong saat ini dihitung rata berdasarkan jumlah <strong>80 Asisten Trainer (AT)</strong> yang saat ini sedang aktif menempuh perkuliahan di UPI. Untuk <strong>2 Asisten Trainer (AT)</strong> di Columbia University, kebutuhan beasiswa masing-masing sebesar <strong>$200.000 USD</strong> dicari secara khusus terpisah dan tidak memotong dana gotong royong. Program ini merupakan tahap pertama menuju sasaran strategis mencetak <strong>1.000 Guru Doktor (Ph.D.)</strong> yang kelak akan kembali dari kampung halaman mereka masing-masing untuk memajukan pendidikan daerah pelosok Nusantara.
         </p>
       </div>
 
@@ -296,5 +374,60 @@ try {
     border-color: rgba(239, 68, 68, 0.2);
     border-radius: var(--border-radius-md);
     text-align: center;
+  }
+
+  /* Budget Details Scoped Styles */
+  .budget-details-card {
+    border-radius: var(--border-radius-lg);
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .budget-details-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 32px;
+  }
+
+  @media (max-width: 768px) {
+    .budget-details-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    .upi-budget-column {
+      border-right: none;
+      padding-right: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 24px;
+    }
+  }
+
+  @media (min-width: 769px) {
+    .upi-budget-column {
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  .budget-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .budget-table th, .budget-table td {
+    padding: 8px 0;
+  }
+
+  .budget-table th {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .budget-table td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .budget-table tr:last-child td {
+    border-bottom: none;
   }
 </style>

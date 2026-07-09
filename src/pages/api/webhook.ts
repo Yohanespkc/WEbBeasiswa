@@ -49,17 +49,18 @@ export const POST: APIRoute = async ({ request, locals }) => {
         db.prepare("UPDATE donations SET payment_status = 'settlement' WHERE id = ?").bind(orderId)
       );
 
-      // Query total active trainers dynamically
-      const countRow = await db.prepare("SELECT COUNT(*) as total FROM trainers").first();
-      const totalTrainers = (countRow as any)?.total || 82;
-      const shareAmount = donation.amount / totalTrainers;
+      // Query total active UPI trainers dynamically (excluding Columbia University)
+      const countRow = await db.prepare("SELECT COUNT(*) as total FROM trainers WHERE university != 'Columbia University'").first();
+      const totalUPITrainers = (countRow as any)?.total || 80;
+      const shareAmount = donation.amount / totalUPITrainers;
 
-      // Update all trainers funding status equally
+      // Update only UPI trainers' funding status equally
       statements.push(
         db.prepare(
           `UPDATE trainers 
            SET current_funding = current_funding + ?,
-               is_funded = CASE WHEN (current_funding + ?) >= target_funding THEN 1 ELSE 0 END`
+               is_funded = CASE WHEN (current_funding + ?) >= target_funding THEN 1 ELSE 0 END
+           WHERE university != 'Columbia University'`
         ).bind(shareAmount, shareAmount)
       );
 

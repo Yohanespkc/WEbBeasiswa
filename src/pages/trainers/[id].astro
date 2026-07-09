@@ -249,12 +249,16 @@ if (trainer) {
               <div class="funding-stats flex justify-between text-center mb-6">
                 <div>
                   <span class="lbl block text-[10px] uppercase text-muted tracking-wider">Terkumpul</span>
-                  <span class="val text-lg font-bold text-success">Rp {Math.round(trainer.current_funding).toLocaleString('id-ID')}</span>
+                  <span class="val text-lg font-bold text-success">
+                    {trainer.university === 'Columbia University' ? `$${Math.round(trainer.current_funding).toLocaleString('en-US')} USD` : `Rp ${Math.round(trainer.current_funding).toLocaleString('id-ID')}`}
+                  </span>
                 </div>
                 <div class="border-divider"></div>
                 <div>
                   <span class="lbl block text-[10px] uppercase text-muted tracking-wider">Target Biaya</span>
-                  <span class="val text-lg font-bold">Rp {trainer.target_funding.toLocaleString('id-ID')}</span>
+                  <span class="val text-lg font-bold">
+                    {trainer.university === 'Columbia University' ? `$${trainer.target_funding.toLocaleString('en-US')} USD` : `Rp ${trainer.target_funding.toLocaleString('id-ID')}`}
+                  </span>
                 </div>
               </div>
 
@@ -271,43 +275,51 @@ if (trainer) {
               <p class="text-xs text-muted leading-relaxed text-center italic">*Seluruh alokasi dukungan disalurkan langsung ke rekening rektorat universitas untuk menjamin kelancaran perkuliahan dan riset para trainer.</p>
             </div>
 
-            <!-- Interactive Impact Calculator -->
-            <div class="glass-panel calculator-card mt-6 p-6" id="impact-calculator">
-              <h3 class="font-serif text-gold text-center mb-4">🧮 Simulasi Kontribusi Perubahan</h3>
-              <p class="text-xs text-muted text-center mb-6">Geser slider untuk melihat bagaimana kontribusi Anda mempercepat penyelesaian studi S2/S3 dan memperluas dampak pengabdian para trainer.</p>
-              
-              <!-- Slider Input -->
-              <div class="slider-wrapper">
-                <input 
-                  type="range" 
-                  min="50000" 
-                  max="10000000" 
-                  step="50000" 
-                  value="1000000" 
-                  class="impact-slider" 
-                  id="impact-slider"
-                />
-                <div class="flex justify-between text-[10px] text-muted mt-2">
-                  <span>Rp 50.000</span>
-                  <span>Rp 5.000.000</span>
-                  <span>Rp 10.000.000+</span>
+            {trainer.university === 'Columbia University' ? (
+              <div class="glass-panel calculator-card mt-6 p-6">
+                <h3 class="font-serif text-gold text-center mb-4">🗽 Skema Pendanaan Khusus</h3>
+                <p class="text-xs text-muted text-center mb-6">Beasiswa untuk program studi di Columbia University disalurkan melalui jalur pendanaan khusus/kemitraan terpisah dan tidak menerima donasi publik umum.</p>
+                <div class="glass-panel p-4 bg-white/5 border border-white/10 rounded text-center">
+                  <span class="text-xs text-muted uppercase block">Status Pendanaan</span>
+                  <strong class="text-success text-sm block mt-1">Dicarikan secara Khusus / Kemitraan Mandiri</strong>
                 </div>
               </div>
+            ) : (
+              <div class="glass-panel calculator-card mt-6 p-6" id="impact-calculator">
+                <h3 class="font-serif text-gold text-center mb-4">🧮 Simulasi Kontribusi Perubahan</h3>
+                <p class="text-xs text-muted text-center mb-6">Geser slider untuk melihat bagaimana kontribusi Anda mempercepat penyelesaian studi S2/S3 dan memperluas dampak pengabdian para trainer.</p>
+                
+                <div class="slider-wrapper">
+                  <input 
+                    type="range" 
+                    min="50000" 
+                    max="10000000" 
+                    step="50000" 
+                    value="1000000" 
+                    class="impact-slider" 
+                    id="impact-slider"
+                  />
+                  <div class="flex justify-between text-[10px] text-muted mt-2">
+                    <span>Rp 50.000</span>
+                    <span>Rp 5.000.000</span>
+                    <span>Rp 10.000.000+</span>
+                  </div>
+                </div>
 
-              <!-- Animated Impact Result Box -->
-              <div class="impact-result-box glass-panel p-4 mt-6 text-center">
-                <span class="lbl text-[10px] text-gold uppercase tracking-wider block">Simulasi Nilai Kontribusi</span>
-                <span class="simulated-val text-xl font-bold block my-1" id="simulated-amount">Rp 1.000.000</span>
-                <p class="impact-text text-sm leading-relaxed text-white mt-3" id="simulated-impact">
-                  Membantu membiayai transport riset pengabdian numerasi {trainer.name} ke daerah 3T selama 1 Semester.
-                </p>
+                <div class="impact-result-box glass-panel p-4 mt-6 text-center">
+                  <span class="lbl text-[10px] text-gold uppercase tracking-wider block">Simulasi Nilai Kontribusi</span>
+                  <span class="simulated-val text-xl font-bold block my-1" id="simulated-amount">Rp 1.000.000</span>
+                  <p class="impact-text text-sm leading-relaxed text-white mt-3" id="simulated-impact">
+                    Membantu membiayai transport riset pengabdian numerasi {trainer.name} ke daerah 3T selama 1 Semester.
+                  </p>
+                </div>
+
+                <button class="btn btn-primary w-full text-center mt-6" id="donate-now-btn">
+                  Bergabung dalam Gotong Royong
+                </button>
+                <p class="text-[10px] text-muted text-center mt-2 italic">* Kontribusi Dana Bersama dikelola secara gotong royong untuk mendukung studi 80 trainer S2 di UPI, sedangkan trainer Columbia memiliki skema pendanaan khusus.</p>
               </div>
-
-              <button class="btn btn-primary w-full text-center mt-6" id="donate-now-btn">
-                Bergabung dalam Gotong Royong
-              </button>
-              <p class="text-[10px] text-muted text-center mt-2 italic">* Seluruh kontribusi dikelola melalui Dana Bersama dan disalurkan secara adil guna mendukung studi 80 trainer S2 di UPI & 2 trainer S2 di Columbia.</p>
-            </div>
+            )}
           </div>
         </div>
       )}
