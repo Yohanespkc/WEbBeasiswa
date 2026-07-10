@@ -2,6 +2,13 @@
 
 All notable changes to the **Beasiswa Trainer GASING** platform will be documented in this file.
 
+## [1.1.1] - 2026-07-10
+
+### Added
+- **Gotong Royong Donasi**: Implemented an automated collective donation logic for 80 UPI Magister trainers. Large foundation donations (Grab and Anonim) are now distributed evenly, automatically updating individual targets and showing precise deficit metrics.
+- **Dynamic Funding Formatting**: Integrated currency-aware formatting for international universities (Columbia USD) versus local universities (UPI IDR) on candidate progress bars and detail pages.
+- **Database Reset & Sync**: Cleared mock test donor data on the live D1 database and injected authentic founding contributions.
+
 ## [1.1.0] - 2026-07-09
 
 ### Added
