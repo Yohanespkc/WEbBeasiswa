@@ -45,7 +45,15 @@ if (!trainer && !dbError) {
   return Astro.redirect('/trainers');
 }
 
-const percent = trainer ? Math.min(100, Math.round((trainer.current_funding / trainer.target_funding) * 100)) : 0;
+let percent = 0;
+if (trainer) {
+  if (trainer.university === 'Columbia University') {
+    const targetInIDR = trainer.target_funding * 16000; // 1 USD = Rp 16.000
+    percent = Math.min(100, Math.round((trainer.current_funding / targetInIDR) * 100));
+  } else {
+    percent = Math.min(100, Math.round((trainer.current_funding / trainer.target_funding) * 100));
+  }
+}
 
 import { KABUPATEN_DATA } from '../../data/statistikRegistry';
 let regencyStats: any = null;
@@ -250,7 +258,7 @@ if (trainer) {
                 <div>
                   <span class="lbl block text-[10px] uppercase text-muted tracking-wider">Terkumpul</span>
                   <span class="val text-lg font-bold text-success">
-                    {trainer.university === 'Columbia University' ? `$${Math.round(trainer.current_funding).toLocaleString('en-US')} USD` : `Rp ${Math.round(trainer.current_funding).toLocaleString('id-ID')}`}
+                    Rp {Math.round(trainer.current_funding).toLocaleString('id-ID')}
                   </span>
                 </div>
                 <div class="border-divider"></div>

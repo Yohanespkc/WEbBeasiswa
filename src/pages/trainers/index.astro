@@ -71,7 +71,13 @@ try {
       <div class="grid-cols-3 trainers-grid">
         {trainers.length > 0 ? (
           trainers.map((trainer) => {
-            const percent = Math.min(100, Math.round((trainer.current_funding / trainer.target_funding) * 100));
+            let percent = 0;
+            if (trainer.university === 'Columbia University') {
+              const targetInIDR = trainer.target_funding * 16000; // 1 USD = Rp 16.000
+              percent = Math.min(100, Math.round((trainer.current_funding / targetInIDR) * 100));
+            } else {
+              percent = Math.min(100, Math.round((trainer.current_funding / trainer.target_funding) * 100));
+            }
             return (
               <div class="glass-panel trainer-card overflow-hidden flex flex-col justify-between">
                 <div>
@@ -94,7 +100,7 @@ try {
                   <!-- Progress Bar -->
                   <div class="funding-progress">
                     <div class="progress-lbl text-xs flex justify-between mb-1">
-                      <span>Terkumpul: <strong>{trainer.university === 'Columbia University' ? `$${Math.round(trainer.current_funding).toLocaleString('en-US')} USD` : `Rp ${Math.round(trainer.current_funding).toLocaleString('id-ID')}`}</strong></span>
+                      <span>Terkumpul: <strong>Rp {Math.round(trainer.current_funding).toLocaleString('id-ID')}</strong></span>
                     </div>
                     <div class="progress-bar-bg">
                       <div class="progress-bar-fill shimmer-bar" style={`width: ${percent}%;`}></div>
