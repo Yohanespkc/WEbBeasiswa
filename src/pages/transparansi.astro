@@ -27,9 +27,9 @@ try {
     ).first() as any;
     totalRaised = totalResult?.total || 0;
 
-    // 2. Get donor count (excluding initial institutional sponsors)
+    // 2. Get donor count (including initial institutional sponsors)
     const countResult = await env.DB.prepare(
-      "SELECT COUNT(*) as count FROM donations WHERE payment_status = 'settlement' AND donor_name NOT LIKE '%Test Donor%' AND id NOT IN ('GRAB-2025', 'ANONIM-2025')"
+      "SELECT COUNT(*) as count FROM donations WHERE payment_status = 'settlement' AND donor_name NOT LIKE '%Test Donor%'"
     ).first() as any;
     donorCount = countResult?.count || 0;
 
