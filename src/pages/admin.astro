@@ -16,6 +16,8 @@ let trainers: TrainerAdmin[] = [];
 let dbError = "";
 let isAuthenticated = false;
 let authError = "";
+let actionError = "";
+let actionSuccess = "";
 
 const ADMIN_PASSWORD = '0611';
 
@@ -27,9 +29,33 @@ if (method === "POST") {
   try {
     const formData = await Astro.request.formData();
     enteredPassword = formData.get("adminPassword")?.toString() || "";
+    const formAction = formData.get("action")?.toString() || "login";
     
     if (enteredPassword === ADMIN_PASSWORD) {
       isAuthenticated = true;
+      
+      // Handle manual donation addition
+      if (formAction === "add_donation") {
+        const donorName = formData.get("donorName")?.toString() || "";
+        const donorEmail = formData.get("donorEmail")?.toString() || "";
+        const amount = Number(formData.get("amount") || 0);
+        const message = formData.get("message")?.toString() || "";
+        
+        if (donorName && donorEmail && amount > 0) {
+          if (env && env.DB) {
+            const manualId = `MANUAL-DON-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+            await env.DB.prepare(
+              `INSERT INTO donations (id, donor_name, donor_email, amount, message, payment_status, created_at) 
+               VALUES (?, ?, ?, ?, ?, 'settlement', datetime('now', 'localtime'))`
+            ).bind(manualId, donorName, donorEmail, amount, message || null).run();
+            actionSuccess = `Berhasil mencatat donasi manual sebesar Rp ${amount.toLocaleString('id-ID')} dari ${donorName}!`;
+          } else {
+            dbError = "Database D1 tidak terdeteksi untuk menyimpan donasi.";
+          }
+        } else {
+          actionError = "Mohon isi semua field wajib donasi dengan benar.";
+        }
+      }
       
       // Fetch trainers with passwords from D1 Database
       if (env && env.DB) {
@@ -118,6 +144,54 @@ if (method === "POST") {
               </tbody>
             </table>
           </div>
+
+          <!-- Divider & Manual Donation Form -->
+          <div class="mt-8 pt-8 border-t border-white/10">
+            <h3 class="font-serif mb-2 text-left">✍️ Catat Donasi Manual / Offline</h3>
+            <p class="text-xs text-muted mb-6 text-left">Gunakan form ini untuk mencatat dana sponsor, hibah langsung, atau donasi transfer bank secara manual agar terhitung di halaman transparansi.</p>
+
+            {actionSuccess && (
+              <div class="mb-6 p-4 rounded-xl bg-success/10 border border-success/20 text-success text-sm text-center">
+                ✅ {actionSuccess}
+              </div>
+            )}
+            {actionError && (
+              <div class="mb-6 p-4 rounded-xl bg-danger/10 border border-danger/20 text-danger text-sm text-center">
+                ⚠️ {actionError}
+              </div>
+            )}
+
+            <form method="POST" class="manual-donation-form">
+              <input type="hidden" name="adminPassword" value={enteredPassword} />
+              <input type="hidden" name="action" value="add_donation" />
+
+              <div class="form-grid">
+                <div class="form-group text-left">
+                  <label class="form-label">Nama Donatur / Instansi</label>
+                  <input type="text" name="donorName" placeholder="Contoh: Grab Indonesia, Hamba Allah, dll." class="form-control text-left" required />
+                </div>
+                <div class="form-group text-left">
+                  <label class="form-label">Email Donatur</label>
+                  <input type="email" name="donorEmail" placeholder="donatur@email.com" class="form-control text-left" required />
+                </div>
+              </div>
+
+              <div class="form-grid mt-4">
+                <div class="form-group text-left">
+                  <label class="form-label">Nominal Donasi (Rupiah)</label>
+                  <input type="number" name="amount" placeholder="Contoh: 5000000" class="form-control text-left" required min="1" />
+                </div>
+                <div class="form-group text-left">
+                  <label class="form-label">Pesan Kebajikan (Opsional)</label>
+                  <input type="text" name="message" placeholder="Pesan singkat dari donatur..." class="form-control text-left" />
+                </div>
+              </div>
+
+              <div class="text-left">
+                <button type="submit" class="btn btn-primary mt-6">Simpan & Perbarui Transparansi</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>
@@ -143,7 +217,7 @@ if (method === "POST") {
   }
 
   .login-card {
-    background: rgba(17, 18, 23, 0.7);
+    background: var(--color-bg-card);
     border: var(--glass-border);
     border-radius: var(--border-radius-lg);
   }
@@ -151,10 +225,10 @@ if (method === "POST") {
   .form-control {
     width: 100%;
     padding: 10px 16px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.15);
     border-radius: var(--border-radius-md);
-    color: #ffffff;
+    color: var(--color-text-primary);
     font-size: 1rem;
     transition: var(--transition-smooth);
   }
@@ -162,7 +236,7 @@ if (method === "POST") {
   .form-control:focus {
     outline: none;
     border-color: var(--color-accent-gold);
-    box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+    box-shadow: 0 0 10px rgba(217, 119, 6, 0.15);
   }
 
   .text-danger {
@@ -209,5 +283,29 @@ if (method === "POST") {
 
   .admin-table tr:hover {
     background: rgba(255, 255, 255, 0.01);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 600px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+    text-align: left;
   }
 </style>

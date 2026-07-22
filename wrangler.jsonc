@@ -2,6 +2,7 @@
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"compatibility_date": "2026-07-04",
 	"compatibility_flags": ["global_fetch_strictly_public", "nodejs_compat"],
+	"account_id": "4b8cef9502d2b8fd4b8e044c200d637a",
 	"name": "webbeasiswa",
 	"main": "@astrojs/cloudflare/entrypoints/server",
 	"assets": {
@@ -16,6 +17,16 @@
 			"binding": "DB",
 			"database_name": "beasiswa_gasing_db",
 			"database_id": "7003a6f5-b10c-44a4-93d6-41bd4a1ff31f"
+		}
+	],
+	"routes": [
+		{
+			"pattern": "1000phd.org",
+			"custom_domain": true
+		},
+		{
+			"pattern": "www.1000phd.org",
+			"custom_domain": true
 		}
 	]
 }

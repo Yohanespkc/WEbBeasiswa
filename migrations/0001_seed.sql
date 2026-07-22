@@ -11,7 +11,7 @@ VALUES (
     'Setelah sukses membimbing anak-anak di pelosok mencongak cepat, Livi bermimpi membawa pengajaran matematika Indonesia ke standar global. Di Columbia University, ia mempelajari perancangan kurikulum inklusif agar anak-anak pelosok mendapatkan mutu pendidikan matematika yang setara.',
     'Tolikara',
     'Papua Pegunungan',
-    200000.0,
+    192488.0,
     0.0,
     0,
     '1234',
@@ -19,7 +19,7 @@ VALUES (
 , 4.0);
 INSERT INTO trainers (name, photo_url, major, university, bio, story_emotional, home_regency, home_province, target_funding, current_funding, is_funded, password, gasing_testimony, gpa)
 VALUES (
-    'Witnny Warouw',
+    'Witnny Stesia Warouw',
     '/assets/images/trainers/default_trainer.png',
     'S2 Kepemimpinan Pendidikan',
     'Columbia University',
@@ -27,7 +27,7 @@ VALUES (
     'Dengan tekad memajukan mutu sekolah di pelosok Nusantara, Witnny berjuang menguasai perancangan sistem sekolah modern di Columbia University untuk kembali dan mendirikan pusat pengajaran numerasi modern gratis bagi anak-anak daerah terpencil.',
     'Manokwari',
     'Papua Barat',
-    200000.0,
+    154392.0,
     0.0,
     0,
     '1234',

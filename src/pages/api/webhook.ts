@@ -49,20 +49,41 @@ export const POST: APIRoute = async ({ request, locals }) => {
         db.prepare("UPDATE donations SET payment_status = 'settlement' WHERE id = ?").bind(orderId)
       );
 
-      // Query total active UPI trainers dynamically (excluding Columbia University)
-      const countRow = await db.prepare("SELECT COUNT(*) as total FROM trainers WHERE university != 'Columbia University'").first();
-      const totalUPITrainers = (countRow as any)?.total || 80;
-      const shareAmount = donation.amount / totalUPITrainers;
+      // Check if the targeted trainer is Columbia University
+      let isColumbia = false;
+      if (donation.trainer_id) {
+        const targetTrainer = await db.prepare("SELECT university FROM trainers WHERE id = ?").bind(donation.trainer_id).first() as any;
+        if (targetTrainer && targetTrainer.university === 'Columbia University') {
+          isColumbia = true;
+        }
+      }
 
-      // Update only UPI trainers' funding status equally
-      statements.push(
-        db.prepare(
-          `UPDATE trainers 
-           SET current_funding = current_funding + ?,
-               is_funded = CASE WHEN (current_funding + ?) >= target_funding THEN 1 ELSE 0 END
-           WHERE university != 'Columbia University'`
-        ).bind(shareAmount, shareAmount)
-      );
+      if (isColumbia) {
+        // Direct individual funding for Columbia trainer
+        statements.push(
+          db.prepare(
+            `UPDATE trainers 
+             SET current_funding = current_funding + ?,
+                 is_funded = CASE WHEN (current_funding + ?) >= (target_funding * 16000) THEN 1 ELSE 0 END
+             WHERE id = ?`
+          ).bind(donation.amount, donation.amount, donation.trainer_id)
+        );
+      } else {
+        // Query total active UPI trainers dynamically (excluding Columbia University)
+        const countRow = await db.prepare("SELECT COUNT(*) as total FROM trainers WHERE university != 'Columbia University'").first();
+        const totalUPITrainers = (countRow as any)?.total || 80;
+        const shareAmount = donation.amount / totalUPITrainers;
+
+        // Update only UPI trainers' funding status equally (Pooled Fund)
+        statements.push(
+          db.prepare(
+            `UPDATE trainers 
+             SET current_funding = current_funding + ?,
+                 is_funded = CASE WHEN (current_funding + ?) >= target_funding THEN 1 ELSE 0 END
+             WHERE university != 'Columbia University'`
+          ).bind(shareAmount, shareAmount)
+        );
+      }
 
       // Execute all statements safely in a single batch
       await db.batch(statements);

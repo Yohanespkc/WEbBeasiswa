@@ -13,11 +13,11 @@ const bookStories = emotionalStories.filter(s => s.isTestimoniBook);
     <div class="hero-glow absolute inset-0 z-0"></div>
     <div class="container relative z-10 hero-content">
       <span class="hero-badge">🎓 PROGRAM BEASISWA NUSANTARA</span>
-      <h1 class="hero-title">Membuka Pintu Pendidikan Lanjut<br/><span class="text-gold">S2 & S3 Trainer GASING</span></h1>
+      <h1 class="hero-title"><span class="nowrap-desktop">Membuka Pintu Pendidikan Lanjut</span><br/><span class="text-gold">S2 & S3 Trainer GASING</span></h1>
       <p class="hero-subtitle">Mereka adalah putra-putri terbaik bangsa yang telah melatih puluhan ribu guru dan anak di pelosok negeri. Mari berpartisipasi memberikan kesempatan bagi para trainer hebat ini untuk bertumbuh dan menempuh studi S2 serta S3 (dalam dan luar negeri), agar sekembalinya nanti, mereka dapat berkarya lebih jauh lagi dan memimpin perubahan pendidikan di Indonesia.</p>
       
       <div class="hero-actions">
-        <a href="/donasi" class="btn btn-primary">Ikut Berpartisipasi</a>
+        <a href="/donasi" class="btn btn-primary">Donasi Sekarang</a>
         <a href="/trainers" class="btn btn-secondary">Mengenal Para Trainer</a>
       </div>
     </div>
@@ -54,24 +54,24 @@ const bookStories = emotionalStories.filter(s => s.isTestimoniBook);
 
           <div class="glass-panel p-6 border border-amber-500/10 bg-amber-500/5 rounded-2xl">
             <h3 class="font-serif text-gold text-lg mb-4">Metodologi Konseptual: Menghilangkan Ketakutan</h3>
-            <ul class="flex flex-col gap-4 text-xs list-none">
-              <li class="flex items-start gap-3">
-                <span class="text-gold font-bold">1. BAKALKUBAGI:</span>
-                <div>
+            <ul class="methodology-list text-xs list-none">
+              <li class="methodology-item">
+                <span class="text-gold font-bold methodology-label">1. BAKALKUBAGI:</span>
+                <div class="methodology-content">
                   <p class="text-secondary font-medium">Menghilangkan Ketakutan Awal</p>
                   <p class="text-muted mt-0.5">Mengubah cara anak memandang Penjumlahan, Pengurangan, Perkalian, dan Pembagian mencongak cepat lewat konsep konkret dan asyik agar matematika tidak lagi menakutkan sejak dini.</p>
                 </div>
               </li>
-              <li class="flex items-start gap-3">
-                <span class="text-gold font-bold">2. PEDE:</span>
-                <div>
+              <li class="methodology-item">
+                <span class="text-gold font-bold methodology-label">2. PEDE:</span>
+                <div class="methodology-content">
                   <p class="text-secondary font-medium">Membangun Kepercayaan Diri (Pola, Estimasi, Desimal)</p>
                   <p class="text-muted mt-0.5">Mempertajam penalaran kognitif tingkat lanjut untuk melatih logika kritis anak agar merasa mandiri dan berdaya memecahkan masalah matematika sekolah dasar.</p>
                 </div>
               </li>
-              <li class="flex items-start gap-3">
-                <span class="text-gold font-bold">3. Sains & Fisika Lanjut:</span>
-                <div>
+              <li class="methodology-item">
+                <span class="text-gold font-bold methodology-label">3. Sains & Fisika Lanjut:</span>
+                <div class="methodology-content">
                   <p class="text-secondary font-medium">Meruntuhkan Tembok Rumus</p>
                   <p class="text-muted mt-0.5">Menyederhanakan konsep matematika SMP, SMA, hingga rumus fisika tersulit agar dirasakan gampang, intuitif, dan melahirkan kecintaan pada sains.</p>
                 </div>
@@ -362,7 +362,7 @@ const bookStories = emotionalStories.filter(s => s.isTestimoniBook);
   }
 
   .hero-content {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
   }
 
@@ -383,6 +383,42 @@ const bookStories = emotionalStories.filter(s => s.isTestimoniBook);
     font-size: 2.8rem;
     line-height: 1.15;
     margin-bottom: 20px;
+  }
+
+  .nowrap-desktop {
+    display: inline-block;
+  }
+
+  @media (min-width: 769px) {
+    .nowrap-desktop {
+      white-space: nowrap;
+    }
+  }
+
+  /* Methodology List Grid Alignment */
+  .methodology-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .methodology-item {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 16px;
+    align-items: start;
+    text-align: left;
+  }
+
+  .methodology-label {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 576px) {
+    .methodology-item {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
   }
 
   .hero-subtitle {
@@ -506,14 +542,17 @@ const bookStories = emotionalStories.filter(s => s.isTestimoniBook);
     position: absolute;
     bottom: 16px;
     left: 16px;
-    padding: 6px 12px;
-    background: rgba(7, 12, 25, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(4px);
+    padding: 6px 12px 6px 10px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-left: 3px solid var(--color-accent-gold);
+    backdrop-filter: blur(8px);
     border-radius: var(--border-radius-sm);
     color: var(--color-text-primary);
-    font-size: 0.75rem;
-    font-weight: 500;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    box-shadow: 0 4px 15px -3px rgba(15, 23, 42, 0.15);
   }
 
   .story-info {
@@ -774,18 +813,39 @@ const bookStories = emotionalStories.filter(s => s.isTestimoniBook);
     padding: 16px 20px !important;
     border-radius: var(--border-radius-md);
     flex-grow: 1;
-    transition: var(--transition-smooth);
+    transition: none;
     border: 1px solid rgba(255, 255, 255, 0.04);
     text-align: left;
+    cursor: default;
   }
 
+  /* Disable hover effects to avoid giving the impression of clickability */
+  .timeline-content:hover,
   .timeline-item:hover .timeline-content {
-    border-color: rgba(255, 255, 255, 0.12);
-    background: rgba(28, 41, 74, 0.5);
+    background: var(--color-bg-card) !important;
+    border-color: rgba(255, 255, 255, 0.04) !important;
+    box-shadow: var(--glass-shadow) !important;
+    transform: none !important;
   }
 
-  .timeline-item.current:hover .timeline-content {
-    border-color: rgba(245, 158, 11, 0.3);
+  /* Keep the current phase highlight static */
+  .timeline-item.current .timeline-content {
+    border-color: rgba(217, 119, 6, 0.3) !important;
+  }
+  .timeline-item.current:hover .timeline-content,
+  .timeline-item.current .timeline-content:hover {
+    border-color: rgba(217, 119, 6, 0.3) !important;
+    background: var(--color-bg-card) !important;
+  }
+
+  /* Keep the goal card highlight static */
+  .timeline-item.goal .timeline-content {
+    border-color: rgba(217, 119, 6, 0.4) !important;
+  }
+  .timeline-item.goal:hover .timeline-content,
+  .timeline-item.goal .timeline-content:hover {
+    border-color: rgba(217, 119, 6, 0.4) !important;
+    background: var(--color-bg-card) !important;
   }
 
   @media (max-width: 600px) {

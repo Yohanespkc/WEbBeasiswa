@@ -46,12 +46,14 @@ if (!trainer && !dbError) {
 }
 
 let percent = 0;
+let targetFundingInIDR = 1;
 if (trainer) {
   if (trainer.university === 'Columbia University') {
-    const targetInIDR = trainer.target_funding * 16000; // 1 USD = Rp 16.000
-    percent = Math.min(100, Math.round((trainer.current_funding / targetInIDR) * 100));
+    targetFundingInIDR = trainer.target_funding * 16000; // 1 USD = Rp 16.000
+    percent = Math.min(100, Math.round((trainer.current_funding / targetFundingInIDR) * 100));
   } else {
-    percent = Math.min(100, Math.round((trainer.current_funding / trainer.target_funding) * 100));
+    targetFundingInIDR = trainer.target_funding;
+    percent = Math.min(100, Math.round((trainer.current_funding / targetFundingInIDR) * 100));
   }
 }
 
@@ -257,9 +259,10 @@ if (trainer) {
               <div class="funding-stats flex justify-between text-center mb-6">
                 <div>
                   <span class="lbl block text-[10px] uppercase text-muted tracking-wider">Terkumpul</span>
-                  <span class="val text-lg font-bold text-success">
+                  <span class="val text-lg font-bold text-success" id="funding-collected">
                     Rp {Math.round(trainer.current_funding).toLocaleString('id-ID')}
                   </span>
+                  <div id="funding-simulated-add" class="text-[10px] text-emerald-600 font-semibold mt-0.5 hidden"></div>
                 </div>
                 <div class="border-divider"></div>
                 <div>
@@ -273,61 +276,64 @@ if (trainer) {
               <div class="progress-container mb-6">
                 <div class="flex justify-between text-xs mb-1">
                   <span>Progres Dukungan</span>
-                  <span>{percent}%</span>
+                  <span class="font-semibold">
+                    <span id="actual-percent">{percent}%</span>
+                    <span id="simulated-percent-add" class="text-emerald-600 ml-1 hidden"></span>
+                  </span>
                 </div>
                 <div class="bar-bg">
                   <div class="bar-fill shimmer-bar" style={`width: ${percent}%;`}></div>
+                  <div class="bar-preview" id="bar-preview" style="width: 0%; left: 0%;"></div>
                 </div>
               </div>
 
               <p class="text-xs text-muted leading-relaxed text-center italic">*Seluruh alokasi dukungan disalurkan langsung ke rekening rektorat universitas untuk menjamin kelancaran perkuliahan dan riset para trainer.</p>
             </div>
 
-            {trainer.university === 'Columbia University' ? (
-              <div class="glass-panel calculator-card mt-6 p-6">
-                <h3 class="font-serif text-gold text-center mb-4">🗽 Skema Pendanaan Khusus</h3>
-                <p class="text-xs text-muted text-center mb-6">Beasiswa untuk program studi di Columbia University disalurkan melalui jalur pendanaan khusus/kemitraan terpisah dan tidak menerima donasi publik umum.</p>
-                <div class="glass-panel p-4 bg-white/5 border border-white/10 rounded text-center">
-                  <span class="text-xs text-muted uppercase block">Status Pendanaan</span>
-                  <strong class="text-success text-sm block mt-1">Dicarikan secara Khusus / Kemitraan Mandiri</strong>
+            <div class="glass-panel calculator-card mt-6 p-6" id="impact-calculator">
+              <h3 class="font-serif text-gold text-center mb-4">
+                {trainer.university === 'Columbia University' ? "🧮 Simulasi Donasi Langsung" : "🧮 Simulasi Kontribusi Perubahan"}
+              </h3>
+              <p class="text-xs text-muted text-center mb-6">
+                {trainer.university === 'Columbia University' 
+                  ? `Geser slider untuk melihat bagaimana kontribusi Anda disalurkan secara langsung dan eksklusif untuk mendukung studi ${trainer.name} di Columbia University.` 
+                  : "Geser slider untuk melihat bagaimana kontribusi Anda mempercepat penyelesaian studi S2/S3 dan memperluas dampak pengabdian para trainer."}
+              </p>
+              
+              <div class="slider-wrapper">
+                <input 
+                  type="range" 
+                  min="50000" 
+                  max="10000000" 
+                  step="50000" 
+                  value="1000000" 
+                  class="impact-slider" 
+                  id="impact-slider"
+                />
+                <div class="flex justify-between text-[10px] text-muted mt-2">
+                  <span>Rp 50.000</span>
+                  <span>Rp 5.000.000</span>
+                  <span>Rp 10.000.000+</span>
                 </div>
               </div>
-            ) : (
-              <div class="glass-panel calculator-card mt-6 p-6" id="impact-calculator">
-                <h3 class="font-serif text-gold text-center mb-4">🧮 Simulasi Kontribusi Perubahan</h3>
-                <p class="text-xs text-muted text-center mb-6">Geser slider untuk melihat bagaimana kontribusi Anda mempercepat penyelesaian studi S2/S3 dan memperluas dampak pengabdian para trainer.</p>
-                
-                <div class="slider-wrapper">
-                  <input 
-                    type="range" 
-                    min="50000" 
-                    max="10000000" 
-                    step="50000" 
-                    value="1000000" 
-                    class="impact-slider" 
-                    id="impact-slider"
-                  />
-                  <div class="flex justify-between text-[10px] text-muted mt-2">
-                    <span>Rp 50.000</span>
-                    <span>Rp 5.000.000</span>
-                    <span>Rp 10.000.000+</span>
-                  </div>
-                </div>
 
-                <div class="impact-result-box glass-panel p-4 mt-6 text-center">
-                  <span class="lbl text-[10px] text-gold uppercase tracking-wider block">Simulasi Nilai Kontribusi</span>
-                  <span class="simulated-val text-xl font-bold block my-1" id="simulated-amount">Rp 1.000.000</span>
-                  <p class="impact-text text-sm leading-relaxed text-white mt-3" id="simulated-impact">
-                    Membantu membiayai transport riset pengabdian numerasi {trainer.name} ke daerah 3T selama 1 Semester.
-                  </p>
-                </div>
-
-                <button class="btn btn-primary w-full text-center mt-6" id="donate-now-btn">
-                  Bergabung dalam Gotong Royong
-                </button>
-                <p class="text-[10px] text-muted text-center mt-2 italic">* Kontribusi Dana Bersama dikelola secara gotong royong untuk mendukung studi 80 trainer S2 di UPI, sedangkan trainer Columbia memiliki skema pendanaan khusus.</p>
+              <div class="impact-result-box glass-panel p-4 mt-6 text-center">
+                <span class="lbl text-[10px] text-gold uppercase tracking-wider block">Simulasi Nilai Kontribusi</span>
+                <span class="simulated-val text-xl font-bold block my-1" id="simulated-amount">Rp 1.000.000</span>
+                <p class="impact-text text-sm leading-relaxed text-white mt-3" id="simulated-impact">
+                  Membantu membiayai transport riset pengabdian numerasi {trainer.name} ke daerah 3T selama 1 Semester.
+                </p>
               </div>
-            )}
+
+              <button class="btn btn-primary w-full text-center mt-6" id="donate-now-btn">
+                {trainer.university === 'Columbia University' ? `Dukung Studi ${trainer.name}` : "Bergabung dalam Gotong Royong"}
+              </button>
+              <p class="text-[10px] text-muted text-center mt-2 italic">
+                {trainer.university === 'Columbia University'
+                  ? `* Donasi ini disalurkan 100% secara langsung khusus untuk biaya studi ${trainer.name} di Columbia University (tidak digabung ke Dana Bersama UPI).`
+                  : "* Kontribusi Dana Bersama dikelola secara gotong royong untuk mendukung studi 80 trainer S2 di UPI."}
+              </p>
+            </div>
           </div>
         </div>
       )}
@@ -360,7 +366,7 @@ if (trainer) {
   </div>
 </Layout>
 
-<script define:vars={{ trainerId: id, trainerName: trainer?.name || "" }}>
+<script define:vars={{ trainerId: id, trainerName: trainer?.name || "", currentFunding: trainer?.current_funding || 0, targetFunding: targetFundingInIDR }}>
   document.addEventListener('DOMContentLoaded', () => {
     // --- Funding slider logic ---
     const slider = document.getElementById('impact-slider');
@@ -368,10 +374,37 @@ if (trainer) {
     const displayImpact = document.getElementById('simulated-impact');
     const donateBtn = document.getElementById('donate-now-btn');
 
+    // Simulated preview elements
+    const barPreview = document.getElementById('bar-preview');
+    const simulatedPercentAdd = document.getElementById('simulated-percent-add');
+    const fundingSimulatedAdd = document.getElementById('funding-simulated-add');
+
     if (slider && displayAmount && displayImpact && donateBtn) {
       const updateImpact = (val) => {
         const amount = Number(val);
         displayAmount.textContent = `Rp ${amount.toLocaleString('id-ID')}`;
+
+        // Calculate and update simulated additions
+        const percentIncrease = (amount / targetFunding) * 100;
+        const currentPercent = (currentFunding / targetFunding) * 100;
+
+        if (barPreview) {
+          barPreview.style.left = `${currentPercent}%`;
+          barPreview.style.width = `${Math.min(100 - currentPercent, percentIncrease)}%`;
+        }
+
+        if (simulatedPercentAdd) {
+          const formattedPercentIncrease = percentIncrease >= 0.1 
+            ? `(+${percentIncrease.toFixed(1).replace('.0', '')}%)` 
+            : `(<+0.1%)`;
+          simulatedPercentAdd.textContent = formattedPercentIncrease;
+          simulatedPercentAdd.classList.remove('hidden');
+        }
+
+        if (fundingSimulatedAdd) {
+          fundingSimulatedAdd.textContent = `+ Rp ${amount.toLocaleString('id-ID')} (Simulasi)`;
+          fundingSimulatedAdd.classList.remove('hidden');
+        }
 
         if (amount < 250000) {
           displayImpact.textContent = `Membantu menanggung paket modul buku pegangan matematika GASING dan alat peraga manipulatif konkret untuk studi para asisten trainer.`;
@@ -469,22 +502,75 @@ if (trainer) {
       });
     }
 
-    // Photo File to Base64 FileReader binding
+    // Photo File to Base64 FileReader binding with compression
     if (photoFileInput && photoPreviewImg && photoUrlInput) {
-      photoFileInput.addEventListener('change', (e) => {
+      photoFileInput.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (file) {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            photoPreviewImg.src = event.target.result;
-            photoUrlInput.value = event.target.result;
-          };
-          reader.readAsDataURL(file);
+          try {
+            // Show loading state by lowering opacity
+            photoPreviewImg.style.opacity = '0.5';
+            
+            const compressedDataUrl = await compressImage(file, 800, 800, 0.7);
+            
+            photoPreviewImg.src = compressedDataUrl;
+            photoUrlInput.value = compressedDataUrl;
+            photoPreviewImg.style.opacity = '1';
+          } catch (err) {
+            console.error('Gagal mengompresi gambar:', err);
+            // Fallback to reading file directly if compression fails
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              photoPreviewImg.src = event.target.result;
+              photoUrlInput.value = event.target.result;
+              photoPreviewImg.style.opacity = '1';
+            };
+            reader.readAsDataURL(file);
+          }
         }
       });
 
       photoUrlInput.addEventListener('input', (e) => {
         photoPreviewImg.src = e.target.value;
+      });
+    }
+
+    function compressImage(file, maxWidth, maxHeight, quality) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > maxWidth) {
+                height = Math.round((height * maxWidth) / width);
+                width = maxWidth;
+              }
+            } else {
+              if (height > maxHeight) {
+                width = Math.round((width * maxHeight) / height);
+                height = maxHeight;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            resolve(dataUrl);
+          };
+          img.onerror = (err) => reject(err);
+        };
+        reader.onerror = (err) => reject(err);
       });
     }
 
@@ -671,20 +757,43 @@ if (trainer) {
 
   .border-divider {
     width: 1px;
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: rgba(15, 23, 42, 0.08);
   }
 
   .bar-bg {
+    position: relative;
     width: 100%;
     height: 10px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(15, 23, 42, 0.08);
     border-radius: 100px;
     overflow: hidden;
   }
 
   .bar-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
     height: 100%;
     border-radius: 100px;
+  }
+
+  .bar-preview {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #34d399); /* Emerald green pulse */
+    border-radius: 100px;
+    transition: width 0.3s ease, left 0.3s ease;
+    animation: preview-pulse 1.5s infinite ease-in-out;
+  }
+
+  @keyframes preview-pulse {
+    0%, 100% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 1;
+    }
   }
 
   /* Slider Styling */
@@ -697,7 +806,7 @@ if (trainer) {
     -webkit-appearance: none;
     height: 6px;
     border-radius: 100px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(15, 23, 42, 0.1);
     outline: none;
     cursor: pointer;
   }
@@ -709,8 +818,8 @@ if (trainer) {
     height: 20px;
     border-radius: 50%;
     background: var(--color-accent-gold);
-    border: 2px solid #ffffff;
-    box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+    border: 2px solid var(--color-bg-dark);
+    box-shadow: 0 0 10px rgba(217, 119, 6, 0.4);
     transition: transform 0.1s ease;
   }
 
@@ -763,10 +872,10 @@ if (trainer) {
   }
 
   .modal-content {
-    background: rgba(17, 18, 23, 0.95);
-    border: 1px solid rgba(251, 191, 36, 0.3);
+    background: var(--color-bg-card);
+    border: 1px solid rgba(15, 23, 42, 0.15);
     border-radius: var(--border-radius-lg);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    box-shadow: var(--glass-shadow);
     transform: scale(0.95);
     transition: transform 0.3s ease;
   }
@@ -787,17 +896,17 @@ if (trainer) {
   .form-control {
     width: 100%;
     padding: 10px 16px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.15);
     border-radius: var(--border-radius-md);
-    color: #ffffff;
+    color: var(--color-text-primary);
     transition: var(--transition-smooth);
   }
 
   .form-control:focus {
     outline: none;
     border-color: var(--color-accent-gold);
-    box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+    box-shadow: 0 0 10px rgba(217, 119, 6, 0.15);
   }
 
   .text-danger {
