@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { TOTAL_NEED_UPI } from '../data/constants';
 
 // Force SSR for dynamic query
 export const prerender = false;
@@ -51,7 +52,7 @@ try {
 }
 
 // Dynamic Calculations for Gotong Royong
-const totalNeed = 15952000000;
+const totalNeed = TOTAL_NEED_UPI;
 const initialGrab = 1107290548;
 const initialAnon = 1080000000;
 const initialFunds = initialGrab + initialAnon; // 2187290548
@@ -104,19 +105,19 @@ const fundedPercentageString = fundedPercentage.toFixed(1);
           <h3 class="font-serif mb-4 text-center">Alokasi Penggunaan Dana</h3>
           
           <div class="allocation-bar-container flex mb-4">
-            <div class="alloc-segment spp" style="width: 50%;" title="SPP Kuliah / Tuition Fee - 50%"></div>
-            <div class="alloc-segment living" style="width: 35%;" title="Uang Saku / Living Allowance - 35%"></div>
+            <div class="alloc-segment spp" style="width: 39%;" title="SPP Kuliah / Tuition Fee - 39%"></div>
+            <div class="alloc-segment living" style="width: 46%;" title="Uang Saku / Living Allowance - 46%"></div>
             <div class="alloc-segment books" style="width: 15%;" title="Buku & Riset / Study Materials - 15%"></div>
           </div>
 
           <div class="allocation-legend text-xs flex flex-col gap-2">
             <div class="legend-row flex justify-between">
               <span class="flex items-center gap-2"><span class="legend-color spp-color"></span>SPP Kuliah (Tuition Fee)</span>
-              <span><strong>50%</strong></span>
+              <span><strong>39%</strong></span>
             </div>
             <div class="legend-row flex justify-between">
               <span class="flex items-center gap-2"><span class="legend-color living-color"></span>Biaya Hidup (Living Allowance)</span>
-              <span><strong>35%</strong></span>
+              <span><strong>46%</strong></span>
             </div>
             <div class="legend-row flex justify-between">
               <span class="flex items-center gap-2"><span class="legend-color books-color"></span>Buku, Modul & Riset Lapangan</span>
@@ -136,7 +137,7 @@ const fundedPercentageString = fundedPercentage.toFixed(1);
             <span class="text-xs text-muted uppercase block mb-1">Status Pendanaan Program (UPI)</span>
             <div class="flex items-center gap-2">
               <span class="font-serif text-lg text-white font-bold">{fundedPercentageString}%</span>
-              <span class="text-xs text-muted">Terkumpul dari kebutuhan Rp 15,95 Miliar</span>
+              <span class="text-xs text-muted">Terkumpul dari kebutuhan Rp {(totalNeed / 1e9).toFixed(2).replace('.', ',')} Miliar</span>
             </div>
             <div class="w-full h-2 bg-white/10 rounded-full mt-2 overflow-hidden">
               <div class="h-full bg-success rounded-full" style={`width: ${fundedPercentage}%`}></div>
@@ -183,7 +184,7 @@ const fundedPercentageString = fundedPercentage.toFixed(1);
                 
                 <tr>
                   <td class="py-2 font-semibold text-primary">Kebutuhan Beasiswa 80 Mahasiswa</td>
-                  <td class="py-2 text-right font-semibold text-gold">Rp 15.952.000.000</td>
+                  <td class="py-2 text-right font-semibold text-gold">Rp {totalNeed.toLocaleString('id-ID')}</td>
                 </tr>
                 <tr class="text-muted">
                   <td class="pl-4 py-1 border-l-2 border-slate-200/60">Biaya Kuliah (Tuition Fee)</td>
@@ -192,6 +193,10 @@ const fundedPercentageString = fundedPercentage.toFixed(1);
                 <tr class="text-muted">
                   <td class="pl-4 py-1 border-l-2 border-slate-200/60">Biaya Hidup (Living Allowance)</td>
                   <td class="py-1 text-right font-mono text-xs">Rp 8.640.000.000</td>
+                </tr>
+                <tr class="text-muted">
+                  <td class="pl-4 py-1 border-l-2 border-slate-200/60">Buku, Modul & Riset Lapangan</td>
+                  <td class="py-1 text-right font-mono text-xs">Rp 2.815.058.824</td>
                 </tr>
                 
                 <tr class="border-t border-slate-200/60">

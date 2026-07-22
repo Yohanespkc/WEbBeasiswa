@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { TARGET_FUNDING_PER_TRAINER_UPI } from '../../data/constants';
 
 // Force SSR for request-time database queries
 export const prerender = false;
@@ -28,7 +29,12 @@ import { env } from 'cloudflare:workers';
 try {
   if (env && env.DB) {
     const { results } = await env.DB.prepare("SELECT * FROM trainers ORDER BY is_funded ASC, id ASC").all();
-    trainers = results as unknown as Trainer[];
+    trainers = (results as unknown as Trainer[]).map(t => {
+      if (t.university !== 'Columbia University') {
+        t.target_funding = TARGET_FUNDING_PER_TRAINER_UPI;
+      }
+      return t;
+    });
   } else {
     dbError = "Database D1 tidak terdeteksi. Pastikan server dijalankan dengan Cloudflare Locals.";
   }

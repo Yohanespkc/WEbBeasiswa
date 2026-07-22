@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { TARGET_FUNDING_PER_TRAINER_UPI } from '../../data/constants';
 
 // Force SSR for request-time dynamic database queries
 export const prerender = false;
@@ -32,6 +33,9 @@ try {
   if (env && env.DB) {
     const result = await env.DB.prepare("SELECT * FROM trainers WHERE id = ?").bind(Number(id)).first();
     trainer = result as unknown as Trainer;
+    if (trainer && trainer.university !== 'Columbia University') {
+      trainer.target_funding = TARGET_FUNDING_PER_TRAINER_UPI;
+    }
   } else {
     dbError = "Database D1 tidak terdeteksi.";
   }
