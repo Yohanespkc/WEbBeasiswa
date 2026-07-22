@@ -44,10 +44,30 @@ if (method === "POST") {
         if (donorName && donorEmail && amount > 0) {
           if (env && env.DB) {
             const manualId = `MANUAL-DON-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-            await env.DB.prepare(
-              `INSERT INTO donations (id, donor_name, donor_email, amount, message, payment_status, created_at) 
-               VALUES (?, ?, ?, ?, ?, 'settlement', datetime('now', 'localtime'))`
-            ).bind(manualId, donorName, donorEmail, amount, message || null).run();
+            const statements = [];
+            
+            statements.push(
+              env.DB.prepare(
+                `INSERT INTO donations (id, donor_name, donor_email, amount, message, payment_status, created_at) 
+                 VALUES (?, ?, ?, ?, ?, 'settlement', datetime('now', 'localtime'))`
+              ).bind(manualId, donorName, donorEmail, amount, message || null)
+            );
+            
+            // Query total active UPI trainers dynamically (excluding Columbia University)
+            const countRow = await env.DB.prepare("SELECT COUNT(*) as total FROM trainers WHERE university != 'Columbia University'").first();
+            const totalUPITrainers = (countRow as any)?.total || 80;
+            const shareAmount = amount / totalUPITrainers;
+            
+            statements.push(
+              env.DB.prepare(
+                `UPDATE trainers 
+                 SET current_funding = current_funding + ?,
+                     is_funded = CASE WHEN (current_funding + ?) >= target_funding THEN 1 ELSE 0 END
+                 WHERE university != 'Columbia University'`
+              ).bind(shareAmount, shareAmount)
+            );
+            
+            await env.DB.batch(statements);
             actionSuccess = `Berhasil mencatat donasi manual sebesar Rp ${amount.toLocaleString('id-ID')} dari ${donorName}!`;
           } else {
             dbError = "Database D1 tidak terdeteksi untuk menyimpan donasi.";
