@@ -130,7 +130,9 @@ try {
                       <div class="progress-bar-fill shimmer-bar" style={`width: ${percent}%;`}></div>
                     </div>
                     <div class="progress-target text-[10px] text-muted text-right mt-1">
-                      Target: {trainer.university === 'Columbia University' ? `$${trainer.target_funding.toLocaleString('en-US')} USD` : `Rp ${trainer.target_funding.toLocaleString('id-ID')}`}
+                      {trainer.university === 'Columbia University' 
+                        ? `Kebutuhan: $${Math.max(0, Math.round(trainer.target_funding - (trainer.current_funding / 16000))).toLocaleString('en-US')} USD` 
+                        : `Kebutuhan: Rp ${Math.max(0, Math.round(trainer.target_funding - trainer.current_funding)).toLocaleString('id-ID')}`}
                     </div>
                   </div>
 

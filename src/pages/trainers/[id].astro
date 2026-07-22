@@ -266,9 +266,11 @@ if (trainer) {
                 </div>
                 <div class="border-divider"></div>
                 <div>
-                  <span class="lbl block text-[10px] uppercase text-muted tracking-wider">Target Biaya</span>
-                  <span class="val text-lg font-bold">
-                    {trainer.university === 'Columbia University' ? `$${trainer.target_funding.toLocaleString('en-US')} USD` : `Rp ${trainer.target_funding.toLocaleString('id-ID')}`}
+                  <span class="lbl block text-[10px] uppercase text-muted tracking-wider">Sisa Kebutuhan</span>
+                  <span class="val text-lg font-bold" id="funding-needed" data-is-columbia={trainer.university === 'Columbia University' ? 'true' : 'false'}>
+                    {trainer.university === 'Columbia University' 
+                      ? `$${Math.max(0, Math.round(trainer.target_funding - (trainer.current_funding / 16000))).toLocaleString('en-US')} USD` 
+                      : `Rp ${Math.max(0, Math.round(trainer.target_funding - trainer.current_funding)).toLocaleString('id-ID')}`}
                   </span>
                 </div>
               </div>
@@ -391,6 +393,19 @@ if (trainer) {
         if (barPreview) {
           barPreview.style.left = `${currentPercent}%`;
           barPreview.style.width = `${Math.min(100 - currentPercent, percentIncrease)}%`;
+        }
+
+        const fundingNeededEl = document.getElementById('funding-needed');
+        if (fundingNeededEl) {
+          const isColumbia = fundingNeededEl.getAttribute('data-is-columbia') === 'true';
+          const remainingIDR = Math.max(0, Math.round(targetFunding - currentFunding - amount));
+          
+          if (isColumbia) {
+            const remainingUSD = Math.round(remainingIDR / 16000);
+            fundingNeededEl.textContent = `$${remainingUSD.toLocaleString('en-US')} USD`;
+          } else {
+            fundingNeededEl.textContent = `Rp ${remainingIDR.toLocaleString('id-ID')}`;
+          }
         }
 
         if (simulatedPercentAdd) {
