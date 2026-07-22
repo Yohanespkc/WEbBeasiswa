@@ -60,6 +60,7 @@ if (trainer) {
     percent = Math.min(100, Math.round((trainer.current_funding / targetFundingInIDR) * 100));
   }
 }
+const maxSliderVal = trainer ? Math.max(50000, Math.round((targetFundingInIDR - (trainer.current_funding || 0)) / 50000) * 50000) : 10000000;
 
 import { KABUPATEN_DATA } from '../../data/statistikRegistry';
 let regencyStats: any = null;
@@ -310,16 +311,16 @@ if (trainer) {
                 <input 
                   type="range" 
                   min="50000" 
-                  max="10000000" 
+                  max={maxSliderVal} 
                   step="50000" 
-                  value="1000000" 
+                  value={Math.min(1000000, maxSliderVal)} 
                   class="impact-slider" 
                   id="impact-slider"
                 />
                 <div class="flex justify-between text-[10px] text-muted mt-2">
                   <span>Rp 50.000</span>
-                  <span>Rp 5.000.000</span>
-                  <span>Rp 10.000.000+</span>
+                  <span>Rp {Math.round(maxSliderVal / 2).toLocaleString('id-ID')}</span>
+                  <span>Rp {maxSliderVal.toLocaleString('id-ID')} (Lunas)</span>
                 </div>
               </div>
 
@@ -425,6 +426,7 @@ if (trainer) {
           fundingSimulatedAdd.classList.remove('hidden');
         }
 
+        const remainingNeed = targetFunding - currentFunding;
         if (amount < 250000) {
           displayImpact.textContent = `Membantu menanggung paket modul buku pegangan matematika GASING dan alat peraga manipulatif konkret untuk studi para asisten trainer.`;
         } else if (amount >= 250000 && amount < 1000000) {
@@ -433,8 +435,10 @@ if (trainer) {
           displayImpact.textContent = `Membantu membiayai transport tiket pesawat riset/pengabdian numerasi para asisten trainer ke sekolah-sekolah di pelosok daerah asal.`;
         } else if (amount >= 4000000 && amount < 8000000) {
           displayImpact.textContent = `Membantu membiayai sewa tempat tinggal (kos) dan tunjangan hidup bulanan para asisten trainer di sekitar kampus selama 1 Semester perkuliahan.`;
-        } else {
+        } else if (amount >= 8000000 && amount < remainingNeed - 50000) {
           displayImpact.textContent = `Luar Biasa! Kontribusi Anda akan langsung memotong/melunasi biaya Sumbangan Pembinaan Pendidikan (SPP) Kuliah Semester para asisten trainer secara signifikan.`;
+        } else {
+          displayImpact.textContent = `Luar Biasa! Kontribusi Anda akan sepenuhnya MELUNASI sisa kebutuhan pendanaan beasiswa ${trainerName}!`;
         }
       };
 
